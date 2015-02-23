@@ -1,0 +1,66 @@
+#ifndef PARTITIONING_H
+#define PARTITIONING_H
+#include <list>
+#include "omp.h"
+#include <string>
+
+using namespace std;
+
+class Partitioning
+{
+    public:
+        /**** CONSTRUCTORS ****/
+        Partitioning();
+        Partitioning(double dPoint);
+        Partitioning(Partitioning *parent);
+
+        int nNumberOfClusters;
+        double adClusters[30][2] = {{0}};
+        int nNumberOfPoints;
+        double lastPoint;
+
+        list<double> points;
+        list<double> sortedPoints;
+        list<double> forcedPoints;
+        double difference;
+
+        /**** POINT FUNCTIONALITY ****/
+        int pointInRange(double dPoint);
+        void makeRoomForCluster(double dPoint);
+        bool doesPointExist(double dPoint);
+        void addPointToCluster(double dPoint);
+        void growClusterRight(double dPoint);
+        void growClusterLeft(double dPoint);
+        void openClusterForce(double dPoint);
+        void openCluster(double dPoint);
+
+        double calcRatio();
+        int optimal();
+
+        /**** FORCING ****/
+        bool force(double dRatio);
+        void simpleForce(double dRatio);
+        void startForce(double dRatio);
+        void endForce(double dRatio);
+
+        /**** TERMINAL IO ****/
+        void listClusters();
+        void listPoints();
+        void listSortedPoints();
+
+        /**** FILE IO ****/
+        void insertNodeLabel(bool, long long, int, int);
+        void insertEdgeLabel(long long, long long, int, int);
+        void listPointsToFile();
+        void listClustersFile();
+
+        /**** OTHER STUFF ****/
+        string stringIt(long long);
+
+
+    protected:
+    private:
+        static int nId;
+};
+
+#endif // PARTITIONING_H
