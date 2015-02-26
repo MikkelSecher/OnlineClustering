@@ -1,6 +1,8 @@
 #ifndef TREE_H
 #define TREE_H
+
 #include "TreeNode.h"
+
 #include <list>
 #include <string>
 #include "omp.h"

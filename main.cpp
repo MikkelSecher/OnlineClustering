@@ -121,3 +121,4 @@ int main(int argc, char* argv[])
     fprintf(pFile, "Number of nodes explored: %lld \n \n", tree.nodes[0].back().nodeCounter);
 }
 
+

@@ -1,6 +1,8 @@
 #ifndef TREENODE_H
 #define TREENODE_H
+
 #include "Partitioning.h"
+
 #include <list>
 #include "omp.h"
 #include <stdlib.h>

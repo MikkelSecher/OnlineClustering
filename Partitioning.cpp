@@ -60,23 +60,23 @@ Partitioning::Partitioning(Partitioning *parent)
 int Partitioning::pointInRange(double dPoint)
 {
     // Checks for the possibilities of handling the next point - grow, open new or put in existing?
-    double epsilon = 0.01;
     for(int i = 0; i < nNumberOfClusters; i++)
     {
         if(i < nNumberOfClusters) //
         {
             //if point is within reach of two clusters, open new cluster, grow the left and grow the right.
             //cannot happen when i==nNumberOfClusters
-            if( ((fabs(dPoint-(adClusters[i][0]+1))<epsilon)or (dPoint < (adClusters[i][0]+1)))
+            if(leq(dPoint, adClusters[i][0]+1)
                and (dPoint > adClusters[i][1])
-               and ((fabs(dPoint-(adClusters[i+1][1]-1))<epsilon)or(dPoint > (adClusters[i+1][1]-1)))
+               and geq(dPoint, adClusters[i+1][1]-1)
                and (dPoint < adClusters[i+1][0]) )
             {
                 return 3;
             }
         }
+
         //if the point out of reach of the first cluster, open a new cluster.
-        if(i == 0 and dPoint < adClusters[i][0] and dPoint < ((adClusters[i][1])-1) and (fabs(dPoint-(adClusters[i][1]-1)) > epsilon ))
+        if(i == 0 and dPoint < adClusters[i][0] and dPoint < (adClusters[i][1]-1) and !deq(dPoint, (adClusters[i][1]-1)))
         {
             return 0;
         }
@@ -86,21 +86,7 @@ int Partitioning::pointInRange(double dPoint)
             return 1;
 
         //If point is within reach (to the left) of an existing cluster, open new cluster, and grow cluster to the left
-        if(
-           (
-            ( fabs(dPoint- (adClusters[i][0])) < epsilon)
-              or
-            ( dPoint < adClusters[i][0])
-           )
-           and
-           (
-            (
-             ( fabs(dPoint-(adClusters[i][1]-1))<epsilon)
-               or
-             ( dPoint > (adClusters[i][1]-1))
-            )
-           )
-          )
+        if(leq(dPoint, adClusters[i][0]) and geq(dPoint, adClusters[i][1]-1))
         {
             if(i == 0)
                 return -2;
@@ -112,19 +98,7 @@ int Partitioning::pointInRange(double dPoint)
         }
 
         //If point is within reach (to the right) of a cluster, open a new, and grow the existing
-        if(
-           (
-            ( fabs(dPoint - (adClusters[i][0]+1)) < epsilon)        //point == first+1
-              or
-            ( dPoint < (adClusters[i][0]+1))
-           )                                                        //point < first+1
-           and
-           (
-            ( fabs(dPoint - (adClusters[i][1])) < epsilon)          //point == second
-             or
-            ( dPoint > adClusters[i][1])                            //point > second
-           )
-          )
+        if(leq(dPoint, adClusters[i][0]+1) and geq(dPoint, adClusters[i][1]))
         {
             if(i < nNumberOfClusters-1)
             {
@@ -132,8 +106,7 @@ int Partitioning::pointInRange(double dPoint)
                 {
                     continue;
                 }
-            }                                               //2 choices: Grow current cluster or open new cluster
-                                                            //if point is within reach (greater than) of an existing cluster
+            }
             return 2;
         }
     }
@@ -174,9 +147,7 @@ bool Partitioning::doesPointExist(double dPoint)
     for(i = sortedPoints.begin(); i != sortedPoints.end(); i++)
     {
         //cout << "comparing " << dPoint << " to " << *i << endl;
-
-
-        if(fabs((*i) - dPoint) < 0.01)
+        if(deq(*i, dPoint))
         {
             //cout << "already exists " << endl;
             return false;
@@ -211,15 +182,8 @@ void Partitioning::growClusterRight(double dPoint)
     for(int i = 0; i < nNumberOfClusters; i++)
     {
         double epsilon = 0.01;
-        //if(dPoint >= adClusters[i][0] and dPoint <= adClusters[i][0]+1 and dPoint <= adClusters[i+1][0])
-        /*if((fabs(dPoint - adClusters[i][0]) < epsilon or dPoint > adClusters[i][0])
-            and dPoint < adClusters[i][0]+1
-            and dPoint < adClusters[i+1][0])
-        */
-        if(dPoint > adClusters[i][1] and
-           (dPoint < ((adClusters[i][0])+1)
-            or fabs(dPoint-((adClusters[i][0])+1)) < epsilon))
-           //and (dPoint < adClusters[i+1][0]))
+
+        if(dPoint > adClusters[i][1] and leq(dPoint, adClusters[i][0]+1))
         {
             if(i < nNumberOfClusters-1 and dPoint > adClusters[i+1][0])
             {
@@ -232,8 +196,6 @@ void Partitioning::growClusterRight(double dPoint)
             sortedPoints.push_back(dPoint);
             sortedPoints.sort();
             return;
-
-
         }
     }
     cout << "Point: " << dPoint << endl;
@@ -247,15 +209,9 @@ void Partitioning::growClusterLeft(double dPoint)
     for(int i = 0; i < nNumberOfClusters; i++)
     {
         double epsilon = 0.01;
-        //if(dPoint >= adClusters[i][1]-1 and dPoint <= adClusters[i][1])
-        if((fabs(dPoint - (adClusters[i][1]-1)) < epsilon or dPoint > (adClusters[i][1]-1))
-           and (fabs(dPoint - adClusters[i][1]) < epsilon or dPoint < adClusters[i][1]))
 
+        if(geq(dPoint, adClusters[i][1]-1) and leq(dPoint, adClusters[i][1]))
         {
-            //if(i < nNumberOfClusters-1 and dPoint < adClusters[i+1][0])
-            //{
-            //        continue;
-            //}
             adClusters[i][0] = dPoint;
             nNumberOfPoints++;
             difference = points.back()-dPoint;
@@ -342,8 +298,7 @@ int Partitioning::optimal()
 
     for(i = sortedPoints.begin(); i != sortedPoints.end(); i++)
     {
-        //double point = (*i);
-        if((*i) < (currentStart+1) or (fabs((*i)-(currentStart+1)< 0.001)))
+        if(leq(*i, currentStart+1))
         {
             continue;
         }
@@ -370,19 +325,19 @@ bool Partitioning::force(double dRatio)
     //TODO: Maybe move to its own function.
 
     endForce(dRatio);
-    if(fabs(calcRatio()-dRatio)<0.01 or calcRatio() >= dRatio)
+    if(geq(calcRatio(), dRatio))
     {
         return false;
     }
     startForce(dRatio);
-    if(fabs(calcRatio()-dRatio)<0.01 or calcRatio() >= dRatio)
+    if(geq(calcRatio(), dRatio))
     {
         return false;
     }
 
     simpleForce(dRatio);
     //test for new ratio
-    if(fabs(calcRatio()-dRatio)<0.01 or calcRatio() >= dRatio)
+    if(geq(calcRatio(), dRatio))
     {
         return false;
     }
@@ -423,7 +378,7 @@ void Partitioning::simpleForce(double dRatio)
         double offset = (freeSpace[i][1]-freeSpace[i][0])/2;
         double forcepoint = freeSpace[i][0]+ offset;
 
-        if(fabs(forcepoint) > 0.01)
+        if(!deq(0, forcepoint))
         {
             openClusterForce(forcepoint);
             if(calcRatio() >= dRatio)
@@ -440,8 +395,10 @@ void Partitioning::startForce(double dRatio)
 
 void Partitioning::endForce(double dRatio)
 {
-// Adds a point in the end of the partitioning just out of range of the existing clusters
-    if(fabs(adClusters[nNumberOfClusters-1][1]-adClusters[nNumberOfClusters-1][0]-1) < 0.01)
+    // Adds a point in the end of the partitioning just out of range of the existing clusters
+    //but only if the cluster is full... TODO: Change this!!
+
+    if(deq(adClusters[nNumberOfClusters-1][1] - adClusters[nNumberOfClusters-1][0], 1))
         openClusterForce(adClusters[nNumberOfClusters-1][1]+(precision/2));
 }
 
@@ -626,7 +583,32 @@ std::string Partitioning::stringIt(long long number)
 }
 
 
+bool leq(double x, double y) //IS x LESS THAN OR EQUAL TO y?
+{
+    if(fabs(y-x) < 0.001)
+        return true;
 
+    if (x < y)
+        return true;
 
+    return false;
+};
 
+bool geq(double x, double y) //IS x GREATER THAN OR EQUAL TO y?
+{
+    if(fabs(y-x) < 0.001)
+        return true;
+
+    if (x > y)
+        return true;
+
+    return false;
+};
+
+bool deq(double x, double y) //ARE DOUBLES x AND y EQUAL?
+{
+    if(fabs(y-x) < 0.001)
+        return true;
+    return false;
+};
 

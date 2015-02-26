@@ -130,21 +130,19 @@ bool Tree::compareNodes(TreeNode* node1, TreeNode* node2) //COMPARES TWO NODES, 
     list<double>::iterator j = node2->content.points.begin();
     for(i = node1->content.points.begin(); i != node1->content.points.end(); i++)
     {
-        if( fabs((*i) - (*j)) > 0.01 )
+        if(!deq(*i, *j))
             return false;
         j++;
     }
 
     for(int i = 0; i < node1->content.nNumberOfClusters; i++)
     {
-        if(fabs(node1->content.adClusters[i][0] - node2->content.adClusters[i][0]) > 0.01)
+        if(!deq(node1->content.adClusters[i][0],node2->content.adClusters[i][0]))
             return false;
 
-        if(fabs(node1->content.adClusters[i][1] - node2->content.adClusters[i][1]) > 0.01)
+        if(!deq(node1->content.adClusters[i][1],node2->content.adClusters[i][1]))
             return false;
-
     }
-
     return true;
 }
 
@@ -264,9 +262,6 @@ void Tree::normalize(TreeNode *node) // SHIFT ALL PARTITIONINGS TO START AT 0
         node->content.adClusters[i][1] = ((node->content.adClusters[i][1])+offset);
     }
 
-
-
-
 }
 
 
@@ -288,6 +283,7 @@ void Tree::addPoint(int p, double dPoint) //ADDS A GIVEN POINT BF
         case 1 :            //one choice: Must be put in existing cluster
         {
             oneChoice(nodeQueue.front(), dPoint);
+
         } break;
         case 2 :            //two choices: New cluster and grow a cluster to the RIGHT
         {
@@ -675,7 +671,7 @@ void Tree::startDF(int DFlevel, int dfDepth) //DF PART OF THE PROGRAM - RUNS IN 
                         {
                             for(int k = 0; k <= numPossibilities; k++)
                             {
-                                if(fabs((*i) + delta[j] - possibilities[k]) < 0.001)
+                                if(deq(*i+delta[j], possibilities[k]))
                                 {
                                     goto pointAlreadyAdded;
                                 }
@@ -967,12 +963,12 @@ bool Tree::forwardCheck(TreeNode* node, list<double> points, int DFlevel, int su
 
     for(i = node->children.begin(); i != node->children.end(); i++)
     {
-        if(fabs((*i)->content.difference-difference) < 0.001 and (*i)->depth < DFlevel) //Comparing doubles like this, to avoid errors
+        if(deq((*i)->content.difference, difference) and (*i)->depth < DFlevel)
         {
+
             if(print >= 1)
             {
-            (*i)->content.insertNodeLabel(false, (*i)->nId, succesNumber, resPrefix);
-
+                (*i)->content.insertNodeLabel(false, (*i)->nId, succesNumber, resPrefix);
             }
 
             livingChildren++;
@@ -982,12 +978,12 @@ bool Tree::forwardCheck(TreeNode* node, list<double> points, int DFlevel, int su
             }
             if(print >= 1)
             {
-            (*i)->content.insertEdgeLabel((*i)->parentNode->nId, (*i)->nId, succesNumber, resPrefix);
+                (*i)->content.insertEdgeLabel((*i)->parentNode->nId, (*i)->nId, succesNumber, resPrefix);
 
             }
         }
 
-        if((*i)->depth == DFlevel and fabs((*i)->content.difference-difference) < 0.001)
+        if((*i)->depth == DFlevel and deq((*i)->content.difference, difference))
         {
             if((*i)->live == true)
             {

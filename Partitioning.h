@@ -64,4 +64,8 @@ class Partitioning
         static int nId;
 };
 
+bool leq(double x, double y);
+bool geq(double x, double y);
+bool deq(double x, double y);
+
 #endif // PARTITIONING_H
