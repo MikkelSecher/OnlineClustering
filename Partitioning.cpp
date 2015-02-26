@@ -310,7 +310,7 @@ void Partitioning::openClusterForce(double dPoint)
         //difference = points.back()-dPoint;
         forcedPoints.push_back(dPoint);
         sortedPoints.push_back(dPoint);
-
+        sortedPoints.sort();
     }
     else
     {
@@ -545,12 +545,12 @@ void Partitioning::insertEdgeLabel(long long parentID, long long nodeID, int suc
     fclose(pFile);
 }
 
-void Partitioning::listPointsToFile()
+void Partitioning::listPointsToFile(int t)
 {
     FILE *pFile;
     char filename[30];
 
-    sprintf(filename, "subProofSequences.txt");
+    sprintf(filename, "%d_subProofSequences.txt", t);
     pFile = fopen (filename,"a");
 
     list<double>::iterator i;
@@ -560,6 +560,19 @@ void Partitioning::listPointsToFile()
         fprintf(pFile, "%2.2f ", *i);
     }
 
+    fclose(pFile);
+}
+void Partitioning::listClustersToFile(int t)
+{
+    FILE *pFile;
+    char filename[30];
+
+    sprintf(filename, "%d_subProofSequences.txt", t);
+    pFile = fopen (filename,"a");
+    for(int i = 0; i < nNumberOfClusters; i++)
+    {
+        fprintf(pFile, "[%2.2f , %2.2f] ", adClusters[i][0], adClusters[i][1]);
+    }
     fclose(pFile);
 }
 

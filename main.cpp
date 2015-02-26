@@ -29,11 +29,13 @@ int main(int argc, char* argv[])
 
     list<double> deltaValues;
 
+    list<double> testSequence;
     /** TESTING SEQUENCER **/
-    //list<double> testSequence = {2,3,4,5,1,0,0.5,3.5,6};
+    //testSequence = {0.5};
     //list<double> testSequence = {2,3,1,4,0,5,-0.5,-1,0.5};
     //list<double> testSequence = {2,1,1.5,3,0,2.5,-0.5,0.5,-1};
-    //Tree testTree(testSequence, ratio);
+    //testSequence = {3,4,5,6,2,1,0,2.5,7,8, 4.5, 8.5, 9, 10, 11, 9.5, 12};
+    //testSequence = {0.00, 0.50, 1.50, 2.00, 2.50, 3.00,-0.50, 3.50, -1.00};
 
     //cout<< "Should never get here" << endl;
 
@@ -56,11 +58,19 @@ int main(int argc, char* argv[])
     for(i = deltaValues.begin(); i != deltaValues.end(); i++)
         cout << (*i) << " ";
     cout << endl;
-    startTimeBF = omp_get_wtime();
+    //startTimeBF = omp_get_wtime();
     Tree tree(startingPoint, deltaValues, prefix, ratio, print);
+    //Tree tree(testSequence, deltaValues, prefix, ratio, print);
+    //exit(1);
     //First argument is the number of levels the program should go down breadth first...
+    int startingLevel = testSequence.size();
 
-    for(int i = 1; i <= depthFirstLevel; i++)
+    if (startingLevel == 0)
+    {
+        startingLevel = 1;
+    }
+
+    for(int i = startingLevel; i < depthFirstLevel+startingLevel; i++)
     {
         cout << "Level: " << i << endl;
         cout << "NodeQueue size: " << tree.nodeQueue.size() << endl;

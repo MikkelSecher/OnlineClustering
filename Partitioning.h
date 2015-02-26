@@ -51,7 +51,8 @@ class Partitioning
         /**** FILE IO ****/
         void insertNodeLabel(bool, long long, int, int);
         void insertEdgeLabel(long long, long long, int, int);
-        void listPointsToFile();
+        void listPointsToFile(int);
+        void listClustersToFile(int);
         void listClustersFile();
 
         /**** OTHER STUFF ****/

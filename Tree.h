@@ -12,14 +12,14 @@
 #include <sstream>
 #include <inttypes.h>
 
-#define NUM_THREADS 1
+#define NUM_THREADS 4
 class Tree
 {
     public:
         /**** CONSTRUCTORS ****/
         Tree();
         Tree(double dStartingPoint, list<double>, int, double, int);
-        Tree(list<double>, double);
+        Tree(list<double>, list<double>, int, double, int);
 
         /**** VARIABLES ****/
         int nCount = 0;

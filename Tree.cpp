@@ -32,9 +32,18 @@ Tree::Tree(double dStartingPoint, list<double> deltaPoints, int prefix, double r
     nodeQueue.push_back(&nodes[omp_get_thread_num()].front());
 }
 
-Tree::Tree(list<double> sequence, double ratioIn) //CREATES A TREE FOR CHECKING A SEQUENCE
+Tree::Tree(list<double> sequence, list<double> deltaPoints, int prefix, double ratioin, int printin ) //CREATES A TREE FOR CHECKING A SEQUENCE
 {
-    ratio = ratioIn;
+    cout << "Number of deltas is "<< deltaPoints.size() << endl;
+    deltas = deltaPoints.size();
+    resPrefix = prefix;
+    print = printin;
+    ratio = ratioin;
+    for(int i = 0; i < deltas; i++)
+    {
+        delta.push_back(deltaPoints.back());
+        deltaPoints.pop_back();
+    }
 
     seqNodes.push_front(TreeNode(sequence.front(), NULL));
     seqQueue.push_front(&seqNodes.front());
@@ -63,6 +72,8 @@ void Tree::nextPoint(int level) //ADDS ALL POSSIBLE POINTS, BASED ON DELTAS
         list<double>::iterator j;
 
         cout << "Level: " << level << endl;
+
+
         for(i = nodeQueue.begin(); i != nodeQueue.end(); i++)
         {
             if((*i)->depth == level-1)
@@ -80,9 +91,11 @@ void Tree::nextPoint(int level) //ADDS ALL POSSIBLE POINTS, BASED ON DELTAS
                     }
                 }
                 i = nodeQueue.erase(i);
+
                 i--;
             }
         }
+
     }
 }
 
@@ -247,8 +260,8 @@ void Tree::normalize(TreeNode *node) // SHIFT ALL PARTITIONINGS TO START AT 0
     }
     for(int i = 0; i < node->content.nNumberOfClusters; i++)
     {
-        node->content.adClusters[i][0] = node->content.adClusters[i][0]+offset;
-        node->content.adClusters[i][1] = node->content.adClusters[i][1]+offset;
+        node->content.adClusters[i][0] = ((node->content.adClusters[i][0])+offset);
+        node->content.adClusters[i][1] = ((node->content.adClusters[i][1])+offset);
     }
 
 
@@ -726,17 +739,24 @@ void Tree::startDF(int DFlevel, int dfDepth) //DF PART OF THE PROGRAM - RUNS IN 
                                 FILE *pFile;
                                 char filename[30];
 
-                                succesfulNodes.back()->content.listPointsToFile();
+                                succesfulNodes.back()->content.listPointsToFile(t);
 
-                                sprintf(filename, "subProofSequences.txt");
+                                sprintf(filename, "%d_subProofSequences.txt ", t);
                                 pFile = fopen (filename,"a");
                                 fprintf(pFile, " | ");
                                 for(int s = 0; s < dfDepth; s++)
                                 {
                                     fprintf(pFile, "%2.2f ", sequence[s]);
                                 }
-                                fprintf(pFile, "\n");
+                                fprintf(pFile, " | ");
                                 fclose(pFile);
+
+                                succesfulNodes.back()->content.listClustersToFile(t);
+
+                                pFile = fopen (filename,"a");
+                                fprintf(pFile, " \n");
+                                fclose(pFile);
+
                                 parNodeQueue[t].pop_back();
                                 done = true;
                             }
@@ -785,21 +805,24 @@ bool Tree::addSequence(double sequence[10], int thread, int dfDepth) //ADDS A GI
     depthFirstQueue[tid].clear();
     depthFirstQueue[tid].push_front(parNodeQueue[tid].back());
     int currentLevel = depthFirstQueue[tid].front()->depth;
-
+    int initialQueueSize = 1;
+    int nodesAtLevel = 0;
     for(int i = 0; i < dfDepth-1; i++)
     {
+        nodesAtLevel = 0;
+        initialQueueSize = depthFirstQueue[tid].size();
         while(depthFirstQueue[tid].front()->depth == currentLevel)
         {
+            nodesAtLevel++;
             addPointDF(sequence[i]);
-            if (depthFirstQueue[tid].size() == 1)
-            {
-                return true;
-            }
             depthFirstQueue[tid].pop_front();
-
+        }
+        if(initialQueueSize-nodesAtLevel == depthFirstQueue[tid].size())
+        {
+            return true;
         }
         currentLevel++;
-    }
+    }/*
     while(depthFirstQueue[tid].front()->depth == currentLevel)
     {
         addPointDF(sequence[dfDepth-1]);
@@ -808,8 +831,7 @@ bool Tree::addSequence(double sequence[10], int thread, int dfDepth) //ADDS A GI
             return true;
         }
         depthFirstQueue[tid].pop_front();
-
-    }
+    }*/
     return false;
 }
 
@@ -1355,17 +1377,22 @@ void Tree::checkSequence(list<double> sequence) //DOES THE CHECKING OF A PRESET 
 
     seqQueue.front()->content.insertNodeLabel(false, seqQueue.front()->nId, 1, 12345);
     list<double>::iterator i;
+    int currentLevel = 0;
     for(i = sequence.begin(); i != sequence.end(); i++)
     {
-        addSeqPoint((*i));
-        seqQueue.pop_front();
-        if(seqQueue.size() == 0)
+        currentLevel = seqQueue.front()->depth;
+        while(seqQueue.front()->depth == currentLevel)
         {
-            cout << "DID IT!" << endl;
-            pFile = fopen (filename,"a");
-            fprintf(pFile, "]");
-            fclose(pFile);
-            exit(1);
+            addSeqPoint((*i));
+            seqQueue.pop_front();
+            if(seqQueue.size() == 0)
+            {
+                cout << "DID IT!" << endl;
+                pFile = fopen (filename,"a");
+                fprintf(pFile, "]");
+                fclose(pFile);
+                exit(1);
+            }
 
         }
     }
@@ -1375,7 +1402,13 @@ void Tree::checkSequence(list<double> sequence) //DOES THE CHECKING OF A PRESET 
         fclose(pFile);
 
     cout << "Sorry, didn't do it.... :(" << endl;
-    exit(1);
+    list<TreeNode*>::iterator it;
+    it = seqQueue.begin();
+    //nodeQueue.splice(parNodeQueue[listsMade-1].begin(), parNodeQueue[listsMade-1], first, last);
+    seqQueue.splice(nodeQueue.begin(), seqQueue);
+    cout << "NodeQueue Size " << nodeQueue.size() << endl;
+    cout << "SeqQueue Size " << seqQueue.size() << endl;
+    //exit(1);
 }
 
 bool Tree::checkSeqPartitioning() //CHECK RATIO AND TRY TO FORCE (FOR SEQUENCER)
