@@ -14,7 +14,7 @@
 #include <sstream>
 #include <inttypes.h>
 
-#define NUM_THREADS 4
+#define NUM_THREADS 14
 class Tree
 {
     public:
@@ -110,5 +110,6 @@ class Tree
 };
 
 bool node_compare(const TreeNode*,const TreeNode*);
+bool node_pointscompare(const TreeNode*,const TreeNode*);
 
 #endif // TREE_H

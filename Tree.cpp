@@ -224,6 +224,21 @@ bool node_compare(const TreeNode *first,const TreeNode *second)
 
 }
 
+bool node_pointscompare(const TreeNode *first,const TreeNode *second)
+{
+    if (first->content.pointHash.compare(second->content.pointHash) == 0)
+    {
+        if(first->nId < second->nId)
+            return true;
+        return false;
+    }
+    if(first->content.pointHash.compare(second->content.pointHash) < 0)
+        return true;
+    else
+        return false;
+
+}
+
 void Tree::treeCleanup() //REMOVE DUPES OF NODES AFTER NORMALIZATION
 {
 // Normalizes the points in each node by shifting everything to start out at 0
@@ -657,6 +672,8 @@ void Tree::startDF(int DFlevel, int dfDepth) //DF PART OF THE PROGRAM - RUNS IN 
     if(nodeQueue.size() == 0)
         exit(0);
     if(nodeQueue.size() > 0)
+
+    nodeQueue.sort(node_pointscompare);
 
     omp_set_num_threads(NUM_THREADS);
     #pragma omp parallel

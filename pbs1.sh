@@ -35,11 +35,6 @@
 # Change to the directory where the qsub command was issued.
 #
 cd $PBS_O_WORKDIR
-cd $HOME/mikkel/t616 
-./OnlineClustering 6 4 1.6 164163 0 3 1 -0.5 -1 
-./OnlineClustering 6 5 1.6 165163 0 3 1 -0.5 -1
-./OnlineClustering 6 6 1.6 166163 0 3 1 -0.5 -1
-./OnlineClustering 6 7 1.6 167163 0 3 1 -0.5 -1
-./OnlineClustering 6 8 1.6 168163 0 3 1 -0.5 -1 
-./OnlineClustering 6 9 1.6 169163 0 3 1 -0.5 -1 
+cd $HOME/mikkel/git/OnlineClustering
+./OnlineClustering 10 4 1.6 1 0 3 1 -0.5 -1
 #
