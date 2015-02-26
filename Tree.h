@@ -58,6 +58,7 @@ class Tree
 
 
         /**** TREE CLEANUP ****/
+
         void treeCleanup();
         void normalize(TreeNode *node);
 
@@ -107,5 +108,7 @@ class Tree
     private:
 
 };
+
+bool node_compare(const TreeNode*,const TreeNode*);
 
 #endif // TREE_H

@@ -209,30 +209,44 @@ void Tree::analyzeTree(int DFlevel) //FINDS PROOFS AFTER DF PART IS DONE
 ********* TREE CLEANUP ***********
 *********************************/
 
+bool node_compare(const TreeNode *first,const TreeNode *second)
+{
+    if (first->content.fullHash.compare(second->content.fullHash) == 0)
+    {
+        if(first->nId < second->nId)
+            return true;
+        return false;
+    }
+    if(first->content.fullHash.compare(second->content.fullHash) < 0)
+        return true;
+    else
+        return false;
+
+}
+
 void Tree::treeCleanup() //REMOVE DUPES OF NODES AFTER NORMALIZATION
 {
 // Normalizes the points in each node by shifting everything to start out at 0
 // After all nodes have been normalized, they are compared and duplicates are removed
     cout << "before cleanup: " << nodeQueue.size() << endl;
 
-    list<TreeNode*>::iterator i;
-//    for(i = nodeQueue.begin(); i != nodeQueue.end(); i++)
-//    {
-//        normalize(*i);
-//    }
+    nodeQueue.sort(node_compare);
 
-    list<TreeNode*>::iterator j;
+    list<TreeNode*>::iterator i, j;
+
     for(i = nodeQueue.begin(); i != nodeQueue.end(); i++)
     {
         for(j = next(i); j != nodeQueue.end(); j++)
         {
             if(i != j)
             {
-
-                if(compareNodes((*i), (*j)))
+                if((*i)->content.fullHash.compare((*j)->content.fullHash) == 0)
                 {
-                    if((*j)->parentNode->doesChildExist((*i)))
-                    j = nodeQueue.erase (j);
+                    j = nodeQueue.erase(j);
+                }
+                else
+                {
+                    break;
                 }
             }
         }
@@ -264,8 +278,8 @@ void Tree::normalize(TreeNode *node) // SHIFT ALL PARTITIONINGS TO START AT 0
             node->content.adClusters[i][0] = ((node->content.adClusters[i][0])+offset);
             node->content.adClusters[i][1] = ((node->content.adClusters[i][1])+offset);
         }
-        node->content.updateHashes();
     }
+        node->content.updateHashes();
 }
 
 

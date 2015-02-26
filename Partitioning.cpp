@@ -604,14 +604,18 @@ void Partitioning::updateHashes()
     for(i = points.begin(); i != points.end(); i++)
     {
        s << *i;
+       s << ' ';
     }
     pointHash.append(s.str());
 
     fullHash.clear();
+    s << ' ';
     for(int i = 0; i < nNumberOfClusters; i++)
     {
         s << adClusters[i][0];
+        s << ' ';
         s << adClusters[i][1];
+        s << ' ';
     }
 
     fullHash.append(s.str());
