@@ -18,6 +18,8 @@ class Partitioning
         double adClusters[30][2] = {{0}};
         int nNumberOfPoints;
         double lastPoint;
+        string pointHash;
+        string fullHash;
 
         list<double> points;
         list<double> sortedPoints;
@@ -57,6 +59,7 @@ class Partitioning
 
         /**** OTHER STUFF ****/
         string stringIt(long long);
+        void updateHashes();
 
 
     protected:

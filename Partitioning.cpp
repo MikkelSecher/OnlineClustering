@@ -4,6 +4,7 @@
 #include <math.h>
 #include <inttypes.h>
 #include <sstream>
+#include <string.h>
 
 
 
@@ -33,6 +34,15 @@ Partitioning::Partitioning(double dPoint)
     sortedPoints.push_back(dPoint);
     sortedPoints.sort();
     lastPoint = dPoint;
+    std::ostringstream s;
+    s << dPoint;
+
+    pointHash.append(s.str());
+    cout << "Hash before " <<pointHash << " " << dPoint <<endl;
+    updateHashes();
+    cout << "Hash after " <<pointHash << endl;
+
+
 }
 
 Partitioning::Partitioning(Partitioning *parent)
@@ -51,7 +61,9 @@ Partitioning::Partitioning(Partitioning *parent)
     nNumberOfPoints = parent->nNumberOfPoints;
     points = parent->points;
     sortedPoints = parent->sortedPoints;
+    pointHash.append(parent->pointHash);
 }
+
 
 
 /*********************************
@@ -181,7 +193,6 @@ void Partitioning::growClusterRight(double dPoint)
 
     for(int i = 0; i < nNumberOfClusters; i++)
     {
-        double epsilon = 0.01;
 
         if(dPoint > adClusters[i][1] and leq(dPoint, adClusters[i][0]+1))
         {
@@ -208,7 +219,6 @@ void Partitioning::growClusterLeft(double dPoint)
 // Grow the cluster to the left
     for(int i = 0; i < nNumberOfClusters; i++)
     {
-        double epsilon = 0.01;
 
         if(geq(dPoint, adClusters[i][1]-1) and leq(dPoint, adClusters[i][1]))
         {
@@ -311,6 +321,7 @@ int Partitioning::optimal()
 
     return clusterCount;
 }
+
 
 
 /*********************************
@@ -418,7 +429,6 @@ void Partitioning::listClusters()
     cout << endl;
 }
 
-
 void Partitioning::listPoints()
 {
 // Prints the points, in order of addition
@@ -443,6 +453,8 @@ void Partitioning::listSortedPoints()
     }
     cout << endl;
 }
+
+
 
 /*********************************
 ************** FILE IO ***********
@@ -582,6 +594,33 @@ std::string Partitioning::stringIt(long long number)
     return result;
 }
 
+void Partitioning::updateHashes()
+{
+    pointHash.clear();
+    std::ostringstream s;
+
+    list<double>::iterator i;
+    //cout << "Points in the partitioning:" << endl;
+    for(i = points.begin(); i != points.end(); i++)
+    {
+       s << *i;
+    }
+    pointHash.append(s.str());
+
+    fullHash.clear();
+    for(int i = 0; i < nNumberOfClusters; i++)
+    {
+        s << adClusters[i][0];
+        s << adClusters[i][1];
+    }
+
+    fullHash.append(s.str());
+    //cout << "Hashes " << pointHash << " " << fullHash << endl;
+}
+
+/*********************************
+******** GLOBAL FUNCTIONS ********
+*********************************/
 
 bool leq(double x, double y) //IS x LESS THAN OR EQUAL TO y?
 {

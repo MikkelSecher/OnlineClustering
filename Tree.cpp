@@ -216,10 +216,10 @@ void Tree::treeCleanup() //REMOVE DUPES OF NODES AFTER NORMALIZATION
     cout << "before cleanup: " << nodeQueue.size() << endl;
 
     list<TreeNode*>::iterator i;
-    for(i = nodeQueue.begin(); i != nodeQueue.end(); i++)
-    {
-        normalize(*i);
-    }
+//    for(i = nodeQueue.begin(); i != nodeQueue.end(); i++)
+//    {
+//        normalize(*i);
+//    }
 
     list<TreeNode*>::iterator j;
     for(i = nodeQueue.begin(); i != nodeQueue.end(); i++)
@@ -243,25 +243,29 @@ void Tree::treeCleanup() //REMOVE DUPES OF NODES AFTER NORMALIZATION
 void Tree::normalize(TreeNode *node) // SHIFT ALL PARTITIONINGS TO START AT 0
 {
 // Shifts points, sortedPoints and the clusters, to start from 0
-    double offset = 0;
-    offset = offset - node->content.adClusters[0][0];
-
-    list<double>::iterator i;
-
-    for(i = node->content.sortedPoints.begin(); i != node->content.sortedPoints.end(); i++)
+    if (leq(node->content.points.back(), 0))
     {
-        *i = *i+offset;
-    }
-    for(i = node->content.points.begin(); i != node->content.points.end(); i++)
-    {
-        *i = *i+offset;
-    }
-    for(int i = 0; i < node->content.nNumberOfClusters; i++)
-    {
-        node->content.adClusters[i][0] = ((node->content.adClusters[i][0])+offset);
-        node->content.adClusters[i][1] = ((node->content.adClusters[i][1])+offset);
-    }
+        double offset = 0;
+        offset = offset - node->content.adClusters[0][0];
 
+
+        list<double>::iterator i;
+
+        for(i = node->content.sortedPoints.begin(); i != node->content.sortedPoints.end(); i++)
+        {
+            *i = *i+offset;
+        }
+        for(i = node->content.points.begin(); i != node->content.points.end(); i++)
+        {
+            *i = *i+offset;
+        }
+        for(int i = 0; i < node->content.nNumberOfClusters; i++)
+        {
+            node->content.adClusters[i][0] = ((node->content.adClusters[i][0])+offset);
+            node->content.adClusters[i][1] = ((node->content.adClusters[i][1])+offset);
+        }
+        node->content.updateHashes();
+    }
 }
 
 
@@ -283,11 +287,11 @@ void Tree::addPoint(int p, double dPoint) //ADDS A GIVEN POINT BF
         case 1 :            //one choice: Must be put in existing cluster
         {
             oneChoice(nodeQueue.front(), dPoint);
-
         } break;
         case 2 :            //two choices: New cluster and grow a cluster to the RIGHT
         {
             twoChoicesRight(nodeQueue.front(), dPoint);
+
         } break;
 
         case -2 :           //two choices: New cluster and grow a cluster to the LEFT
@@ -342,6 +346,10 @@ void Tree::twoChoicesLeft(TreeNode *parent, double dPoint)
         //Set live to false - needed for later...
         nodes[tid].front().live = false;
     }
+
+//    if(leq(dPoint, 0))
+        normalize(&nodes[tid].front());
+
     //Increment global number of nodes
     nCount++;
     //Create a new node with the point
@@ -370,6 +378,7 @@ void Tree::twoChoicesLeft(TreeNode *parent, double dPoint)
 
     }
     //Increment global number of nodes
+    normalize(&nodes[tid].front());
     nCount++;
 }
 
@@ -407,6 +416,9 @@ void Tree::twoChoicesRight(TreeNode *parent, double dPoint)
         //Set live to false - needed for later...
         nodes[tid].front().live = false;
     }
+
+//    if(leq(dPoint, 0))
+        normalize(&nodes[tid].front());
     //Increment global number of nodes
     nCount++;
     //Create a new node with the point
@@ -434,6 +446,8 @@ void Tree::twoChoicesRight(TreeNode *parent, double dPoint)
         //Set live to false - needed for later...
         nodes[tid].front().live = false;
     }
+//    if(leq(dPoint, 0))
+        normalize(&nodes[tid].front());
     //Increment global number of nodes
     nCount++;
 }
@@ -469,6 +483,8 @@ void Tree::oneChoice(TreeNode *parent, double dPoint)
         //Set live to false - needed for later...
         nodes[tid].front().live = false;
     }
+//    if(leq(dPoint, 0))
+        normalize(&nodes[tid].front());
     //Increment global number of nodes
     nCount++;
 }
@@ -503,6 +519,8 @@ void Tree::noChoice(TreeNode *parent, double dPoint)
         //Set live to false - needed for later...
         nodes[tid].front().live = false;
     }
+//    if(leq(dPoint, 0))
+        normalize(&nodes[tid].front());
     nCount++;
 }
 
@@ -538,6 +556,8 @@ void Tree::threeChoices(TreeNode *parent, double dPoint)
         //Set live to false - needed for later...
         nodes[tid].front().live = false;
     }
+//    if(leq(dPoint, 0))
+        normalize(&nodes[tid].front());
     //Increment global number of nodes
     nCount++;
 
@@ -569,6 +589,8 @@ void Tree::threeChoices(TreeNode *parent, double dPoint)
         //Set live to false - needed for later...
         nodes[tid].front().live = false;
     }
+//    if(leq(dPoint, 0))
+        normalize(&nodes[tid].front());
     //Increment global number of nodes
     nCount++;
 
@@ -597,6 +619,8 @@ void Tree::threeChoices(TreeNode *parent, double dPoint)
         //Set live to false - needed for later...
         nodes[tid].front().live = false;
     }
+//    if(leq(dPoint, 0))
+        normalize(&nodes[tid].front());
     //Increment global number of nodes
     nCount++;
 }

@@ -58,7 +58,7 @@ int main(int argc, char* argv[])
     for(i = deltaValues.begin(); i != deltaValues.end(); i++)
         cout << (*i) << " ";
     cout << endl;
-    //startTimeBF = omp_get_wtime();
+    startTimeBF = omp_get_wtime();
     Tree tree(startingPoint, deltaValues, prefix, ratio, print);
     //Tree tree(testSequence, deltaValues, prefix, ratio, print);
     //exit(1);
