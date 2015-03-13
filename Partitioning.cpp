@@ -194,7 +194,7 @@ void Partitioning::growClusterRight(double dPoint)
     for(int i = 0; i < nNumberOfClusters; i++)
     {
 
-        if(dPoint > adClusters[i][1] and leq(dPoint, adClusters[i][0]+1))
+        if(geq(dPoint, adClusters[i][1]) and leq(dPoint, (adClusters[i][0]+1)))
         {
             if(i < nNumberOfClusters-1 and dPoint > adClusters[i+1][0])
             {
@@ -217,6 +217,16 @@ void Partitioning::growClusterRight(double dPoint)
 void Partitioning::growClusterLeft(double dPoint)
 {
 // Grow the cluster to the left
+
+    if(!doesPointExist(dPoint))
+    {
+        cout << "Point exists..." << endl;
+        listPoints();
+        cout << "Point: " << dPoint << endl;
+        listClusters();
+
+    }
+
     for(int i = 0; i < nNumberOfClusters; i++)
     {
 
@@ -413,7 +423,10 @@ void Partitioning::endForce(double dRatio)
         openClusterForce(adClusters[nNumberOfClusters-1][1]+(precision/2));
 }
 
-
+//list<double> getForcePoints()
+//{
+//    return ;
+//}
 
 /*********************************
 ********** TERMINAL IO ***********
@@ -513,6 +526,8 @@ void Partitioning::insertEdgeLabel(long long parentID, long long nodeID, int suc
     fprintf(pFile, " \] \n"); //, (*i)->content.sortedPoints.back());
     fclose(pFile);
 }
+
+
 
 void Partitioning::listPointsToFile(int t)
 {

@@ -13,6 +13,7 @@ Tree::Tree()
     //ctor
 }
 
+
 Tree::Tree(double dStartingPoint, list<double> deltaPoints, int prefix, double ratioin, int printin) //REGULAR SEARCH-TREE
 {
 
@@ -52,7 +53,11 @@ Tree::Tree(list<double> sequence, list<double> deltaPoints, int prefix, double r
     checkSequence(sequence);
 }
 
-
+TreeNode* Tree::newNode(int tid, double point, TreeNode* parent)
+{
+    nodes[tid].push_front(TreeNode(point, parent));
+    nodes[tid].front().trueLink = nodes[tid].begin();
+}
 
 /*********************************
 ***** HANDLERS FOR NEW POINTS ****
@@ -71,6 +76,8 @@ void Tree::nextPoint(int level) //ADDS ALL POSSIBLE POINTS, BASED ON DELTAS
         list<TreeNode*>::iterator i;
         list<double>::iterator j;
 
+        list<double> pointsToAdd;
+
         cout << "Level: " << level << endl;
 
 
@@ -86,10 +93,20 @@ void Tree::nextPoint(int level) //ADDS ALL POSSIBLE POINTS, BASED ON DELTAS
                         //double point = nodeQueue.front()->content.doesPointExist((*j) + delta[k]);
                         if(nodeQueue.front()->content.doesPointExist((*j) + delta[k]))
                         {
-                            addPoint(0, (*j)+delta[k]);
+                            pointsToAdd.push_back((*j)+delta[k]);
+                            //addPoint(0, (*j)+delta[k]);
                         }
                     }
                 }
+                pointsToAdd.sort();
+                pointsToAdd.unique();
+
+                for(j = pointsToAdd.begin(); j != pointsToAdd.end(); j++)
+                {
+                    addPoint(0, (*j));
+                }
+                pointsToAdd.clear();
+
                 i = nodeQueue.erase(i);
 
                 i--;
@@ -175,7 +192,7 @@ void Tree::analyzeTree(int DFlevel) //FINDS PROOFS AFTER DF PART IS DONE
             splitSuccesQueue(numberOfThreads);
         }
         #pragma omp barrier
-
+        cout << "Split the nodes" << endl;
         #pragma omp for
         for(int t = 0; t < numberOfThreads; t++)
         {
@@ -211,16 +228,23 @@ void Tree::analyzeTree(int DFlevel) //FINDS PROOFS AFTER DF PART IS DONE
 
 bool node_compare(const TreeNode *first,const TreeNode *second)
 {
-    if (first->content.fullHash.compare(second->content.fullHash) == 0)
+    if (first->content.fullHash.compare(second->content.fullHash) >= 0)
     {
-        if(first->nId < second->nId)
-            return true;
         return false;
     }
     if(first->content.fullHash.compare(second->content.fullHash) < 0)
         return true;
-    else
+}
+
+bool node_compare_sequence(const TreeNode *first,const TreeNode *second)
+{
+    if (first->content.fullHash.compare(second->content.pointHash) >= 0)
+    {
         return false;
+    }
+    if(first->content.fullHash.compare(second->content.pointHash) < 0)
+        return true;
+
 
 }
 
@@ -334,7 +358,7 @@ void Tree::twoChoicesLeft(TreeNode *parent, double dPoint)
     int tid = omp_get_thread_num();
     //Create a new node with the point
     //Grow the appropriate cluster to the left
-    nodes[tid].push_front(TreeNode(dPoint, parent));
+    newNode(tid, dPoint, parent);
     nodes[tid].front().content.growClusterLeft(dPoint);
 
     if(checkPartitioning())
@@ -342,7 +366,7 @@ void Tree::twoChoicesLeft(TreeNode *parent, double dPoint)
         //If the partitioning CAN'T be forced, do the following:
         //Erase the new node, and add a new one without the forced points
         nodes[tid].pop_front();
-        nodes[tid].push_front(TreeNode(dPoint, parent));
+        newNode(tid, dPoint, parent);
         nodes[tid].front().content.growClusterLeft(dPoint);
 
         //Add it as a child to the parent node
@@ -350,6 +374,7 @@ void Tree::twoChoicesLeft(TreeNode *parent, double dPoint)
 
         //Add it the the node queue
         nodeQueue.push_back(&nodes[tid].front());
+        nodes[tid].front().queueLink = nodeQueue.end();
     }
     else
     {
@@ -368,19 +393,20 @@ void Tree::twoChoicesLeft(TreeNode *parent, double dPoint)
     nCount++;
     //Create a new node with the point
     //Open a new cluster for the point
-    nodes[tid].push_front(TreeNode(dPoint, parent));
+    newNode(tid, dPoint, parent);
     nodes[tid].front().content.openCluster(dPoint);
     if(checkPartitioning())
     {
         //If the partitioning CAN'T be forced do the following:
         //Erase the new node, and add a new one without the forced points
         nodes[tid].pop_front();
-        nodes[tid].push_front(TreeNode(dPoint, parent));
+        newNode(tid, dPoint, parent);
         nodes[tid].front().content.openCluster(dPoint);
         //Add it as a child to the parent node
         parent->addChild(&nodes[tid].front());
         //Add it the the node queue
         nodeQueue.push_back(&nodes[tid].front());
+        nodes[tid].front().queueLink = nodeQueue.end();
     }
     else
     {
@@ -405,7 +431,7 @@ void Tree::twoChoicesRight(TreeNode *parent, double dPoint)
     //Create a new node with the point
     //Grow the appropriate cluster to the right
     int tid = omp_get_thread_num();
-    nodes[tid].push_front(TreeNode(dPoint, parent));
+    newNode(tid, dPoint, parent);
     nodes[tid].front().content.growClusterRight(dPoint);
 
     if(checkPartitioning())
@@ -413,13 +439,13 @@ void Tree::twoChoicesRight(TreeNode *parent, double dPoint)
         //If the partitioning CAN'T be forced, do the following:
         //Erase the new node, and add a new one without the forced points
         nodes[tid].pop_front();
-        nodes[tid].push_front(TreeNode(dPoint, parent));
+        newNode(tid, dPoint, parent);
         nodes[tid].front().content.growClusterRight(dPoint);
         //Add it as a child to the parent node
         parent->addChild(&nodes[tid].front());
         //Add it the the node queue
         nodeQueue.push_back(&nodes[tid].front());
-
+        nodes[tid].front().queueLink = nodeQueue.end();
 
     }
     else
@@ -437,7 +463,7 @@ void Tree::twoChoicesRight(TreeNode *parent, double dPoint)
     nCount++;
     //Create a new node with the point
     //Open a new cluster for the point
-    nodes[tid].push_front(TreeNode(dPoint, parent));
+    newNode(tid, dPoint, parent);
     nodes[tid].front().content.openCluster(dPoint);
 
     if(checkPartitioning())
@@ -445,12 +471,13 @@ void Tree::twoChoicesRight(TreeNode *parent, double dPoint)
         //If the partitioning CAN'T be forced, do the following:
         //Erase the new node, and add a new one without the forced points
         nodes[tid].pop_front();
-        nodes[tid].push_front(TreeNode(dPoint, parent));
+        newNode(tid, dPoint, parent);
         nodes[tid].front().content.openCluster(dPoint);
         //Add it as a child to the parent node
         parent->addChild(&nodes[tid].front());
         //Add it the the node queue
         nodeQueue.push_back(&nodes[tid].front());
+        nodes[tid].front().queueLink = nodeQueue.end();
     }
     else
     {
@@ -463,7 +490,7 @@ void Tree::twoChoicesRight(TreeNode *parent, double dPoint)
 //    if(leq(dPoint, 0))
         normalize(&nodes[tid].front());
     //Increment global number of nodes
-    nCount++;
+
 }
 
 void Tree::oneChoice(TreeNode *parent, double dPoint)
@@ -474,7 +501,7 @@ void Tree::oneChoice(TreeNode *parent, double dPoint)
     int tid = omp_get_thread_num();
     //Create a new node with the point
     //The point is inside an existing cluster
-    nodes[tid].push_front(TreeNode(dPoint, parent));
+    newNode(tid, dPoint, parent);
     nodes[tid].front().content.addPointToCluster(dPoint);
 
     if(checkPartitioning())
@@ -482,12 +509,13 @@ void Tree::oneChoice(TreeNode *parent, double dPoint)
         //If the partitioning CAN'T be forced, do the following:
         //Erase the new node, and add a new one without the forced points
         nodes[tid].pop_front();
-        nodes[tid].push_front(TreeNode(dPoint, parent));
+        newNode(tid, dPoint, parent);
         nodes[tid].front().content.addPointToCluster(dPoint);
         //Add it as a child to the parent node
         parent->addChild(&nodes[tid].front());
         //Add it the the node queue
         nodeQueue.push_back(&nodes[tid].front());
+        nodes[tid].front().queueLink = nodeQueue.end();
     }
     else
     {
@@ -499,8 +527,7 @@ void Tree::oneChoice(TreeNode *parent, double dPoint)
     }
 //    if(leq(dPoint, 0))
         normalize(&nodes[tid].front());
-    //Increment global number of nodes
-    nCount++;
+
 }
 
 void Tree::noChoice(TreeNode *parent, double dPoint)
@@ -510,7 +537,7 @@ void Tree::noChoice(TreeNode *parent, double dPoint)
     int tid = omp_get_thread_num();
     //Create a new node with the point
     //Open a new cluster for the point
-    nodes[tid].push_front(TreeNode(dPoint, parent));
+    newNode(tid, dPoint, parent);
     nodes[tid].front().content.openCluster(dPoint);
 
     if(checkPartitioning())
@@ -518,12 +545,13 @@ void Tree::noChoice(TreeNode *parent, double dPoint)
         //If the partitioning CAN'T be forced, do the following:
         //Erase the new node, and add a new one without the forced points
         nodes[tid].pop_front();
-        nodes[tid].push_front(TreeNode(dPoint, parent));
+        newNode(tid, dPoint, parent);
         nodes[tid].front().content.openCluster(dPoint);
         //Add it as a child to the parent node
         parent->addChild(&nodes[tid].front());
         //Set live to false - needed for later...
         nodeQueue.push_back(&nodes[tid].front());
+        nodes[tid].front().queueLink = nodeQueue.end();
     }
     else
     {
@@ -545,7 +573,7 @@ void Tree::threeChoices(TreeNode *parent, double dPoint)
     int tid = omp_get_thread_num();
     //Create a new node with the point
     //Grow the appropriate cluster to the right
-    nodes[tid].push_front(TreeNode(dPoint, parent));
+    newNode(tid, dPoint, parent);
     nodes[tid].front().content.growClusterRight(dPoint);
 
     if(checkPartitioning())
@@ -553,12 +581,13 @@ void Tree::threeChoices(TreeNode *parent, double dPoint)
         //If the partitioning CAN'T be forced, do the following:
         //Erase the new node, and add a new one without the forced points
         nodes[tid].pop_front();
-        nodes[tid].push_front(TreeNode(dPoint, parent));
+        newNode(tid, dPoint, parent);
         nodes[tid].front().content.growClusterRight(dPoint);
         //Add it as a child to the parent node
         parent->addChild(&nodes[tid].front());
         //Add it the the node queue
         nodeQueue.push_back(&nodes[tid].front());
+        nodes[tid].front().queueLink = nodeQueue.end();
 
 
     }
@@ -573,11 +602,11 @@ void Tree::threeChoices(TreeNode *parent, double dPoint)
 //    if(leq(dPoint, 0))
         normalize(&nodes[tid].front());
     //Increment global number of nodes
-    nCount++;
+
 
     //Create a new node with the point
     //Grow the appropriate cluster to the left
-    nodes[tid].push_front(TreeNode(dPoint, parent));
+    newNode(tid, dPoint, parent);
     nodes[tid].front().content.growClusterLeft(dPoint);
 
     if(checkPartitioning())
@@ -585,7 +614,7 @@ void Tree::threeChoices(TreeNode *parent, double dPoint)
         //If the partitioning CAN'T be forced, do the following:
         //Erase the new node, and add a new one without the forced points
         nodes[tid].pop_front();
-        nodes[tid].push_front(TreeNode(dPoint, parent));
+        newNode(tid, dPoint, parent);
         nodes[tid].front().content.growClusterLeft(dPoint);
 
         //Add it as a child to the parent node
@@ -593,6 +622,7 @@ void Tree::threeChoices(TreeNode *parent, double dPoint)
 
         //Add it the the node queue
         nodeQueue.push_back(&nodes[tid].front());
+        nodes[tid].front().queueLink = nodeQueue.end();
     }
     else
     {
@@ -603,14 +633,12 @@ void Tree::threeChoices(TreeNode *parent, double dPoint)
         //Set live to false - needed for later...
         nodes[tid].front().live = false;
     }
-//    if(leq(dPoint, 0))
         normalize(&nodes[tid].front());
-    //Increment global number of nodes
-    nCount++;
+
 
     //Create a new node with the point
     //Open a new cluster for the point
-    nodes[tid].push_front(TreeNode(dPoint, parent));
+    newNode(tid, dPoint, parent);
     nodes[tid].front().content.openCluster(dPoint);
 
     if(checkPartitioning())
@@ -618,12 +646,13 @@ void Tree::threeChoices(TreeNode *parent, double dPoint)
         //If the partitioning CAN'T be forced, do the following:
         //Erase the new node, and add a new one without the forced points
         nodes[tid].pop_front();
-        nodes[tid].push_front(TreeNode(dPoint, parent));
+        newNode(tid, dPoint, parent);
         nodes[tid].front().content.openCluster(dPoint);
         //Add it as a child to the parent node
         parent->addChild(&nodes[tid].front());
         //Add it the the node queue
         nodeQueue.push_back(&nodes[tid].front());
+        nodes[tid].front().queueLink = nodeQueue.end();
     }
     else
     {
@@ -633,16 +662,96 @@ void Tree::threeChoices(TreeNode *parent, double dPoint)
         //Set live to false - needed for later...
         nodes[tid].front().live = false;
     }
-//    if(leq(dPoint, 0))
-        normalize(&nodes[tid].front());
-    //Increment global number of nodes
-    nCount++;
+
+    normalize(&nodes[tid].front());
 }
 
 
 /*********************************
 ****** DEPTH-FIRST FUNCTIONS *****
 *********************************/
+
+void Tree::startDF_experimental(int DFlevel, int dfDepth)
+{
+    int tid = omp_get_thread_num();
+
+
+    nodeQueue.sort(node_compare_sequence); //Sort queue wrt. sequence of points
+    cout << "sorted" << endl;
+    list<TreeNode*>::iterator nit = nodeQueue.begin();
+    string currentHash = nodeQueue.front()->content.pointHash;
+    bool potential = true; //If a proof for a sequence is still possible, this is true.
+    int nodesToDelete = 0;
+    int proofCount = 0;
+    depthFirstQueue[tid].push_back(nodeQueue.front());
+
+    while(nit != nodeQueue.end())
+    {
+//        cout << "Working on node " << (*nit)->nId << endl;
+        if(potential)
+        {
+
+            if(currentHash.compare((*nit)->content.pointHash) == 0)
+            {
+
+                depthFirstQueue[tid].push_front((*nit));
+                if(addPointRecursive(DFlevel, dfDepth))
+                {
+//                    for(int i = 0; i < nodesToDelete; i++)
+//                    {
+//                        succesfulNodes.pop_back();
+//                    }
+                    nodesToDelete = 0;
+//                    cout << "Skipping forward" << endl;
+                    potential = false;
+                }
+                else{
+                    nodesToDelete++;
+                    succesfulNodes.push_back(*nit);
+                    (*nit)->live = false;
+
+                }
+                depthFirstQueue[tid].clear();
+
+                nit++;
+
+                if(nit == nodeQueue.end())
+                {
+
+                    cout << "End of the line" << endl;
+                    cout << "Found " << proofCount << " proofs" << endl;
+                    analyzeTree(DFlevel);
+                    break;
+                }
+            }
+            if(potential and currentHash.compare((*nit)->content.pointHash) != 0)
+            {
+                cout <<(*nit)->nId << endl;
+                proofCount++;
+                cout << "Found a god damn proof!" << endl;
+                //exit(1);
+                potential = false;
+
+
+            }
+
+            while(!potential and currentHash.compare((*nit)->content.pointHash) == 0)
+            {
+                nit++;
+            }
+            if(!potential and currentHash.compare((*nit)->content.pointHash) != 0)
+            {
+                clearLevel(DFlevel);
+                currentHash = (*nit)->content.pointHash;
+                potential = true;
+            }
+        }
+    }
+
+
+
+
+}
 
 void Tree::startDF(int DFlevel, int dfDepth) //DF PART OF THE PROGRAM - RUNS IN OPENMP PARALLEL
 {
@@ -856,16 +965,7 @@ bool Tree::addSequence(double sequence[10], int thread, int dfDepth) //ADDS A GI
             return true;
         }
         currentLevel++;
-    }/*
-    while(depthFirstQueue[tid].front()->depth == currentLevel)
-    {
-        addPointDF(sequence[dfDepth-1]);
-        if (depthFirstQueue[tid].size() == 0)
-        {
-            return true;
-        }
-        depthFirstQueue[tid].pop_front();
-    }*/
+    }
     return false;
 }
 
@@ -898,7 +998,7 @@ void Tree::destroySubtree(TreeNode* node) //DESTROYS AN UNSUCCESSFUL SUBTREE
     node->children.clear();
 }
 
-void Tree::addPointDF(double dPoint)//ADDS A GIVEN POINT TO NODE IN DF PART
+int Tree::addPointDF(double dPoint)//ADDS A GIVEN POINT TO NODE IN DF PART
 {
 // The following functions do the same as when exploring full tree, exept they use another queue,
 // that is used only for the subtree.
@@ -907,35 +1007,82 @@ void Tree::addPointDF(double dPoint)//ADDS A GIVEN POINT TO NODE IN DF PART
 // It also tries to break the partitioning by forcing.
 // If the force fails, the points added by the forcer are erased, by throwing out the node.
     int tid = omp_get_thread_num();
+    int nodesAdded = 0;
     //int newChildren = 0;
     switch (depthFirstQueue[tid].front()->content.pointInRange(dPoint))
     {
         case 1 :            //one choice: Must be put in existing cluster
         {
-            oneChoiceDF(depthFirstQueue[tid].front(), dPoint);
+            nodesAdded = oneChoiceDF(depthFirstQueue[tid].front(), dPoint);
         } break;
 
         case 2 :            //two choices: New cluster and grow a cluster to the RIGHT
         {
-            twoChoicesRightDF(depthFirstQueue[tid].front(), dPoint);
+            nodesAdded = twoChoicesRightDF(depthFirstQueue[tid].front(), dPoint);
         } break;
 
         case -2 :           //two choices: New cluster and grow a cluster to the LEFT
         {
-            twoChoicesLeftDF(depthFirstQueue[tid].front(), dPoint);
+            nodesAdded = twoChoicesLeftDF(depthFirstQueue[tid].front(), dPoint);
         } break;
 
         case 3 :            //three choices: In range of a cluster on each side, and get its own
         {
-            threeChoicesDF(depthFirstQueue[tid].front(), dPoint);
+            nodesAdded = threeChoicesDF(depthFirstQueue[tid].front(), dPoint);
         } break;
 
 
         case 0 :            //no choice: Must open a new cluster for the point
         {
-            noChoiceDF(depthFirstQueue[tid].front(), dPoint);
+            nodesAdded = noChoiceDF(depthFirstQueue[tid].front(), dPoint);
         } break;
     }
+
+    return nodesAdded;
+
+}
+
+int Tree::addPointDF_experimental(double dPoint, TreeNode *node)//ADDS A GIVEN POINT TO NODE IN DF PART
+{
+// The following functions do the same as when exploring full tree, exept they use another queue,
+// that is used only for the subtree.
+// Adds a point to the current node. It checks to see what possibilities there are for
+// the particular point.
+// It also tries to break the partitioning by forcing.
+// If the force fails, the points added by the forcer are erased, by throwing out the node.
+    int tid = omp_get_thread_num();
+    int nodesAdded = 0;
+    //int newChildren = 0;
+    switch (node->content.pointInRange(dPoint))
+    {
+        case 1 :            //one choice: Must be put in existing cluster
+        {
+            nodesAdded = oneChoiceDF(node, dPoint);
+        } break;
+
+        case 2 :            //two choices: New cluster and grow a cluster to the RIGHT
+        {
+            nodesAdded = twoChoicesRightDF(node, dPoint);
+        } break;
+
+        case -2 :           //two choices: New cluster and grow a cluster to the LEFT
+        {
+            nodesAdded = twoChoicesLeftDF(node, dPoint);
+        } break;
+
+        case 3 :            //three choices: In range of a cluster on each side, and get its own
+        {
+            nodesAdded = threeChoicesDF(node, dPoint);
+        } break;
+
+
+        case 0 :            //no choice: Must open a new cluster for the point
+        {
+            nodesAdded = noChoiceDF(node, dPoint);
+        } break;
+    }
+    //cout << "Returning " << nodesAdded << endl;
+    return nodesAdded;
 
 }
 
@@ -945,7 +1092,7 @@ bool Tree::backtrackSolution(TreeNode* node, list<double> points, int DFlevel, i
     //all leafs end in ratios higher than threshold
 
     FILE * pFile;
-    //cout << "REACHED BACKTRACK SOLUTION" << endl;
+//    cout << "REACHED BACKTRACK SOLUTION" << endl;
     string sNodeID = node->content.stringIt(node->nId);
     if(node->depth != 0)
     {
@@ -986,7 +1133,7 @@ bool Tree::backtrackSolution(TreeNode* node, list<double> points, int DFlevel, i
 
 bool Tree::forwardCheck(TreeNode* node, list<double> points, int DFlevel, int succesNumber) //FROM A GIVEN SEQUENCE, TRIES TO MAKE A FULL PROOF
 {
-    //cout << "REACHED FORWARD CHECK" << endl;
+//    cout << "REACHED FORWARD CHECK" << endl;
     if(points.size() == 0)
     {
         return false;
@@ -1060,23 +1207,25 @@ bool Tree::forwardCheck(TreeNode* node, list<double> points, int DFlevel, int su
     return true;
 }
 
-void Tree::twoChoicesLeftDF(TreeNode *parent, double dPoint)
+int Tree::twoChoicesLeftDF(TreeNode *parent, double dPoint)
 {
 // Tries to add a point by growing a cluster to the left, and trying to break it by force
 // and then tries to open a new cluster and tries to break it by force
     int tid = omp_get_thread_num();
-    nodes[tid].push_front(TreeNode(dPoint, parent));          //Create a new node, with data from the parent and the new point.
+    int nodesAdded = 0;
+
+    newNode(tid, dPoint, parent);         //Create a new node, with data from the parent and the new point.
     nodes[tid].front().content.growClusterLeft(dPoint);
 
     if(checkPartitioning())                             //Check and try to break. If it holds up then:
     {
         nodes[tid].pop_front();                               //remove the node contaminated with extra points from the force
-        nodes[tid].push_front(TreeNode(dPoint, parent));      //create a new "clean" one.
+        newNode(tid, dPoint, parent);      //create a new "clean" one.
         nodes[tid].front().content.growClusterLeft(dPoint);
         parent->addChild(&nodes[tid].front());
         depthFirstQueue[tid].push_back(&nodes[tid].front());       //put it in the queue for points needing attention
-        nCount++;
-
+        nodes[tid].front().queueLink = depthFirstQueue[tid].end();
+        nodesAdded++;
     }
     else
     {
@@ -1084,176 +1233,193 @@ void Tree::twoChoicesLeftDF(TreeNode *parent, double dPoint)
     }
 
 
-    nodes[tid].push_front(TreeNode(dPoint, parent));          //SEE THE ABOVE COMMENTS, these are the same
+    newNode(tid, dPoint, parent);          //SEE THE ABOVE COMMENTS, these are the same
     nodes[tid].front().content.openCluster(dPoint);
 
     if(checkPartitioning())
     {
         nodes[tid].pop_front();
-        nodes[tid].push_front(TreeNode(dPoint, parent));
+        newNode(tid, dPoint, parent);
         nodes[tid].front().content.openCluster(dPoint);
         parent->addChild(&nodes[tid].front());
         depthFirstQueue[tid].push_back(&nodes[tid].front());
-        nCount++;
+        nodes[tid].front().queueLink = depthFirstQueue[tid].end();
+        nodesAdded++;
     }
     else
     {
         parent->addChild(&nodes[tid].front());
     }
-
+//    cout << "Returning " << nodesAdded << endl;
+    return nodesAdded;
 }
 
-void Tree::twoChoicesRightDF(TreeNode *parent, double dPoint)
+int Tree::twoChoicesRightDF(TreeNode *parent, double dPoint)
 {
 // Tries to add a point by growing a cluster to the left, and trying to break it by force
 // and then tries to open a new cluster and tries to break it by force
 // This is exactly the same as twoChoicesLeft, only with growth to the right insted.
 // For further info check above...
     int tid = omp_get_thread_num();
-
-    nodes[tid].push_front(TreeNode(dPoint, parent));
+    int nodesAdded = 0;
+    newNode(tid, dPoint, parent);
     nodes[tid].front().content.growClusterRight(dPoint);
 
     if(checkPartitioning())
     {
         nodes[tid].pop_front();
-        nodes[tid].push_front(TreeNode(dPoint, parent));
+        newNode(tid, dPoint, parent);
         nodes[tid].front().content.growClusterRight(dPoint);
         parent->addChild(&nodes[tid].front());
         depthFirstQueue[tid].push_back(&nodes[tid].front());
-
+        nodes[tid].front().queueLink = depthFirstQueue[tid].end();
+        nodesAdded++;
     }
     else
     {
         parent->addChild(&nodes[tid].front());
     }
-    nCount++;
 
-    nodes[tid].push_front(TreeNode(dPoint, parent));
+    newNode(tid, dPoint, parent);
     nodes[tid].front().content.openCluster(dPoint);
 
     if(checkPartitioning())
     {
         nodes[tid].pop_front();
-        nodes[tid].push_front(TreeNode(dPoint, parent));
+        newNode(tid, dPoint, parent);
         nodes[tid].front().content.openCluster(dPoint);
         parent->addChild(&nodes[tid].front());
         depthFirstQueue[tid].push_back(&nodes[tid].front());
-
+        nodes[tid].front().queueLink = depthFirstQueue[tid].end();
+        nodesAdded++;
     }
     else
     {
         parent->addChild(&nodes[tid].front());
     }
-    nCount++;
+    return nodesAdded;
 }
 
-void Tree::oneChoiceDF(TreeNode *parent, double dPoint) //POINT INSIDE EXISTING CLUSTER
+int Tree::oneChoiceDF(TreeNode *parent, double dPoint) //POINT INSIDE EXISTING CLUSTER
 {
 // Add point the an existing cluster, and see if it breaks.
 // For further explaination see twoChoicesLeft()
     int tid = omp_get_thread_num();
+    int nodesAdded = 0;
     //cout << "Only one choice... Add point to existing cluster..." << endl;
     //Leave cluster as is, but increase point count
-    nodes[tid].push_front(TreeNode(dPoint, parent));
+    newNode(tid, dPoint, parent);
     nodes[tid].front().content.addPointToCluster(dPoint);
 
     if(checkPartitioning())
     {
         nodes[tid].pop_front();
-        nodes[tid].push_front(TreeNode(dPoint, parent));
+       newNode(tid, dPoint, parent);
         nodes[tid].front().content.addPointToCluster(dPoint);
         parent->addChild(&nodes[tid].front());
         depthFirstQueue[tid].push_back(&nodes[tid].front());
-
+        nodes[tid].front().queueLink = depthFirstQueue[tid].end();
+        nodesAdded++;
     }
     else
     {
         parent->addChild(&nodes[tid].front());
 
     }
-    nCount++;
+//    cout << "Returning " << nodesAdded << endl;
+    return nodesAdded;
 }
 
-void Tree::noChoiceDF(TreeNode *parent, double dPoint)
+int Tree::noChoiceDF(TreeNode *parent, double dPoint)
 {
 // A new cluster MUST be opened for the point.
 // Tries to break it by force and returns 1 if it holds up 0 if it breaks
     int tid = omp_get_thread_num();
+    int nodesAdded = 0;
     //cout << "Must open new cluster..." << endl;
-    nodes[tid].push_front(TreeNode(dPoint, parent));
+    newNode(tid, dPoint, parent);
     nodes[tid].front().content.openCluster(dPoint);
 
     if(checkPartitioning())
     {
         nodes[tid].pop_front();
-        nodes[tid].push_front(TreeNode(dPoint, parent));
+        newNode(tid, dPoint, parent);
         nodes[tid].front().content.openCluster(dPoint);
         parent->addChild(&nodes[tid].front());
         depthFirstQueue[tid].push_back(&nodes[tid].front());
-        nCount++;
+        nodes[tid].front().queueLink = depthFirstQueue[tid].end();
+        nodesAdded++;
     }
     else
     {
         parent->addChild(&nodes[tid].front());
     }
-    nCount++;
+//    cout << "Returning " << nodesAdded << endl;
+    return nodesAdded;
 }
 
-void Tree::threeChoicesDF(TreeNode *parent, double dPoint)
+int Tree::threeChoicesDF(TreeNode *parent, double dPoint)
 {
 // Grows right, left and opens a new cluster.
 // Returns the number of new nodes where succesfully added
     int tid = omp_get_thread_num();
+    int nodesAdded = 0;
     //cout << "Three choices..." << endl;
-    nodes[tid].push_front(TreeNode(dPoint, parent));
+    newNode(tid, dPoint, parent);
     nodes[tid].front().content.growClusterRight(dPoint);
 
     if(checkPartitioning())
     {
         nodes[tid].pop_front();
-        nodes[tid].push_front(TreeNode(dPoint, parent));
+        newNode(tid, dPoint, parent);
         nodes[tid].front().content.growClusterRight(dPoint);
         parent->addChild(&nodes[tid].front());
         depthFirstQueue[tid].push_back(&nodes[tid].front());
+        nodes[tid].front().queueLink = depthFirstQueue[tid].end();
+        nodesAdded++;
     }
     else
     {
         parent->addChild(&nodes[tid].front());
     }
 
-    nodes[tid].push_front(TreeNode(dPoint, parent));
+    newNode(tid, dPoint, parent);
     nodes[tid].front().content.growClusterLeft(dPoint);
 
     if(checkPartitioning())
     {
         nodes[tid].pop_front();
-        nodes[tid].push_front(TreeNode(dPoint, parent));
+        newNode(tid, dPoint, parent);
         nodes[tid].front().content.growClusterLeft(dPoint);
         parent->addChild(&nodes[tid].front());
         depthFirstQueue[tid].push_back(&nodes[tid].front());
+        nodes[tid].front().queueLink = depthFirstQueue[tid].end();
+        nodesAdded++;
     }
     else
     {
         parent->addChild(&nodes[tid].front());
     }
 
-    nodes[tid].push_front(TreeNode(dPoint, parent));
+    newNode(tid, dPoint, parent);
     nodes[tid].front().content.openCluster(dPoint);
 
     if(checkPartitioning())
     {
         nodes[tid].pop_front();
-        nodes[tid].push_front(TreeNode(dPoint, parent));
+        newNode(tid, dPoint, parent);
         nodes[tid].front().content.openCluster(dPoint);
         parent->addChild(&nodes[tid].front());
         depthFirstQueue[tid].push_back(&nodes[tid].front());
+        nodes[tid].front().queueLink = depthFirstQueue[tid].end();
+        nodesAdded++;
     }
     else
     {
         parent->addChild(&nodes[tid].front());
     }
-       nCount++;
+//    cout << "Returning " << nodesAdded << endl;
+    return nodesAdded;
 }
 
 void Tree::printChildren(TreeNode* node) //PRINTS ALL CHILDREN OF NODE TO TERMINAL (POINTS AND CLUSTERS)
@@ -1288,11 +1454,36 @@ void Tree::subtreePrinter(TreeNode* node, int succesNumber) //PRINTS A NODES SUB
             }
             cout << "Writing edge" << endl;
             node->content.insertEdgeLabel(node->parentNode->nId, node->nId, succesNumber, resPrefix);
-
-
-
 }
 
+void Tree::initPrinter(int succesNumber)
+{
+    FILE *pFile;
+    char filename[30];
+
+    sprintf(filename, "res\\%d_%d_solution_%d .gml", resPrefix, omp_get_thread_num(), succesNumber);
+
+    pFile = fopen (filename,"w");
+
+     fprintf(pFile,"graph \n");
+     fprintf(pFile," \[ \n");
+
+    fclose(pFile);
+}
+
+void Tree::closePrinter(int succesNumber)
+{
+    FILE *pFile;
+    char filename[30];
+
+    sprintf(filename, "res\\%d_%d_solution_%d .gml", resPrefix, omp_get_thread_num(), succesNumber);
+
+    pFile = fopen (filename,"a");
+
+     fprintf(pFile,"\]");
+
+    fclose(pFile);
+}
 
 
 /*********************************
@@ -1436,12 +1627,18 @@ void Tree::checkSequence(list<double> sequence) //DOES THE CHECKING OF A PRESET 
         fclose(pFile);
 
     cout << "Sorry, didn't do it.... :(" << endl;
+    cout << "" << endl;
+    cout << "" << endl;
+
     list<TreeNode*>::iterator it;
     it = seqQueue.begin();
     //nodeQueue.splice(parNodeQueue[listsMade-1].begin(), parNodeQueue[listsMade-1], first, last);
     seqQueue.splice(nodeQueue.begin(), seqQueue);
     cout << "NodeQueue Size " << nodeQueue.size() << endl;
     cout << "SeqQueue Size " << seqQueue.size() << endl;
+
+    cout << "-----------------------------------" << endl;
+    cout << endl;
     //exit(1);
 }
 
@@ -1684,9 +1881,155 @@ void Tree::threeChoicesSeq(TreeNode *parent, double dPoint)
 
 
 
+/*********************************
+****** EXPERIMENTAL DF ***********
+*********************************/
+bool Tree::addPointRecursive(int level, int maxLevel)
+{
 
 
+    int tid = omp_get_thread_num();
+    int nodesAdded = 0;
+    list<double> nextPoints;
+    list<TreeNode*>::iterator nit;
+    list<double>::iterator pit;
 
+
+    if(level == maxLevel)
+    {
+//        cout << "All the way down..." << endl;
+        return true;
+    }
+
+
+    for(nit = depthFirstQueue[tid].begin(); nit != depthFirstQueue[tid].end(); nit++ )
+    {
+        if((*nit)->depth == level)
+        {
+            nextPoints = calculateNextPoints(*nit);
+            break;
+        }
+    }
+
+
+    for(pit = nextPoints.begin(); pit != nextPoints.end(); pit++)
+    {
+        nodesAdded = 0;
+        nodesAdded = addLevel(level, maxLevel, *pit);
+        if(nodesAdded == 0)
+        {
+//            cout << "NO NEW POINTS ADDED ON LEVEL "<< level << endl;
+            return false;
+        }
+        else
+            if(!addPointRecursive(level+1, maxLevel))
+                return false;
+
+        clearLevel(level+1);
+
+    }
+    return true;
+}
+
+int Tree::addLevel(int level,int maxLevel, double point)
+{
+    int nodesAdded = 0;
+    int tid = omp_get_thread_num();
+    list<TreeNode*>::iterator nit;
+    for(nit = depthFirstQueue[tid].begin(); nit != depthFirstQueue[tid].end(); nit++)
+    {
+        if((*nit)->depth == level)
+        {
+            nodesAdded += addPointDF_experimental(point, (*nit));
+        }
+    }
+    return nodesAdded;
+}
+
+void Tree::clearLevel(int level)
+{
+    int tid = omp_get_thread_num();
+    list<TreeNode*>::iterator nit = depthFirstQueue[tid].begin();
+    int start = depthFirstQueue[tid].size();
+    while(nit != depthFirstQueue[tid].end())
+    {
+        if((*nit)->depth >= level)
+        {
+
+            (*nit)->parentNode->children.clear();
+            nodes[0].erase((*nit)->trueLink);
+            nit = depthFirstQueue[tid].erase(nit);
+        }
+        else
+        {
+            ++nit;
+        }
+    }
+}
+
+list<double> Tree::calculateNextPoints(TreeNode *node)
+{
+
+    list<double> nextPoints;
+    list<double>::iterator it;
+//    node->content.listPoints();
+//    cout << "Calculating possible points... " << endl;
+//    cout << "They are: ";
+    for(it = node->content.sortedPoints.begin(); it != node->content.sortedPoints.end(); it++)
+    {
+        for(int k = 0; k < deltas; k++)
+        {
+            //debugging
+            //double point = nodeQueue.front()->content.doesPointExist((*j) + delta[k]);
+//            cout << "Does " << (*it) + delta[k] << " exist?" << endl;
+            if(node->content.doesPointExist((*it) + delta[k]))
+            {
+//                cout << "no it doesn't" << endl;
+                nextPoints.push_front((*it)+delta[k]);
+            }
+        }
+    }
+    nextPoints.sort();
+    nextPoints.unique();
+//    cout << "Points sorted out" << endl;
+//    for (it = nextPoints.begin(); it != nextPoints.end(); it++)
+//    {
+//        cout << *it << " ";
+//
+//    }
+//    cout << "" << endl;
+    return nextPoints;
+}
+
+void Tree::removeChildren(int tid, TreeNode* node)
+{
+
+    if(node->children.size() == 0)
+    {
+        return;
+    }
+    list<TreeNode*>::iterator child, nq;
+
+//    for (child = node->children.begin(); child != node->children.end() ; child++ )
+//    {
+//        depthFirstQueue[tid].erase((*child)->queueLink);
+//        nodes[tid].erase((*child)->trueLink);
+//    }
+
+    for(child = node->children.begin(); child != node->children.end(); child++)
+    {
+        for(nq = depthFirstQueue[tid].begin(); nq != depthFirstQueue[tid].end(); nq++)
+        {
+            if((*nq)->nId == (*child)->nId)
+            {
+                cout << "Child ID: " << (*child)->nId <<"NodeQueue Node ID: "<< (*nq)->nId << endl;
+                cout << "deleting child from queue" << endl;
+                depthFirstQueue[tid].erase(nq);
+            }
+        }
+    }
+    node->children.clear();
+}
 
 
 

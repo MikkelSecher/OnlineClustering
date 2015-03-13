@@ -23,6 +23,8 @@ class Tree
         Tree(double dStartingPoint, list<double>, int, double, int);
         Tree(list<double>, list<double>, int, double, int);
 
+        TreeNode* newNode(int tid, double point, TreeNode* parant) ;
+
         /**** VARIABLES ****/
         int nCount = 0;
         int resPrefix;
@@ -74,19 +76,20 @@ class Tree
         /**** DEPTH-FIRST FUNCTIONS ****/
         void startDF(int levels, int);
         bool addSequence(double[10], int, int);
-        void addPointDF(double dPoint);
-        void twoChoicesLeftDF(TreeNode *parent, double dPoint);
-        void twoChoicesRightDF(TreeNode *parent, double dPoint);
-        void oneChoiceDF(TreeNode *parent, double dPoint);
-        void threeChoicesDF(TreeNode *parent, double dPoint);
-        void noChoiceDF(TreeNode *parent, double dPoint);
+        int addPointDF(double dPoint);
+        int addPointDF_experimental(double dPoint, TreeNode *node);
+        int twoChoicesLeftDF(TreeNode *parent, double dPoint);
+        int twoChoicesRightDF(TreeNode *parent, double dPoint);
+        int oneChoiceDF(TreeNode *parent, double dPoint);
+        int threeChoicesDF(TreeNode *parent, double dPoint);
+        int noChoiceDF(TreeNode *parent, double dPoint);
         void destroySubtree(TreeNode* node);
         bool backtrackSolution(TreeNode* node, list<double>, int, int);
         bool forwardCheck(TreeNode* node, list<double> points, int, int);
         void printChildren(TreeNode*);
         void subtreePrinter(TreeNode*, int);
-
-
+        void initPrinter(int succesNumber);
+        void closePrinter(int succesNumber);
         /**** SEQUENCE-CHECKER FUNCTIONS ****/
         void checkSequence(list<double>);
         void addSeqPoint(double);
@@ -103,6 +106,16 @@ class Tree
         double getParProofTime();
         double getParDFTime();
 
+        /**** EXPERIMENTAL DF ****/
+        bool addPointRecursive (int level, int maxlevel);
+        int addLevel(int level, int maxLevel, double point);
+        void clearLevel(int level);
+
+        list<double> calculateNextPoints(TreeNode *node);
+        void removeChildren(int tid, TreeNode* node);
+
+        void startDF_experimental(int DFlevel, int dfDepth);
+
 
     protected:
     private:
@@ -110,5 +123,5 @@ class Tree
 };
 
 bool node_compare(const TreeNode*,const TreeNode*);
-
+bool node_compare_sequence(const TreeNode*,const TreeNode*);
 #endif // TREE_H

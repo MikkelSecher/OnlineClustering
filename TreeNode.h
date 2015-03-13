@@ -25,7 +25,8 @@ class TreeNode
         TreeNode();
         TreeNode(double dPoint, TreeNode *parent);
         double workingSequence[10];
-
+        list<TreeNode>::iterator trueLink;
+        list<TreeNode*>::iterator queueLink;
 
         /**** INITITALIZATION ****/
         void setParent(TreeNode *parent);

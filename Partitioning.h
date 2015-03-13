@@ -44,6 +44,7 @@ class Partitioning
         void simpleForce(double dRatio);
         void startForce(double dRatio);
         void endForce(double dRatio);
+        list<double> getForcePoints();
 
         /**** TERMINAL IO ****/
         void listClusters();
