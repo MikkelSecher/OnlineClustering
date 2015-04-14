@@ -23,7 +23,7 @@ class Tree
         Tree(double dStartingPoint, list<double>, int, double, int);
         Tree(list<double>, list<double>, int, double, int);
 
-        TreeNode* newNode(int tid, double point, TreeNode* parant) ;
+        TreeNode* newNode(int tid, double point, TreeNode* parent) ;
 
         /**** VARIABLES ****/
         int nCount = 0;
@@ -42,6 +42,7 @@ class Tree
         list<TreeNode> seqNodes;
         list<TreeNode*> nodeQueue;
         list<TreeNode*> seqQueue;
+        list<list<TreeNode*>> sequencedTreeQueue;
         list<TreeNode*> depthFirstQueue[NUM_THREADS];
         list<TreeNode*> succesfulNodes;
         list<TreeNode*> parNodeQueue[NUM_THREADS];
@@ -52,6 +53,7 @@ class Tree
         void nextPoint(int level);
         void addPoint(int p, double dPoint);
         bool checkPartitioning();
+        bool force_experimental(TreeNode *node, TreeNode *originalNode, list<double> forcePoints, list<double> ambPoints);
 
 
         /**** GENERAL FUNCTIONS ****/
@@ -109,13 +111,13 @@ class Tree
         /**** EXPERIMENTAL DF ****/
         bool addPointRecursive (int level, int maxlevel);
         int addLevel(int level, int maxLevel, double point);
-        void clearLevel(int level);
+        void clearLevel(int level, double successPoint);
 
         list<double> calculateNextPoints(TreeNode *node);
         void removeChildren(int tid, TreeNode* node);
 
         void startDF_experimental(int DFlevel, int dfDepth);
-
+        void sequenceTree();
 
     protected:
     private:
@@ -124,4 +126,5 @@ class Tree
 
 bool node_compare(const TreeNode*,const TreeNode*);
 bool node_compare_sequence(const TreeNode*,const TreeNode*);
+bool list_compare(const list<TreeNode*>,const list<TreeNode*>);
 #endif // TREE_H

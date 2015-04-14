@@ -1,0 +1,12 @@
+*.o
+*.depend
+bin/
+res/
+bin/
+*.cbp
+*.exe
+*.tex
+*.gml
+nbprojext/
+*.txt
+nbproject/

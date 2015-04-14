@@ -15,8 +15,9 @@ class TreeNode
     public:
         int depth;
         Partitioning content;
-        bool live;
-        bool visited;
+        bool live = true;
+        bool visited = false;
+        bool rootNode = false;
         list<TreeNode*> children;
         TreeNode *parentNode;
         int livingChildren = 0;

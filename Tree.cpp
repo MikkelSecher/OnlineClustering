@@ -3,7 +3,6 @@
 using namespace std;
 
 //# define ratio 1.6
-
 /*********************************
 ********** CONSTRUCTORS **********
 *********************************/
@@ -18,7 +17,7 @@ Tree::Tree(double dStartingPoint, list<double> deltaPoints, int prefix, double r
 {
 
     //delta[deltaPoints.size()];
-    cout << "Number of deltas is "<< deltaPoints.size() << endl;
+//    cout << "Number of deltas is "<< deltaPoints.size() << endl;
     deltas = deltaPoints.size();
     resPrefix = prefix;
     print = printin;
@@ -31,6 +30,7 @@ Tree::Tree(double dStartingPoint, list<double> deltaPoints, int prefix, double r
 
     nodes[omp_get_thread_num()].push_front(TreeNode(dStartingPoint, NULL));
     nodeQueue.push_back(&nodes[omp_get_thread_num()].front());
+    nodeQueue.front()->parentNode = NULL;
 }
 
 Tree::Tree(list<double> sequence, list<double> deltaPoints, int prefix, double ratioin, int printin ) //CREATES A TREE FOR CHECKING A SEQUENCE
@@ -57,6 +57,15 @@ TreeNode* Tree::newNode(int tid, double point, TreeNode* parent)
 {
     nodes[tid].push_front(TreeNode(point, parent));
     nodes[tid].front().trueLink = nodes[tid].begin();
+
+//    if(77 == nodes[tid].front().nId)
+//    {
+//        cout << "******************************************************" << endl;
+//        nodes[tid].front().content.listClusters();
+//        nodes[tid].front().content.listPoints();
+//    }
+
+    return &nodes[tid].front();
 }
 
 /*********************************
@@ -69,50 +78,71 @@ void Tree::nextPoint(int level) //ADDS ALL POSSIBLE POINTS, BASED ON DELTAS
 // node, based on the delta values in tree.h.
 // If a point already exists in a node, it is skipped.
 
-    if(nodeQueue.size() == 0)
-        exit(0);
-    if(nodeQueue.size() > 0)
+    if(print != 2)
     {
+
+        if(nodeQueue.size() == 0)
+            exit(0);
+        if(nodeQueue.size() > 0)
+        {
+            list<TreeNode*>::iterator i;
+            list<double>::iterator j;
+
+            list<double> pointsToAdd;
+
+            cout << "Level: " << level << endl;
+
+
+            for(i = nodeQueue.begin(); i != nodeQueue.end(); i++)
+            {
+                if((*i)->depth == level-1)
+                {
+                    for(j = nodeQueue.front()->content.sortedPoints.begin(); j != nodeQueue.front()->content.sortedPoints.end(); j++)
+                    {
+                        for(int k = 0; k < deltas; k++)
+                        {
+                            //debugging
+                            //double point = nodeQueue.front()->content.doesPointExist((*j) + delta[k]);
+                            if(nodeQueue.front()->content.doesPointExist((*j) + delta[k]))
+                            {
+                                pointsToAdd.push_back((*j)+delta[k]);
+                                //addPoint(0, (*j)+delta[k]);
+                            }
+                        }
+                    }
+                    pointsToAdd.sort();
+                    pointsToAdd.unique();
+
+                    for(j = pointsToAdd.begin(); j != pointsToAdd.end(); j++)
+                    {
+                        addPoint(0, (*j));
+                    }
+                    pointsToAdd.clear();
+
+                    i = nodeQueue.erase(i);
+
+                    i--;
+                }
+            }
+
+        }
+    }else{
+        double pointList[11] = {4,5,6,2,1,0, 2.5,7, 8, 8.5, 9};
+        cout << "Adding point " << pointList[level-1] << endl;
         list<TreeNode*>::iterator i;
-        list<double>::iterator j;
-
-        list<double> pointsToAdd;
-
-        cout << "Level: " << level << endl;
-
 
         for(i = nodeQueue.begin(); i != nodeQueue.end(); i++)
         {
             if((*i)->depth == level-1)
             {
-                for(j = nodeQueue.front()->content.sortedPoints.begin(); j != nodeQueue.front()->content.sortedPoints.end(); j++)
-                {
-                    for(int k = 0; k < deltas; k++)
-                    {
-                        //debugging
-                        //double point = nodeQueue.front()->content.doesPointExist((*j) + delta[k]);
-                        if(nodeQueue.front()->content.doesPointExist((*j) + delta[k]))
-                        {
-                            pointsToAdd.push_back((*j)+delta[k]);
-                            //addPoint(0, (*j)+delta[k]);
-                        }
-                    }
-                }
-                pointsToAdd.sort();
-                pointsToAdd.unique();
+                (*i)->content.listPoints();
+                (*i)->content.listClusters();
 
-                for(j = pointsToAdd.begin(); j != pointsToAdd.end(); j++)
-                {
-                    addPoint(0, (*j));
-                }
-                pointsToAdd.clear();
-
+                addPoint(0, pointList[level-1]);
                 i = nodeQueue.erase(i);
-
                 i--;
             }
         }
-
     }
 }
 
@@ -122,11 +152,183 @@ bool Tree::checkPartitioning() //CHECKS RATIO, AND IF A PARTITIONING CAN BE FORC
 // Checks ratio for a partitioning
 // Returns FALSE if the ratio is above the threshold
 // Also tries to break the partitioning by forcing new points
-    if(nodes[omp_get_thread_num()].front().content.calcRatio() > ratio)
+    int tid = omp_get_thread_num();
+    if(geq(nodes[tid].front().content.calcRatio(), ratio))
     {
         return false;
     }
-    return nodes[omp_get_thread_num()].front().content.force(ratio);
+    if(nodes[tid].front().depth == 0)
+        return true;
+
+    nodes[tid].front().content.setAmbSpace();
+    list<double> ambPoints = nodes[tid].front().content.getAmbPoints();
+    if(!force_experimental(&nodes[tid].front(), &nodes[tid].front(), nodes[tid].front().content.getForcePoints(), ambPoints))
+        return false;
+
+    //return nodes[tid].front().content.force(ratio);
+    return true;
+}
+
+bool Tree::force_experimental(TreeNode *node, TreeNode *originalNode, list<double> forcePoints, list<double> ambPoints)
+{
+    int tid = omp_get_thread_num();
+    list<double>::iterator dit;
+    list<double> emptyList;
+    //node->content.forced = true;
+    TreeNode* forceNode;
+
+    ///If there are no forcepoints
+    if(forcePoints.size() == 0)
+    {
+        ///As long as there is still ambiguous points
+        while(ambPoints.size() != 0)
+        {
+            ///Check that the point doesn't already exist (safety)
+            if(!node->content.doesPointExist(ambPoints.front()))
+            {
+                //cout << "POOOOOOOOOOOOOOOOPPING! " << endl;
+                ambPoints.pop_front();
+                continue;
+            }
+            ///Get a new node to work on
+            forceNode = newNode(tid, ambPoints.front(), node);
+            forceNode->content.openCluster(ambPoints.front());
+
+            ///If opening the new cluster breaks the ratio, it means that
+            ///there is only one choice -> expand the current cluster
+            if(geq(forceNode->content.calcRatio(), ratio))
+            {
+                ///Erase the node that broke the ratio
+                nodes[tid].erase(forceNode->trueLink);
+                ///And make a new one
+                forceNode = newNode(tid, ambPoints.front(), node);
+                ///If the ambiguous point is in range to the LEFT of a cluster/point
+                if(forceNode->content.pointInRange(ambPoints.front()) == -2)
+                {
+                    ///Grow the cluster
+                    forceNode->content.growClusterLeft(ambPoints.front());
+                    ///Get new forcePoints
+                    forcePoints = forceNode->content.getForcePoints();
+                    ///Get ready to call the force with an empty ambPoints list
+                    emptyList = ambPoints;
+                    emptyList.remove(ambPoints.front());
+                    ///Call it
+                    if(!force_experimental(forceNode, originalNode, forcePoints, emptyList))
+                    {
+                        ///If it is now forcable, return false (Success)
+                        node->content.forced = true;
+                        node->live = false;
+
+                        ///Update the original node with the expanded cluster
+                        originalNode->content.growClusterLeft(ambPoints.front());
+                        originalNode->content.forcedPoints.push_front(ambPoints.front());
+                        ///Erase the forceNode from memory
+                        nodes[tid].erase(forceNode->trueLink);
+                        ///Clear the nodes children
+                        node->children.clear();
+
+                        return false;
+                    }
+                }
+                ///If the ambiguous point is in range to the RIGHT of a cluster/point
+                else if(forceNode->content.pointInRange(ambPoints.front()) == 2)
+                {
+                    forceNode->content.growClusterRight(ambPoints.front());
+                    forcePoints = forceNode->content.getForcePoints();
+                    emptyList = ambPoints;
+                    emptyList.remove(ambPoints.front());
+                    if(!force_experimental(forceNode, originalNode, forcePoints, emptyList))
+                    {
+                        node->content.forced = true;
+                        node->live = false;
+
+                        originalNode->content.growClusterRight(ambPoints.front());
+                        originalNode->content.forcedPoints.push_front(ambPoints.front());
+                        nodes[tid].erase(forceNode->trueLink);
+                        node->children.clear();
+
+                        return false;
+
+                    }
+                }
+            }
+            ///If this doesn't work, erase the node worked on
+            nodes[tid].erase(forceNode->trueLink);
+            ///And try with the next ambiguous point
+            ambPoints.pop_front();
+        }
+        ///When there are no more points return true (FAIL)
+        return true;
+
+    }
+
+    ///Get the current forcepoints for the node
+    forcePoints = node->content.getForcePoints();
+
+    ///For each of the forcePoints
+    for(dit = forcePoints.begin(); dit != forcePoints.end(); dit++)
+    {
+        ///Check that the point doesn't already exist (safety)
+        if(!node->content.doesPointExist((*dit)))
+           {
+             continue;
+           }
+        ///Create a new node to force with
+        forceNode = newNode(tid, *dit, node);
+        ///And open a forced cluster
+        forceNode->content.openCluster(*dit);
+
+        //cout<< "Node Id: " << forceNode->nId << endl;
+
+        ///If the ratio is broken by this
+        if(geq(forceNode->content.calcRatio(), ratio))
+        {
+            ///If successful
+            node->content.forced = true;
+            node->live = false;
+
+            originalNode->content.openCluster(*dit);
+            originalNode->content.forcedPoints.push_front(*dit);
+            nodes[tid].erase(forceNode->trueLink);
+            node->children.clear();
+
+            return false;
+        }
+        ///Else call again with the forcepoint list
+        else if(!force_experimental(forceNode, originalNode, forcePoints, ambPoints))
+        {
+            ///If successful
+            originalNode->content.openCluster(*dit);
+
+            originalNode->content.forcedPoints.push_front(*dit);
+            node->content.forced = true;
+            nodes[tid].erase(forceNode->trueLink);
+            node->children.clear();
+
+            return false;
+        }
+        ///Else try with ambiguous points
+        else if(!force_experimental(forceNode, originalNode, emptyList, ambPoints))
+        {
+            ///If successful
+            originalNode->content.openCluster(*dit);
+
+            originalNode->content.forcedPoints.push_front(*dit);
+            node->content.forced = true;
+            nodes[tid].erase(forceNode->trueLink);
+            node->children.clear();
+            return false;
+        }
+        ///Else clean up and return true (FAIL)
+        else{
+            nodes[tid].erase(forceNode->trueLink);
+            return true;
+        }
+        originalNode->children.clear();
+    }
+
+    //cout << "Could not force at all "<< endl;
+    return true;
 }
 
 
@@ -198,10 +400,17 @@ void Tree::analyzeTree(int DFlevel) //FINDS PROOFS AFTER DF PART IS DONE
         {
             for(i = parSuccesfulNodes[t].begin(); i != parSuccesfulNodes[t].end(); i++)
             {
-                //amount++;
-                if(backtrackSolution((*i)->parentNode, (*i)->content.points, DFlevel, succes))
+                if((*i)->nId = 1 and backtrackSolution((*i), (*i)->content.points, DFlevel, succes))
                 {
-                    cout << "PROOF FOUND in thread "<< t << endl;
+                    cout << "from root PROOF FOUND in thread "<< t << endl;
+                    succes++;
+                }
+
+
+                //amount++;
+                if((*i)->nId != 1 and backtrackSolution((*i)->parentNode, (*i)->content.points, DFlevel, succes))
+                {
+                    cout << " from non-root PROOF FOUND in thread "<< t << endl;
                     succes++;
                 }
             }
@@ -675,49 +884,121 @@ void Tree::startDF_experimental(int DFlevel, int dfDepth)
 {
     int tid = omp_get_thread_num();
 
+    if(nodeQueue.size() > 1)
+    {
+        cout << "Sorting" << endl;
+        nodeQueue.sort(node_compare_sequence); //Sort queue wrt. sequence of points
+    }
 
-    nodeQueue.sort(node_compare_sequence); //Sort queue wrt. sequence of points
+    sequenceTree();
+
     cout << "sorted" << endl;
-    list<TreeNode*>::iterator nit = nodeQueue.begin();
-    string currentHash = nodeQueue.front()->content.pointHash;
-    bool potential = true; //If a proof for a sequence is still possible, this is true.
-    int nodesToDelete = 0;
-    int proofCount = 0;
-    depthFirstQueue[tid].push_back(nodeQueue.front());
 
+    list<TreeNode*>::iterator nit = sequencedTreeQueue.front().begin();
+    list<TreeNode>::iterator temp = nodes[tid].begin();
+
+    string currentHash = nodeQueue.front()->content.pointHash;
+
+    bool potential = true; //If a proof for a sequence is still possible, this is true.
+    int nodesDeleted = 0;
+    int proofCount = 0;
+    //depthFirstQueue[tid].push_back(nodeQueue.front());
+
+    list<list<TreeNode*>>::iterator lit = sequencedTreeQueue.begin();
+
+    while(lit != sequencedTreeQueue.end())
+    {
+        cout << "Should only print once (startDF while loop) "<< endl;
+        temp = nodes[0].begin();
+        //go DF on each of the nodes in the miniQueue.
+        cout << "------------------------------" << endl;
+        while(nit != (*lit).end())
+        {
+            cout << "Node Id : "<< (*nit)->nId << endl;
+            depthFirstQueue[tid].push_front((*nit));
+            if(potential and !addPointRecursive(DFlevel, dfDepth))
+            {
+                (*nit)->live = false;
+                succesfulNodes.push_back(*nit);
+                nit++;
+
+                if(nit == (*lit).end())
+                    cout << "YAY Subproof found!" << endl;
+
+                depthFirstQueue[0].clear();
+            }
+            else{
+                //if one fails, erase all that were in the miniQueue.
+                if (potential)
+                {
+                    nit = (*lit).begin();
+                    nodes[0].erase(nodes[0].begin(), temp);
+                }
+                depthFirstQueue[0].clear();
+                potential = false;
+            }
+            if (!potential)
+            {
+                //clearLevel(DFlevel);
+                nit++;
+                //erase full subtree from the node.
+            }
+
+            if(nit == (*lit).end() and potential)
+            {
+                //if all succeeds analyze tree and print solution.
+                cout << "Found Proof! :) " << endl;
+                analyzeTree(DFlevel);
+
+                exit(1);
+            }
+        }
+
+        lit++;
+        if(lit != sequencedTreeQueue.end())
+        {
+            nit = (*lit).begin();
+        }
+        potential = true;
+
+
+    }
+//    analyzeTree(DFlevel);
+    cout << "Didn't find a proof" << endl;
+    if(succesfulNodes.size() > 0){
+        cout << "However I did find " << succesfulNodes.size() << " sub proofs" << endl;
+        succesfulNodes.back()->content.listPoints();
+        succesfulNodes.back()->content.listClusters();
+    }
+
+
+    return; ///For testing
     while(nit != nodeQueue.end())
     {
-//        cout << "Working on node " << (*nit)->nId << endl;
+//        cout << "Ever" << endl;
+        if(nodeQueue.size()%100 == 0)
+        {
+            cout << nodeQueue.size() << endl;
+            cout << "Node ID: " << nodeQueue.front()->nId << endl;
+        }
         if(potential)
         {
-
             if(currentHash.compare((*nit)->content.pointHash) == 0)
             {
-
                 depthFirstQueue[tid].push_front((*nit));
                 if(addPointRecursive(DFlevel, dfDepth))
                 {
-//                    for(int i = 0; i < nodesToDelete; i++)
-//                    {
-//                        succesfulNodes.pop_back();
-//                    }
-                    nodesToDelete = 0;
-//                    cout << "Skipping forward" << endl;
+                    nodes[tid].erase(nodes[tid].begin(), temp);
+                    temp = nodes[tid].begin();
                     potential = false;
                 }
                 else{
-                    nodesToDelete++;
-                    succesfulNodes.push_back(*nit);
                     (*nit)->live = false;
-
                 }
                 depthFirstQueue[tid].clear();
-
                 nit++;
-
                 if(nit == nodeQueue.end())
                 {
-
                     cout << "End of the line" << endl;
                     cout << "Found " << proofCount << " proofs" << endl;
                     analyzeTree(DFlevel);
@@ -728,29 +1009,27 @@ void Tree::startDF_experimental(int DFlevel, int dfDepth)
             {
                 cout <<(*nit)->nId << endl;
                 proofCount++;
+                temp = nodes[tid].begin();
+                    succesfulNodes.push_back(*nit);
                 cout << "Found a god damn proof!" << endl;
-                //exit(1);
+                analyzeTree(DFlevel);
+                exit(1);
                 potential = false;
-
-
             }
 
             while(!potential and currentHash.compare((*nit)->content.pointHash) == 0)
             {
-                nit++;
+                        nit++;
             }
             if(!potential and currentHash.compare((*nit)->content.pointHash) != 0)
             {
-                clearLevel(DFlevel);
+                clearLevel(DFlevel, 1000);
                 currentHash = (*nit)->content.pointHash;
                 potential = true;
             }
         }
+        nodeQueue.pop_front();
     }
-
-
-
-
 }
 
 void Tree::startDF(int DFlevel, int dfDepth) //DF PART OF THE PROGRAM - RUNS IN OPENMP PARALLEL
@@ -980,19 +1259,23 @@ void Tree::destroySubtree(TreeNode* node) //DESTROYS AN UNSUCCESSFUL SUBTREE
         for(i = node->children.begin(); i != node->children.end(); i++)
         {
             destroySubtree((*i));
-
+//            cout << nodes[tid].size() << endl;
+            nodes[tid].erase((*i)->trueLink);
+//            cout << "Erase" << endl;
+//            cout << nodes[tid].size() << endl;
             list<TreeNode>::iterator j;
             //for(int t = 0; t < NUM_THREADS; t++)
-            {
-                for(j = nodes[tid].begin(); j != nodes[tid].end(); j++)
-                {
-                    if((j)->nId == (*i)->nId)
-                    {
-                        nodes[tid].erase(j);
-                        break;
-                    }
-                }
-            }
+//            {
+//
+//                for(j = nodes[tid].begin(); j != nodes[tid].end(); j++)
+//                {
+//                    if((j)->nId == (*i)->nId)
+//                    {
+//                        nodes[tid].erase(j);
+//                        break;
+//                    }
+//                }
+//            }
         }
 
     node->children.clear();
@@ -1081,7 +1364,11 @@ int Tree::addPointDF_experimental(double dPoint, TreeNode *node)//ADDS A GIVEN P
             nodesAdded = noChoiceDF(node, dPoint);
         } break;
     }
-    //cout << "Returning " << nodesAdded << endl;
+
+//    if(node->rootNode){
+//        cout << "Returning " << nodesAdded << " nodes, for point " << dPoint << endl;
+//    }
+
     return nodesAdded;
 
 }
@@ -1090,23 +1377,38 @@ bool Tree::backtrackSolution(TreeNode* node, list<double> points, int DFlevel, i
 {
     //Backtracks through to the root of the tree, and explores to see if
     //all leafs end in ratios higher than threshold
+    node->content.listClusters();
+    cout << "Nodes ID: "<< node->nId << endl;
+    if(node->parentNode == NULL)
+    {
+        cout << "ITS NULL" << endl;
+    }
+
+
 
     FILE * pFile;
-//    cout << "REACHED BACKTRACK SOLUTION" << endl;
+    cout << "REACHED BACKTRACK SOLUTION" << endl;
     string sNodeID = node->content.stringIt(node->nId);
-    if(node->depth != 0)
+    if(node->nId != 1 and node->parentNode != NULL )
     {
+        cout << "nID: " << node->nId << endl;
         if(!backtrackSolution(node->parentNode, points, DFlevel, succesNumber))
             return false;
         else
             return true;
     }
 
+
     char filename[30];
     sprintf(filename, "res\\%d_%d_solution_%d .gml", resPrefix, omp_get_thread_num(), succesNumber);
 
-    if(node->depth == 0)
+
+
+    if(node->depth == 0 or node->rootNode)
     {
+        cout << "node " << node->nId << " number of children " <<  node->children.size() << endl;
+        node->children.front()->content.listClusters();
+        node->children.back()->content.listClusters();
         if(print >= 1)
         {
 
@@ -1118,7 +1420,6 @@ bool Tree::backtrackSolution(TreeNode* node, list<double> points, int DFlevel, i
 
         if(!forwardCheck(node, points, DFlevel, succesNumber))
         {
-
             return false;
         }
     }
@@ -1142,7 +1443,7 @@ bool Tree::forwardCheck(TreeNode* node, list<double> points, int DFlevel, int su
     double point = points.front();
     points.pop_front();
 
-    double difference =  point-points.front() ;
+    double difference =  point-points.front();
     int livingChildren = 0;
     list<TreeNode*>::iterator i;
 
@@ -1196,7 +1497,7 @@ bool Tree::forwardCheck(TreeNode* node, list<double> points, int DFlevel, int su
 
         if((*i)->depth > DFlevel)
         {
-            if(print >= 1)
+            if(print >= 1 and (geq((*i)->content.calcRatio(), ratio) or (*i)->children.size() > 0))
             {
                 (*i)->content.insertNodeLabel(false, (*i)->nId, succesNumber, resPrefix);
                 (*i)->content.insertEdgeLabel((*i)->parentNode->nId, (*i)->nId, succesNumber, resPrefix);
@@ -1446,12 +1747,15 @@ void Tree::subtreePrinter(TreeNode* node, int succesNumber) //PRINTS A NODES SUB
             cout << "Writing node" << endl;
             node->content.insertNodeLabel(false, node->nId, succesNumber, resPrefix);
 
-
+            cout << "Number of children " << node->children.size() << endl;
             list<TreeNode*>::iterator i;
             for(i = node->children.begin(); i != node->children.end(); i++)
             {
                 subtreePrinter((*i), succesNumber);
             }
+
+            cout <<  node->nId << " has parent " << node->parentNode->nId << endl;
+
             cout << "Writing edge" << endl;
             node->content.insertEdgeLabel(node->parentNode->nId, node->nId, succesNumber, resPrefix);
 }
@@ -1556,7 +1860,7 @@ int Tree::splitSuccesQueue(int numberOfThreads) //SPLITS SUCCESQUEUE INTO CHUNKS
     for(i = succesfulNodes.begin(); i != succesfulNodes.end(); i++)
     {
 
-        if(listsMade == numberOfThreads)
+        if(listsMade == numberOfThreads or splits == 0)
         {
             succesfulNodes.splice(parSuccesfulNodes[listsMade-1].begin(), parSuccesfulNodes[listsMade-1], first, last);
             goto finish;
@@ -1885,8 +2189,11 @@ void Tree::threeChoicesSeq(TreeNode *parent, double dPoint)
 ****** EXPERIMENTAL DF ***********
 *********************************/
 bool Tree::addPointRecursive(int level, int maxLevel)
-{
+//Returns false if a subproof is found
 
+{
+//    if(nodes[0].size()%1000 == 0)
+//    cout << "Number of nodes " << nodes[0].size() << endl;
 
     int tid = omp_get_thread_num();
     int nodesAdded = 0;
@@ -1894,10 +2201,10 @@ bool Tree::addPointRecursive(int level, int maxLevel)
     list<TreeNode*>::iterator nit;
     list<double>::iterator pit;
 
-
+    ///If reached the maxlevel, just return true (FAIL)
     if(level == maxLevel)
     {
-//        cout << "All the way down..." << endl;
+        //cout << "All the way down..." << endl;
         return true;
     }
 
@@ -1911,22 +2218,29 @@ bool Tree::addPointRecursive(int level, int maxLevel)
         }
     }
 
-
+    if(level == 11){
+        cout << "Number of poinst to go through " << nextPoints.size() << endl;
+    }
     for(pit = nextPoints.begin(); pit != nextPoints.end(); pit++)
     {
         nodesAdded = 0;
         nodesAdded = addLevel(level, maxLevel, *pit);
+        if(level == 11){
+            cout << "Next point: "<< (*pit) << endl;
+        }
         if(nodesAdded == 0)
         {
-//            cout << "NO NEW POINTS ADDED ON LEVEL "<< level << endl;
+            cout << "NO NEW POINTS ADDED ON LEVEL "<< level << endl;
             return false;
         }
         else
-            if(!addPointRecursive(level+1, maxLevel))
+            if(!addPointRecursive(level+1, maxLevel)){
+                cout << "How often does this happen?" << endl;
+                // ->clear next level for unsuccessful nodes, that are not to be continued.
+//                clearLevel(level+1, (*pit));
                 return false;
-
-        clearLevel(level+1);
-
+            }
+        clearLevel(level+1, 100);
     }
     return true;
 }
@@ -1936,6 +2250,7 @@ int Tree::addLevel(int level,int maxLevel, double point)
     int nodesAdded = 0;
     int tid = omp_get_thread_num();
     list<TreeNode*>::iterator nit;
+
     for(nit = depthFirstQueue[tid].begin(); nit != depthFirstQueue[tid].end(); nit++)
     {
         if((*nit)->depth == level)
@@ -1943,28 +2258,62 @@ int Tree::addLevel(int level,int maxLevel, double point)
             nodesAdded += addPointDF_experimental(point, (*nit));
         }
     }
+
+
     return nodesAdded;
 }
 
-void Tree::clearLevel(int level)
+void Tree::clearLevel(int level, double successPoint)
 {
-    int tid = omp_get_thread_num();
-    list<TreeNode*>::iterator nit = depthFirstQueue[tid].begin();
-    int start = depthFirstQueue[tid].size();
-    while(nit != depthFirstQueue[tid].end())
-    {
-        if((*nit)->depth >= level)
-        {
 
-            (*nit)->parentNode->children.clear();
-            nodes[0].erase((*nit)->trueLink);
-            nit = depthFirstQueue[tid].erase(nit);
-        }
+    int tid = omp_get_thread_num();
+//    if(successPoint >= 100){
+        list<TreeNode*>::iterator nit = depthFirstQueue[tid].begin();
+        list<TreeNode*>::iterator pit;
+        int start = depthFirstQueue[tid].size();
+
+        while(nit != depthFirstQueue[tid].end())
+        {
+            if((*nit)->depth == level)
+            {
+//                if(deq(successPoint, 100)){
+//                    for(pit = (*nit)->parentNode->children.begin(); pit != (*nit)->parentNode->children.end(); pit++){
+//    //                        cout << "Will this fail immideately? " << endl;
+//                            (*nit)->parentNode->children.erase(pit);
+//                    }
+//                }   else{
+                destroySubtree((*nit));
+    //            nodes[0].erase((*nit)->trueLink);
+                nit = depthFirstQueue[tid].erase(nit);
+            }
+//        }
         else
         {
             ++nit;
         }
-    }
+        }
+//    }
+//    else {
+//        list<TreeNode*>::iterator nit = depthFirstQueue[tid].begin();
+//        int start = depthFirstQueue[tid].size();
+//
+//        while(nit != depthFirstQueue[tid].end())
+//        {
+//            if((*nit)->depth == level and (!deq((*nit)->content.points.back(), successPoint)))
+//            {
+//
+//
+//    //            (*nit)->parentNode->children.clear();
+//                nodes[0].erase((*nit)->trueLink);
+//                nit = depthFirstQueue[tid].erase(nit);
+//            }
+//            else
+//            {
+//                ++nit;
+//            }
+//        }
+//    }
+
 }
 
 list<double> Tree::calculateNextPoints(TreeNode *node)
@@ -1991,7 +2340,9 @@ list<double> Tree::calculateNextPoints(TreeNode *node)
     }
     nextPoints.sort();
     nextPoints.unique();
-//    cout << "Points sorted out" << endl;
+    nextPoints.reverse(); ///negative numbers makes it normalize the list, so if there is a proof in the positives we want it as fast as possible..
+
+//    cout << "Points sorted out for node: "<< node->nId << endl;
 //    for (it = nextPoints.begin(); it != nextPoints.end(); it++)
 //    {
 //        cout << *it << " ";
@@ -2029,6 +2380,70 @@ void Tree::removeChildren(int tid, TreeNode* node)
         }
     }
     node->children.clear();
+}
+
+void Tree::sequenceTree()
+{
+    cout << "size of nodeQueue: " << nodeQueue.size() << endl;
+    list<TreeNode*>::iterator nit = nodeQueue.begin();
+    string currentHash = nodeQueue.front()->content.pointHash;
+    sequencedTreeQueue.push_back(list<TreeNode*>());
+    while(nit != nodeQueue.end())
+    {
+            if(currentHash.compare((*nit)->content.pointHash) == 0)
+            {
+                sequencedTreeQueue.back().push_back(*nit);
+            }
+            else{
+
+                sequencedTreeQueue.push_back(list<TreeNode*>());
+                sequencedTreeQueue.back().push_back(*nit);
+                currentHash = (*nit)->content.pointHash;
+            }
+            nit++;
+    }
+    cout << "size of nodeQueue: " << nodeQueue.size() << endl;
+    //print the sizes of the mini-lists
+    list<list<TreeNode*>>::iterator it = sequencedTreeQueue.begin();
+
+//    while(it != sequencedTreeQueue.end())
+//    {
+//        cout << " " << (*it).size();
+//        it++;
+//    }
+    sequencedTreeQueue.sort(list_compare);
+//    cout << "" << endl;
+//    cout << "" << endl;
+//    it = sequencedTreeQueue.begin();
+//    while(it != sequencedTreeQueue.end())
+//    {
+//        cout << " " << (*it).size();
+//        it++;
+//   }
+//    cout << "Out" << endl;
+    nodeQueue.clear();
+    cout << "size of nodeQueue (should be 0) : " << nodeQueue.size() << endl;
+    for(it = sequencedTreeQueue.begin(); it != sequencedTreeQueue.end(); it++)
+    {
+        for(nit = (*it).begin(); nit != (*it).end(); nit++)
+        {
+            nodeQueue.push_back(*nit);
+        }
+    }
+    cout << "size of nodeQueue: " << nodeQueue.size() << endl;
+    cout << "size of other list: "<< sequencedTreeQueue.front().size() << endl;
+    cout << "Size of the sequence list: " << sequencedTreeQueue.size() << endl;
+
+}
+bool list_compare(const list<TreeNode*> first,const list<TreeNode*> second)
+{
+
+    if (first.size() >= second.size())
+    {
+        return false;
+    }
+    if (first.size() < second.size())
+        return true;
 }
 
 

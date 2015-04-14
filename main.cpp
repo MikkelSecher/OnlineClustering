@@ -36,11 +36,13 @@ int main(int argc, char* argv[])
     //list<double> testSequence = {2,3,1,4,0,5,-0.5,-1,0.5};
     //list<double> testSequence = {2,1,1.5,3,0,2.5,-0.5,0.5,-1};
     //testSequence = {3,4,5,6,2,1,0,2.5,7,8, 4.5, 8.5, 9, 10, 11, 9.5, 12};
-    //testSequence = {1.5, 2.5, 3,3.5};
+//    testSequence = {1.5, 2.5, 3,3.5};
     //testSequence = {0.5, 1.5, 0, 2.5, 3.5};
     //testSequence = {0};
     //cout<< "Should never get here" << endl;
 //    testSequence = {2,3,1,4,0,5};
+
+//    testSequence = {3,4,5,6,2,1,0, 2.5,7, 8, 4.5, 8.5};
 
     //Check for correct argument numbers
     if(numberOfDeltas != argc-7)
@@ -53,8 +55,8 @@ int main(int argc, char* argv[])
     {
             deltaValues.push_front(atof(argv[i]));
     }
-
-
+    OCTester test1 = OCTester();
+    exit(1);
 
     cout << "Run ID: "<< prefix << endl;
     cout << "Ratio: " << ratio << endl;
@@ -69,8 +71,20 @@ int main(int argc, char* argv[])
 
     //For experimenting
 //    Tree tree(testSequence, deltaValues, prefix, ratio, print);
-//    tree.depthFirstQueue[0].push_back(tree.nodeQueue.front());
+//    while(tree.nodeQueue.size() != 0)
+//    {
+//        tree.depthFirstQueue[0].push_back(tree.nodeQueue.front());
+//        tree.nodeQueue.pop_front();
+//    }
+//    cout << "DF size " << tree.depthFirstQueue[0].size() << endl;
+//
+////    tree.startDF_experimental(testSequence.size(), dfDepth);
+////    tree.depthFirstQueue[0].back()->content.adClusters[1][1] = 3.75;
+////    exit(1);
 //    tree.depthFirstQueue[0].back()->content.listPoints();
+//    tree.depthFirstQueue[0].back()->content.listClusters();
+//    tree.depthFirstQueue[0].back()->content.getForcePoints();
+//
 //    if(!tree.addPointRecursive(testSequence.size()-1, dfDepth))
 //        {
 //            cout << "Proof found!!!!!" << endl;

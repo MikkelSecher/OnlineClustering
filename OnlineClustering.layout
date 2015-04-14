@@ -1,84 +1,73 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_layout_file>
 	<ActiveTarget name="Debug" />
-	<File name="Partitioning.h" open="1" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="main.cpp" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="1" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="655" topLine="4" />
+			<Cursor1 position="1798" topLine="21" />
 		</Cursor>
 	</File>
-	<File name="main.h" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="Tree.h" open="1" top="0" tabpos="10" split="0" active="1" splitpos="0" zoom_1="1" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="327" topLine="0" />
+			<Cursor1 position="279" topLine="7" />
 		</Cursor>
 	</File>
-	<File name="Tree.h" open="1" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="TreeNode.h" open="1" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="1" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="261" topLine="9" />
+			<Cursor1 position="40" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="Partitioning.cpp" open="1" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="TreeNode.cpp" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="1" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="16532" topLine="527" />
+			<Cursor1 position="676" topLine="21" />
 		</Cursor>
 	</File>
-	<File name="TreeNode.cpp" open="1" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="OCTester.cpp" open="1" top="1" tabpos="7" split="0" active="1" splitpos="0" zoom_1="1" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="0" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="TreeNode.h" open="1" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="0" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="main.cpp" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="3200" topLine="9" />
-		</Cursor>
-	</File>
-	<File name="Tree.cpp" open="1" top="1" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="55790" topLine="127" />
+			<Cursor1 position="2962" topLine="30" />
 		</Cursor>
 		<Folding>
-			<Collapse line="11" />
+			<Collapse line="38" />
+			<Collapse line="109" />
+			<Collapse line="132" />
+			<Collapse line="154" />
+			<Collapse line="176" />
+			<Collapse line="195" />
+			<Collapse line="218" />
+			<Collapse line="241" />
+			<Collapse line="262" />
+			<Collapse line="277" />
+			<Collapse line="298" />
+			<Collapse line="319" />
+			<Collapse line="346" />
+		</Folding>
+	</File>
+	<File name="OCTester.h" open="1" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="1" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="945" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="main.h" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="1" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="208" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="Partitioning.cpp" open="1" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="1" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="21265" topLine="708" />
+		</Cursor>
+	</File>
+	<File name="Partitioning.h" open="1" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="1" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="776" topLine="4" />
+		</Cursor>
+	</File>
+	<File name="Tree.cpp" open="1" top="0" tabpos="9" split="0" active="1" splitpos="956" zoom_1="1" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="75604" topLine="2195" />
+		</Cursor>
+		<Folding>
+			<Collapse line="10" />
 			<Collapse line="16" />
-			<Collapse line="35" />
-			<Collapse line="61" />
-			<Collapse line="103" />
-			<Collapse line="121" />
-			<Collapse line="151" />
-			<Collapse line="214" />
-			<Collapse line="245" />
-			<Collapse line="278" />
-			<Collapse line="315" />
-			<Collapse line="380" />
-			<Collapse line="445" />
-			<Collapse line="480" />
-			<Collapse line="513" />
-			<Collapse line="613" />
-			<Collapse line="802" />
-			<Collapse line="838" />
-			<Collapse line="867" />
-			<Collapse line="908" />
-			<Collapse line="953" />
-			<Collapse line="1029" />
-			<Collapse line="1072" />
-			<Collapse line="1117" />
-			<Collapse line="1144" />
-			<Collapse line="1169" />
-			<Collapse line="1225" />
-			<Collapse line="1244" />
-			<Collapse line="1268" />
-			<Collapse line="1315" />
-			<Collapse line="1367" />
-			<Collapse line="1414" />
-			<Collapse line="1423" />
-			<Collapse line="1454" />
-			<Collapse line="1498" />
-			<Collapse line="1542" />
-			<Collapse line="1567" />
-			<Collapse line="1591" />
 		</Folding>
 	</File>
 </CodeBlocks_layout_file>
