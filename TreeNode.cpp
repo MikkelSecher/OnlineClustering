@@ -36,6 +36,7 @@ TreeNode::TreeNode(double dPoint, TreeNode *parent)
     }
     else
     {
+        rootNode = true;
         depth = 0;
         content = Partitioning(dPoint);
     }

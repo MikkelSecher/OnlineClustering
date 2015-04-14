@@ -14,6 +14,7 @@ using std::atoi;
 
 int main(int argc, char* argv[])
 {
+
     double startTime = omp_get_wtime();
     double endTime;
     double startTimeBF;
@@ -35,10 +36,13 @@ int main(int argc, char* argv[])
     //list<double> testSequence = {2,3,1,4,0,5,-0.5,-1,0.5};
     //list<double> testSequence = {2,1,1.5,3,0,2.5,-0.5,0.5,-1};
     //testSequence = {3,4,5,6,2,1,0,2.5,7,8, 4.5, 8.5, 9, 10, 11, 9.5, 12};
-    //testSequence = {0.00, 0.50, 1.50, 2.00, 2.50, 3.00,-0.50, 3.50, -1.00};
-
+//    testSequence = {1.5, 2.5, 3,3.5};
+    //testSequence = {0.5, 1.5, 0, 2.5, 3.5};
+    //testSequence = {0};
     //cout<< "Should never get here" << endl;
+//    testSequence = {2,3,1,4,0,5};
 
+//    testSequence = {3,4,5,6,2,1,0, 2.5,7, 8, 4.5, 8.5};
 
     //Check for correct argument numbers
     if(numberOfDeltas != argc-7)
@@ -51,6 +55,9 @@ int main(int argc, char* argv[])
     {
             deltaValues.push_front(atof(argv[i]));
     }
+    OCTester test1 = OCTester();
+    exit(1);
+
     cout << "Run ID: "<< prefix << endl;
     cout << "Ratio: " << ratio << endl;
     cout << "Deltas: ";
@@ -59,9 +66,38 @@ int main(int argc, char* argv[])
         cout << (*i) << " ";
     cout << endl;
     startTimeBF = omp_get_wtime();
+    //For regular runs
     Tree tree(startingPoint, deltaValues, prefix, ratio, print);
-    //Tree tree(testSequence, deltaValues, prefix, ratio, print);
-    //exit(1);
+
+    //For experimenting
+//    Tree tree(testSequence, deltaValues, prefix, ratio, print);
+//    while(tree.nodeQueue.size() != 0)
+//    {
+//        tree.depthFirstQueue[0].push_back(tree.nodeQueue.front());
+//        tree.nodeQueue.pop_front();
+//    }
+//    cout << "DF size " << tree.depthFirstQueue[0].size() << endl;
+//
+////    tree.startDF_experimental(testSequence.size(), dfDepth);
+////    tree.depthFirstQueue[0].back()->content.adClusters[1][1] = 3.75;
+////    exit(1);
+//    tree.depthFirstQueue[0].back()->content.listPoints();
+//    tree.depthFirstQueue[0].back()->content.listClusters();
+//    tree.depthFirstQueue[0].back()->content.getForcePoints();
+//
+//    if(!tree.addPointRecursive(testSequence.size()-1, dfDepth))
+//        {
+//            cout << "Proof found!!!!!" << endl;
+//            tree.initPrinter(101);
+//            tree.subtreePrinter(tree.depthFirstQueue[0].front(), 101);
+//            tree.closePrinter(101);
+//        }
+//    else
+//        cout << "No proof found :( " << endl;
+//    exit(1);
+
+
+
     //First argument is the number of levels the program should go down breadth first...
     int startingLevel = testSequence.size();
 
@@ -96,7 +132,9 @@ int main(int argc, char* argv[])
     cout << endl;
     cout << endl;
     cout << "Finished cleanup - starting depth first" << endl;
-    tree.startDF(depthFirstLevel, dfDepth);
+//    tree.startDF(depthFirstLevel, dfDepth);
+    tree.startDF_experimental(depthFirstLevel, dfDepth);
+
     cout << endl;
     endTime = omp_get_wtime();
 

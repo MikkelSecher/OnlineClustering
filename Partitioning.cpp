@@ -23,7 +23,7 @@ Partitioning::Partitioning()
 Partitioning::Partitioning(double dPoint)
 {
     // Constructor for the root of the tree. Only called once.
-    cout << "Creating root partitioning..." << endl;
+//    cout << "Creating root partitioning..." << endl;
     nNumberOfClusters = 1;
     nNumberOfPoints = 1;
 
@@ -38,9 +38,9 @@ Partitioning::Partitioning(double dPoint)
     s << dPoint;
 
     pointHash.append(s.str());
-    cout << "Hash before " <<pointHash << " " << dPoint <<endl;
+//    cout << "Hash before " <<pointHash << " " << dPoint <<endl;
     updateHashes();
-    cout << "Hash after " <<pointHash << endl;
+//    cout << "Hash after " <<pointHash << endl;
 
 
 }
@@ -184,7 +184,7 @@ void Partitioning::growClusterRight(double dPoint)
 // Grow the cluster to the right
     if(!doesPointExist(dPoint))
     {
-        cout << "Point exists..." << endl;
+        cout << "Point exists... right" << endl;
         listPoints();
         cout << "Point: " << dPoint << endl;
         listClusters();
@@ -194,7 +194,7 @@ void Partitioning::growClusterRight(double dPoint)
     for(int i = 0; i < nNumberOfClusters; i++)
     {
 
-        if(dPoint > adClusters[i][1] and leq(dPoint, adClusters[i][0]+1))
+        if(geq(dPoint, adClusters[i][1]) and leq(dPoint, (adClusters[i][0]+1)))
         {
             if(i < nNumberOfClusters-1 and dPoint > adClusters[i+1][0])
             {
@@ -217,6 +217,16 @@ void Partitioning::growClusterRight(double dPoint)
 void Partitioning::growClusterLeft(double dPoint)
 {
 // Grow the cluster to the left
+
+    if(!doesPointExist(dPoint))
+    {
+        cout << "Point exists... left" << endl;
+        listPoints();
+        cout << "Point: " << dPoint << endl;
+        listClusters();
+
+    }
+
     for(int i = 0; i < nNumberOfClusters; i++)
     {
 
@@ -299,10 +309,13 @@ double Partitioning::calcRatio()
     return dRatio;
 }
 
+
 int Partitioning::optimal()
 {
     int clusterCount = 1;
     double currentStart = sortedPoints.front();
+    optSpace[0][0] = currentStart;
+    optSpace[0][1] = currentStart;
 
     list<double>::iterator i;
 
@@ -310,19 +323,152 @@ int Partitioning::optimal()
     {
         if(leq(*i, currentStart+1))
         {
+            optSpace[clusterCount-1][1] = (*i);
             continue;
         }
         else
         {
             currentStart = (*i);
             clusterCount++;
+            optSpace[clusterCount-1][0] = currentStart;
+            optSpace[clusterCount-1][1] = currentStart;
         }
     }
-
+//    cout << "Optimal cluster:        ";
+//    for(int j = 0; j < clusterCount; j++)
+//    {
+//        cout << " [" << optSpace[j][0] << " , " << optSpace[j][1] << "] ";
+//    }
+//    cout << endl;
+//    listClusters();
+//    cout << "Optimal number of clusters is: " << clusterCount << endl;
+//
+//    cout << "" << endl;
+    optimalClusters = clusterCount;
     return clusterCount;
 }
 
+void Partitioning::setAmbSpace()
+{
+    nNumberOfAmbs = 0;
 
+    //check if there is ambiguous space in the beginning
+    if(!geq((adClusters[0][1]-adClusters[0][0]), 1))
+    {
+        ambSpace[0][0] = (adClusters[0][1]-1);
+        ambSpace[0][1] = min((adClusters[0][0]+1), adClusters[1][0]);
+        nNumberOfAmbs++;
+    }
+
+    //find ambiguous space in the middle of the partitioning
+    for(int i = 1; i < nNumberOfClusters; i++)
+    {
+        if(!geq((adClusters[i][1]-adClusters[i][0]), 1))
+        {
+            if(!leq((adClusters[i+1][0]-adClusters[i-1][1]),1))
+            {
+                ambSpace[nNumberOfAmbs][0] = adClusters[i-1][1];
+                ambSpace[nNumberOfAmbs][1] = adClusters[i+1][0];
+                nNumberOfAmbs++;
+            }
+        }
+    }
+
+    //check if there is ambiguous space in the end
+    if(!geq((adClusters[nNumberOfClusters-1][1]-adClusters[nNumberOfClusters-1][0]),1))
+    {
+        double first = adClusters[nNumberOfClusters-2][0]+1;
+        double second = adClusters[nNumberOfClusters-1][1]-1;
+
+//        cout << "First and second points are: " << first << " and " << second << endl;
+
+        ambSpace[nNumberOfAmbs][0] = max((adClusters[nNumberOfClusters-2][0]+1), (adClusters[nNumberOfClusters-1][1]-1));
+        ambSpace[nNumberOfAmbs][1] = adClusters[nNumberOfClusters-1][0]+1;
+        nNumberOfAmbs++;
+
+//        cout << "So now the last abiguous space is from " << ambSpace[nNumberOfAmbs-1][0] << " to " << ambSpace[nNumberOfAmbs-1][1] << endl;
+
+        if(geq((ambSpace[nNumberOfAmbs-1][1]-ambSpace[nNumberOfAmbs-1][0]),1))
+        {
+            ambSpace[nNumberOfAmbs][1] = adClusters[nNumberOfClusters-1][1];
+            ambSpace[nNumberOfAmbs-1][1] = adClusters[nNumberOfClusters-1][0];
+            ambSpace[nNumberOfAmbs][0] = adClusters[nNumberOfClusters-1][1];
+        }
+        nNumberOfAmbs++;
+    }
+
+
+//    cout << "Ambiguous space: ";
+//
+//    for(int j = 0; j < nNumberOfAmbs; j++)
+//    {
+//        cout << " [" << ambSpace[j][0] << " , " << ambSpace[j][1] << "] ";
+//    }
+//    cout << "" << endl;
+//    cout << "" << endl;
+
+}
+
+list<double> Partitioning::getAmbPoints()
+{
+
+    //find overlapping spaces and pick points within these spaces
+    list<double> ambPoints;
+
+    int ambPos = 0;
+    int optPos = 0;
+    double ambOffset;
+    nNumberOfOverlaps = 0;
+    while(ambPos != nNumberOfAmbs and optPos != nNumberOfClusters and nNumberOfAmbs != 0)
+    {
+//        cout << endl;
+//        cout << "opt: " << optSpace[optPos][0] << " , " << optSpace[optPos][1] << endl;
+//        cout << "amb: " <<ambSpace[ambPos][0] << " , " << ambSpace[ambPos][1] << endl;
+        if(!leq(optSpace[optPos][0], ambSpace[ambPos][1])) //if optCluster starts after the end of ambCluster inc ambPos
+        {
+            ambPos++;
+            continue;
+        }
+        if(!leq(ambSpace[ambPos][0], optSpace[optPos][1])) //if ambCluster starts after the end of optCluster inc optPos
+        {
+            optPos++;
+            continue;
+        }
+        if(deq(ambSpace[ambPos][0], optSpace[optPos][1]))
+        {
+            optPos++;
+            continue;
+        }
+//        cout << "Do stuff..." << endl;
+        overlappingSpace[nNumberOfOverlaps][0] = max(ambSpace[ambPos][0], optSpace[optPos][0]);
+        overlappingSpace[nNumberOfOverlaps][1] = min(ambSpace[ambPos][1], optSpace[optPos][1]);
+        nNumberOfOverlaps++;
+        ambPos++;
+        optPos++;
+    }
+
+//    cout << "Overlapping space: ";
+//    for(int j = 0; j < nNumberOfOverlaps; j++)
+//    {
+//        cout << " [" << overlappingSpace[j][0] << " , " << overlappingSpace[j][1] << "] ";
+//    }
+//    cout << "" << endl;
+//    cout << "" << endl;
+
+    for(int j = 0; j < nNumberOfOverlaps; j++)
+    {
+        ambOffset = (overlappingSpace[j][1]-overlappingSpace[j][0])/2;
+        if(doesPointExist(overlappingSpace[j][0]+ambOffset))
+        {
+            ambPoints.push_back(overlappingSpace[j][0]+ambOffset);
+//            cout << "Added: "<< overlappingSpace[j][0]+ambOffset << endl;
+        }
+    }
+
+
+
+    return ambPoints;
+}
 
 /*********************************
 ************* FORCING ************
@@ -354,6 +500,8 @@ bool Partitioning::force(double dRatio)
     }
     return true;
 }
+
+
 
 void Partitioning::simpleForce(double dRatio)
 {
@@ -413,7 +561,78 @@ void Partitioning::endForce(double dRatio)
         openClusterForce(adClusters[nNumberOfClusters-1][1]+(precision/2));
 }
 
+list<double> Partitioning::getForcePoints()
+{
+    double freeSpace[50][2] = {{0}};
 
+    double start;
+    double finish;
+
+    list<double> forcePoints;
+
+    list<double>::iterator it;
+
+
+    for(int i = 1; i < nNumberOfClusters-1; i++)
+    {
+
+        start = (adClusters[i][0])+1;
+
+        finish = adClusters[i+1][1]-1;
+
+        if((start+precision) < (finish-precision))
+        {
+            freeSpace[i][0] = start;
+            freeSpace[i][1] = finish;
+        }
+    }
+
+    if(geq((adClusters[0][1] - adClusters[0][0]), 0) and !deq((adClusters[0][1] - adClusters[0][0]),0))
+    {
+        forcePoints.push_back(((adClusters[0][1])-1-precision));
+    }
+    if(!deq(adClusters[nNumberOfClusters-2][1]-adClusters[nNumberOfClusters-2][0], 0) and
+       !deq(adClusters[nNumberOfClusters-1][1]-adClusters[nNumberOfClusters-1][0], 0))
+    {
+        forcePoints.push_back(((adClusters[nNumberOfClusters-1][0])+1+precision));
+    }
+
+
+    if(!deq((adClusters[0][1] - adClusters[0][0]), 0) and !deq((adClusters[1][1] - adClusters[1][0]),0))
+    {
+        forcePoints.push_back(((adClusters[0][1])-1-precision));
+
+    }
+    if(geq(adClusters[nNumberOfClusters-1][1]-adClusters[nNumberOfClusters-1][0], 0) and
+       !deq(adClusters[nNumberOfClusters-1][1]-adClusters[nNumberOfClusters-1][0], 0))
+    {
+        forcePoints.push_back(((adClusters[nNumberOfClusters-1][0])+1+precision));
+    }
+
+
+    forcePoints.unique();
+
+    int intervals = nNumberOfClusters;
+
+    for(int i = 0; i < intervals; i++ )
+    {
+        double offset = (freeSpace[i][1]-freeSpace[i][0])/2;
+        double forcepoint = freeSpace[i][0]+ offset;
+
+        if(!deq(0, forcepoint)) //Why can't the point be 0?
+        {
+            forcePoints.push_back(forcepoint);
+        }
+    }
+
+//    cout << "Found forcepoints: ";
+//    for(it = forcePoints.begin(); it != forcePoints.end(); it++)
+//    {
+//        cout << (*it) << " , ";
+//    }
+//    cout << endl;
+    return forcePoints;
+}
 
 /*********************************
 ********** TERMINAL IO ***********
@@ -459,7 +678,7 @@ void Partitioning::listSortedPoints()
 /*********************************
 ************** FILE IO ***********
 *********************************/
-void Partitioning::insertNodeLabel(bool forced, long long nodeID, int succesNumber, int prefix)
+void Partitioning::insertNodeLabel(bool level, long long nodeID, int succesNumber, int prefix)
 {
     FILE *pFile;
     char filename[20];
@@ -470,9 +689,9 @@ void Partitioning::insertNodeLabel(bool forced, long long nodeID, int succesNumb
     fprintf(pFile, "node \n [ \n id n%s \n", sNodeID.c_str());
     fprintf(pFile, "label \" ");
 
-    if (forced)
+    if (level)
     {
-       fprintf(pFile, " Forced : ");
+       fprintf(pFile, " DF Level : ");
        for(i = forcedPoints.begin(); i != forcedPoints.end(); i++)
        {
            fprintf(pFile, " %2.2f ", (*i));
@@ -480,14 +699,22 @@ void Partitioning::insertNodeLabel(bool forced, long long nodeID, int succesNumb
        fprintf(pFile, " : ");
 
     }
+
+
+
     for(int i = 0; i < nNumberOfClusters; i++)
     {
         fprintf(pFile, "[ %2.2f , %2.2f ] ", adClusters[i][0], adClusters[i][1] );
     }
     fprintf(pFile, "Node ID %s: ", sNodeID.c_str());
     fprintf(pFile, " Ratio: %2.2f ", calcRatio());
+    if(forced)
+    {
+        fprintf(pFile, " (FORCED) ");
+    }
     fprintf(pFile, "\" \n");
     fprintf(pFile, "] \n");
+
     fclose(pFile);
 }
 
@@ -513,6 +740,8 @@ void Partitioning::insertEdgeLabel(long long parentID, long long nodeID, int suc
     fprintf(pFile, " \] \n"); //, (*i)->content.sortedPoints.back());
     fclose(pFile);
 }
+
+
 
 void Partitioning::listPointsToFile(int t)
 {

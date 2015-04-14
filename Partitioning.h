@@ -3,6 +3,9 @@
 #include <list>
 #include "omp.h"
 #include <string>
+//#define NDEBUG
+#include "assert.h"
+
 
 using namespace std;
 
@@ -16,10 +19,17 @@ class Partitioning
 
         int nNumberOfClusters;
         double adClusters[30][2] = {{0}};
+        double optSpace[20][2] = {{NULL}};
+        double ambSpace[20][2] = {{NULL}};
+        double overlappingSpace[20][2] = {{NULL}};
         int nNumberOfPoints;
+        int optimalClusters;
+        int nNumberOfOverlaps;
+        int nNumberOfAmbs = 0;
         double lastPoint;
         string pointHash;
         string fullHash;
+        bool forced = false;
 
         list<double> points;
         list<double> sortedPoints;
@@ -38,12 +48,15 @@ class Partitioning
 
         double calcRatio();
         int optimal();
+        void setAmbSpace();
+        list<double> getAmbPoints();
 
         /**** FORCING ****/
         bool force(double dRatio);
         void simpleForce(double dRatio);
         void startForce(double dRatio);
         void endForce(double dRatio);
+        list<double> getForcePoints();
 
         /**** TERMINAL IO ****/
         void listClusters();

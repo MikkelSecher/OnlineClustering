@@ -15,8 +15,9 @@ class TreeNode
     public:
         int depth;
         Partitioning content;
-        bool live;
-        bool visited;
+        bool live = true;
+        bool visited = false;
+        bool rootNode = false;
         list<TreeNode*> children;
         TreeNode *parentNode;
         int livingChildren = 0;
@@ -25,7 +26,8 @@ class TreeNode
         TreeNode();
         TreeNode(double dPoint, TreeNode *parent);
         double workingSequence[10];
-
+        list<TreeNode>::iterator trueLink;
+        list<TreeNode*>::iterator queueLink;
 
         /**** INITITALIZATION ****/
         void setParent(TreeNode *parent);
