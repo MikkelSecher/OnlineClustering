@@ -8,6 +8,8 @@ OCTester::OCTester()
     Tree({3,4,5,6,2,1,0,2.5,7,8,8.5,9,10,11,9.5,12,13}, 111, 1.61);
     Tree({2.5,1.5,3.5,0.5,4.5,4,1,0,5}, 112, 1.6);
     Tree({3, 3.5,2,2.5,1,4.5,5.5,6.5,0}, 113, 1.6);
+    Tree({3.00,  4.00,  5.00,  6.00,  2.00,  1.00,  0.00,  7.00,  8.00,  9.00,  8.50,  10.00,  11.00,  12.00,  9.50,  13.00}, 114, 1.61);
+
     completeForceTest();
     completeCheckPartitioningTest();
     completeChildrenTest();
@@ -1168,7 +1170,7 @@ Tree OCTester::getTreeForBFLevel(){
 
 Tree OCTester::getDefaultStartTree(){
     list<double> deltas = {1, 0.5, -1};
-    Tree tree(3, deltas, 7357, 1.61, 2);
+    Tree tree(3, deltas, 7357, 1.63, 2);
 
     tree.nodes[0].front().growClusterRight(4);
     tree.nodes[0].front().openCluster(5);
