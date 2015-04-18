@@ -40,11 +40,10 @@ class Partitioning
         int pointInRange(double dPoint);
         void makeRoomForCluster(double dPoint);
         bool doesPointExist(double dPoint);
-        void addPointToCluster(double dPoint);
-        void growClusterRight(double dPoint);
-        void growClusterLeft(double dPoint);
-        void openClusterForce(double dPoint);
-        void openCluster(double dPoint);
+        void addPointToCluster(double dPoint, bool force);
+        void growClusterRight(double dPoint, bool force);
+        void growClusterLeft(double dPoint, bool force);
+        void openCluster(double dPoint, bool force);
 
         double calcRatio();
         int optimal();
@@ -52,10 +51,6 @@ class Partitioning
         list<double> getAmbPoints();
 
         /**** FORCING ****/
-        bool force(double dRatio);
-        void simpleForce(double dRatio);
-        void startForce(double dRatio);
-        void endForce(double dRatio);
         list<double> getForcePoints();
 
         /**** TERMINAL IO ****/
@@ -64,7 +59,7 @@ class Partitioning
         void listSortedPoints();
 
         /**** FILE IO ****/
-        void insertNodeLabel(bool, long long, int, int);
+        void insertNodeLabel(bool level, long long nodeId, int successNumber, int prefix);
         void insertEdgeLabel(long long, long long, int, int);
         void listPointsToFile(int);
         void listClustersToFile(int);
@@ -83,5 +78,6 @@ class Partitioning
 bool leq(double x, double y);
 bool geq(double x, double y);
 bool deq(double x, double y);
+
 
 #endif // PARTITIONING_H

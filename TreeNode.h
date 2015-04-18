@@ -36,6 +36,24 @@ class TreeNode
         /**** CHECKING ****/
         bool doesChildExist(TreeNode *node);
 
+        /**** CONTENT FUNCTIONS ****/
+        void listClusters();
+        void listPoints();
+        void listSortedPoints();
+        bool doesPointExist(double point);
+        void openCluster(double point, bool force);
+        void openCluster(double point);
+        void addPointToCluster(double point, bool force);
+        void addPointToCluster(double point);
+        void growClusterRight(double point, bool force);
+        void growClusterRight(double point);
+        void growClusterLeft(double point, bool force);
+        void growClusterLeft(double point);
+        string getPointHash();
+        int pointInRange(double point);
+        list<double> getAmbPoints();
+        list<double> getForcePoints();
+        double calcRatio();
     protected:
     private:
 

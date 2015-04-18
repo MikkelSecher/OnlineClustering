@@ -20,7 +20,7 @@ Partitioning::Partitioning()
     nNumberOfPoints = 0;
 }
 
-Partitioning::Partitioning(double dPoint)
+Partitioning::Partitioning(double point)
 {
     // Constructor for the root of the tree. Only called once.
 //    cout << "Creating root partitioning..." << endl;
@@ -28,17 +28,17 @@ Partitioning::Partitioning(double dPoint)
     nNumberOfPoints = 1;
 
 
-    adClusters[0][0] = dPoint;
-    adClusters[0][1] = dPoint;
-    points.push_back(dPoint);
-    sortedPoints.push_back(dPoint);
+    adClusters[0][0] = point;
+    adClusters[0][1] = point;
+    points.push_back(point);
+    sortedPoints.push_back(point);
     sortedPoints.sort();
-    lastPoint = dPoint;
+    lastPoint = point;
     std::ostringstream s;
-    s << dPoint;
+    s << point;
 
     pointHash.append(s.str());
-//    cout << "Hash before " <<pointHash << " " << dPoint <<endl;
+//    cout << "Hash before " <<pointHash << " " << point <<endl;
     updateHashes();
 //    cout << "Hash after " <<pointHash << endl;
 
@@ -53,11 +53,13 @@ Partitioning::Partitioning(Partitioning *parent)
 // TODO: Maybe this can be handled by copying the parent, instead of constructing a new object.
     nNumberOfClusters = parent->nNumberOfClusters;
 
-    for(int i = 0; i < nNumberOfClusters; i++)
-    {
-       adClusters[i][0] = parent->adClusters[i][0];
-       adClusters[i][1] = parent->adClusters[i][1];
-    }
+//    for(int i = 0; i < nNumberOfClusters; i++)
+//    {
+//       adClusters[i][0] = parent->adClusters[i][0];
+//       adClusters[i][1] = parent->adClusters[i][1];
+//    }
+//
+    memcpy ( adClusters , parent->adClusters, sizeof( parent->adClusters) );
     nNumberOfPoints = parent->nNumberOfPoints;
     points = parent->points;
     sortedPoints = parent->sortedPoints;
@@ -69,8 +71,9 @@ Partitioning::Partitioning(Partitioning *parent)
 /*********************************
 ******* POINT FUNCTIONALITY ******
 *********************************/
-int Partitioning::pointInRange(double dPoint)
+int Partitioning::pointInRange(double point)
 {
+
     // Checks for the possibilities of handling the next point - grow, open new or put in existing?
     for(int i = 0; i < nNumberOfClusters; i++)
     {
@@ -78,43 +81,45 @@ int Partitioning::pointInRange(double dPoint)
         {
             //if point is within reach of two clusters, open new cluster, grow the left and grow the right.
             //cannot happen when i==nNumberOfClusters
-            if(leq(dPoint, adClusters[i][0]+1)
-               and (dPoint > adClusters[i][1])
-               and geq(dPoint, adClusters[i+1][1]-1)
-               and (dPoint < adClusters[i+1][0]) )
+            if(leq(point, adClusters[i][0]+1)
+               and (point > adClusters[i][1])
+               and geq(point, adClusters[i+1][1]-1)
+               and (point < adClusters[i+1][0]) )
             {
                 return 3;
             }
         }
 
         //if the point out of reach of the first cluster, open a new cluster.
-        if(i == 0 and dPoint < adClusters[i][0] and dPoint < (adClusters[i][1]-1) and !deq(dPoint, (adClusters[i][1]-1)))
+        if( i == 0 and point < adClusters[i][0] &&
+           point < (adClusters[i][1]-1) &&
+           !deq(point, (adClusters[i][1]-1) ) )
         {
             return 0;
         }
 
         //If point is inside an existing cluster, there is no choice. Must be added to that cluster.
-        if(dPoint < adClusters[i][1] and dPoint > adClusters[i][0])
+        if(point < adClusters[i][1] && point > adClusters[i][0])
             return 1;
 
         //If point is within reach (to the left) of an existing cluster, open new cluster, and grow cluster to the left
-        if(leq(dPoint, adClusters[i][0]) and geq(dPoint, adClusters[i][1]-1))
+        if(leq(point, adClusters[i][0]) && geq(point, adClusters[i][1]-1))
         {
             if(i == 0)
                 return -2;
 
-            if (dPoint > (adClusters[i-1][1]))
+            if (point > (adClusters[i-1][1]))
             {
                 return -2;
             }
         }
 
         //If point is within reach (to the right) of a cluster, open a new, and grow the existing
-        if(leq(dPoint, adClusters[i][0]+1) and geq(dPoint, adClusters[i][1]))
+        if(leq(point, adClusters[i][0]+1) && geq(point, adClusters[i][1]))
         {
             if(i < nNumberOfClusters-1)
             {
-                if(dPoint > adClusters[i+1][0])
+                if(point > adClusters[i+1][0])
                 {
                     continue;
                 }
@@ -125,19 +130,19 @@ int Partitioning::pointInRange(double dPoint)
     return 0;                       //the point must get its own cluster, no choice
 }
 
-void Partitioning::makeRoomForCluster(double dPoint)
+void Partitioning::makeRoomForCluster(double point)
 {
 // Called when a cluster needs to be opened at another spot than at the end of
 // the clusterlist. This finds the place it should be and moves everything else
 // to the left.
-    adClusters[nNumberOfClusters][0] = dPoint;              //create the new cluster in the end back of the array
-    adClusters[nNumberOfClusters][1] = dPoint;              //
+    adClusters[nNumberOfClusters][0] = point;              //create the new cluster in the end back of the array
+    adClusters[nNumberOfClusters][1] = point;              //
 
     for(int i = nNumberOfClusters; i > 0; i--)
     {
-        if(dPoint < adClusters[i-1][0])
+        if(point < adClusters[i-1][0])
         {
-            if(dPoint > adClusters[i-1][0] and dPoint < adClusters[i-1][1])
+            if(point > adClusters[i-1][0] and point < adClusters[i-1][1])
                 cout << " --------------------------AA------------------------- " << endl;
 
             swap(adClusters[i][0], adClusters[i-1][0]);     //Shift the cluster back to its right position
@@ -151,17 +156,13 @@ void Partitioning::makeRoomForCluster(double dPoint)
 
 }
 
-bool Partitioning::doesPointExist(double dPoint)
+bool Partitioning::doesPointExist(double point)
 {
 // Checks if a point already exists
 // Returns FALSE if it already exists
     list<double>::iterator i;
-    for(i = sortedPoints.begin(); i != sortedPoints.end(); i++)
-    {
-        //cout << "comparing " << dPoint << " to " << *i << endl;
-        if(deq(*i, dPoint))
-        {
-            //cout << "already exists " << endl;
+    for( i = sortedPoints.begin(); i != sortedPoints.end(); i++ ) {
+        if(deq(*i, point)) {
             return false;
         }
     }
@@ -169,24 +170,24 @@ bool Partitioning::doesPointExist(double dPoint)
     return true;
 }
 
-void Partitioning::addPointToCluster(double dPoint)
+void Partitioning::addPointToCluster(double point, bool force)
 {
 // Adds a point to a cluster, since the cluster doesn't change,
 // it is done by just adding the point to the lists.
-    difference = points.back()-dPoint;
-    points.push_back(dPoint);
-    sortedPoints.push_back(dPoint);
+    difference = points.back()-point;
+    points.push_back(point);
+    sortedPoints.push_back(point);
     sortedPoints.sort();
 }
 
-void Partitioning::growClusterRight(double dPoint)
+void Partitioning::growClusterRight(double point, bool force)
 {
 // Grow the cluster to the right
-    if(!doesPointExist(dPoint))
+    if(!doesPointExist(point))
     {
         cout << "Point exists... right" << endl;
         listPoints();
-        cout << "Point: " << dPoint << endl;
+        cout << "Point: " << point << endl;
         listClusters();
 
     }
@@ -194,35 +195,39 @@ void Partitioning::growClusterRight(double dPoint)
     for(int i = 0; i < nNumberOfClusters; i++)
     {
 
-        if(geq(dPoint, adClusters[i][1]) and leq(dPoint, (adClusters[i][0]+1)))
+        if(geq(point, adClusters[i][1]) and leq(point, (adClusters[i][0]+1)))
         {
-            if(i < nNumberOfClusters-1 and dPoint > adClusters[i+1][0])
+            if(i < nNumberOfClusters-1 and point > adClusters[i+1][0])
             {
                 continue;
             }
-            adClusters[i][1] = dPoint;
+            adClusters[i][1] = point;
             nNumberOfPoints++;
-            difference = points.back()-dPoint;
-            points.push_back(dPoint);
-            sortedPoints.push_back(dPoint);
+            if(!force){
+                difference = points.back()-point;
+                points.push_back(point);
+            } else {
+                forcedPoints.push_back(point);
+            }
+            sortedPoints.push_back(point);
             sortedPoints.sort();
             return;
         }
     }
-    cout << "Point: " << dPoint << endl;
+    cout << "Point: " << point << endl;
     listClusters();
     cout << "DIDN'T ADD THE POINT RIGHT!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
 }
 
-void Partitioning::growClusterLeft(double dPoint)
+void Partitioning::growClusterLeft(double point, bool force)
 {
 // Grow the cluster to the left
 
-    if(!doesPointExist(dPoint))
+    if(!doesPointExist(point))
     {
         cout << "Point exists... left" << endl;
         listPoints();
-        cout << "Point: " << dPoint << endl;
+        cout << "Point: " << point << endl;
         listClusters();
 
     }
@@ -230,75 +235,63 @@ void Partitioning::growClusterLeft(double dPoint)
     for(int i = 0; i < nNumberOfClusters; i++)
     {
 
-        if(geq(dPoint, adClusters[i][1]-1) and leq(dPoint, adClusters[i][1]))
+        if(geq(point, adClusters[i][1]-1) and leq(point, adClusters[i][1]))
         {
-            adClusters[i][0] = dPoint;
+            adClusters[i][0] = point;
             nNumberOfPoints++;
-            difference = points.back()-dPoint;
-            points.push_back(dPoint);
-            sortedPoints.push_back(dPoint);
+            if(!force){
+                difference = points.back()-point;
+                points.push_back(point);
+            } else {
+                forcedPoints.push_back(point);
+            }
+            sortedPoints.push_back(point);
             sortedPoints.sort();
             return;
 
 
         }
     }
-    cout << "Point: " << dPoint << endl;
+    cout << "Point: " << point << endl;
     listClusters();
     cout << "DIDN'T ADD THE POINT LEFT ------------------------------ " << endl;
 }
 
-void Partitioning::openCluster(double dPoint)
+void Partitioning::openCluster(double point, bool force)
 {
 // Opens a new cluster
     if(nNumberOfClusters == 0)      //if it is the first cluster, just open it.
     {
-        adClusters[0][0] = dPoint;
-        adClusters[0][1] = dPoint;
+        adClusters[0][0] = point;
+        adClusters[0][1] = point;
         nNumberOfPoints++;
         nNumberOfClusters++;
-        difference = points.back()-dPoint;
-        points.push_back(dPoint);
-        sortedPoints.push_back(dPoint);
+        if(!force){
+            difference = points.back()-point;
+            points.push_back(point);
+        } else {
+            forcedPoints.push_back(point);
+        }
+        sortedPoints.push_back(point);
         sortedPoints.sort();
     }
     else
     {
-        makeRoomForCluster(dPoint); //if not the first cluster, make room for it.
+        makeRoomForCluster(point); //if not the first cluster, make room for it.
         nNumberOfPoints++;
         nNumberOfClusters++;
-        difference = points.back()-dPoint;
-        points.push_back(dPoint);
-        sortedPoints.push_back(dPoint);
+        if(!force){
+            difference = points.back()-point;
+            points.push_back(point);
+        } else {
+            forcedPoints.push_back(point);
+        }
+        sortedPoints.push_back(point);
         sortedPoints.sort();
     }
 }
 
-void Partitioning::openClusterForce(double dPoint)
-{
-// Opens a new cluster
-    if(nNumberOfClusters == 0)      //if it is the first cluster, just open it.
-    {
-        adClusters[0][0] = dPoint;
-        adClusters[0][1] = dPoint;
-        nNumberOfPoints++;
-        nNumberOfClusters++;
-        //difference = points.back()-dPoint;
-        forcedPoints.push_back(dPoint);
-        sortedPoints.push_back(dPoint);
-        sortedPoints.sort();
-    }
-    else
-    {
-        makeRoomForCluster(dPoint); //if not the first cluster, make room for it.
-        nNumberOfPoints++;
-        nNumberOfClusters++;
-        //difference = points.back()-dPoint;
-        forcedPoints.push_back(dPoint);
-        sortedPoints.push_back(dPoint);
-        sortedPoints.sort();
-    }
-}
+
 
 double Partitioning::calcRatio()
 {
@@ -464,102 +457,12 @@ list<double> Partitioning::getAmbPoints()
 //            cout << "Added: "<< overlappingSpace[j][0]+ambOffset << endl;
         }
     }
-
-
-
     return ambPoints;
 }
 
 /*********************************
 ************* FORCING ************
 *********************************/
-bool Partitioning::force(double dRatio)
-{
-// Tries to force a partitioning to fail, by adding "forcepoints" that makes the ratio worse.
-// Can probably be improved quite a lot.
-// Returns FALSE if a partitioning is broken by force.
-    //find unreachable intervals
-    //TODO: Maybe move to its own function.
-
-    endForce(dRatio);
-    if(geq(calcRatio(), dRatio))
-    {
-        return false;
-    }
-    startForce(dRatio);
-    if(geq(calcRatio(), dRatio))
-    {
-        return false;
-    }
-
-    simpleForce(dRatio);
-    //test for new ratio
-    if(geq(calcRatio(), dRatio))
-    {
-        return false;
-    }
-    return true;
-}
-
-
-
-void Partitioning::simpleForce(double dRatio)
-{
-// Regular forcing.
-// Finds free spaces in the partitioning that are unreachable by any clusters, and
-// adds points there.
-    double freeSpace[30][2] = {{0}};
-
-    double start;
-    double finish;
-    int pointsAdded = 0;
-
-    for(int i = 0; i < nNumberOfClusters-1; i++)
-    {
-
-        start = (adClusters[i][0])+1;
-
-        finish = adClusters[i+1][1]-1;
-
-        if((start+precision) < (finish-precision))
-        {
-            freeSpace[i][0] = start;
-            freeSpace[i][1] = finish;
-        }
-    }
-
-    //put in points
-    int intervals = nNumberOfClusters;
-
-
-    for(int i = 0; i < intervals; i++ )
-    {
-        double offset = (freeSpace[i][1]-freeSpace[i][0])/2;
-        double forcepoint = freeSpace[i][0]+ offset;
-
-        if(!deq(0, forcepoint))
-        {
-            openClusterForce(forcepoint);
-            if(calcRatio() >= dRatio)
-                return;
-            pointsAdded++;
-        }
-    }
-}
-
-void Partitioning::startForce(double dRatio)
-{
-    openClusterForce(adClusters[0][1]-1-precision);
-}
-
-void Partitioning::endForce(double dRatio)
-{
-    // Adds a point in the end of the partitioning just out of range of the existing clusters
-    //but only if the cluster is full... TODO: Change this!!
-
-    if(deq(adClusters[nNumberOfClusters-1][1] - adClusters[nNumberOfClusters-1][0], 1))
-        openClusterForce(adClusters[nNumberOfClusters-1][1]+(precision/2));
-}
 
 list<double> Partitioning::getForcePoints()
 {
@@ -732,10 +635,25 @@ void Partitioning::insertEdgeLabel(long long parentID, long long nodeID, int suc
     fprintf(pFile, " edge \n [ \n source n%s \n target n%s \n", sParentID.c_str(), sNodeID.c_str());
     list<double>::iterator i;
     fprintf(pFile, "label \"");
+
     for(i = points.begin(); i != points.end(); i++)
     {
+
         fprintf(pFile," %2.2f ", *i);
+
     }
+
+    if(forced){
+        fprintf(pFile, " | ");
+        for(i = forcedPoints.begin(); i != forcedPoints.end(); i++)
+        {
+
+            fprintf(pFile," %2.2f ", *i);
+
+        }
+
+    }
+
     fprintf(pFile, " \" \n");
     fprintf(pFile, " \] \n"); //, (*i)->content.sortedPoints.back());
     fclose(pFile);

@@ -1,5 +1,6 @@
 #include "TreeNode.h"
-
+#include <stdio.h>
+#include <string.h>
 using namespace std;
 
 long long TreeNode::nodeCounter = 0;
@@ -72,3 +73,73 @@ bool TreeNode::doesChildExist(TreeNode *node)
     return true;
 }
 
+/*********************************
+******** CONTENT FUNCTIONS *******
+*********************************/
+
+void TreeNode::listClusters(){
+    content.listClusters();
+}
+
+void TreeNode::listPoints(){
+    content.listPoints();
+}
+
+void TreeNode::listSortedPoints(){
+    content.listSortedPoints();
+}
+
+bool TreeNode::doesPointExist(double point){
+    return content.doesPointExist(point);
+}
+
+void TreeNode::openCluster(double point, bool force){
+    content.openCluster(point, force);
+}
+
+void TreeNode::openCluster(double point){
+    content.openCluster(point, false);
+}
+void TreeNode::addPointToCluster(double point, bool force){
+    content.addPointToCluster(point, force);
+}
+
+void TreeNode::addPointToCluster(double point){
+    content.addPointToCluster(point, false);
+}
+
+void TreeNode::growClusterRight(double point, bool force){
+    content.growClusterRight(point, force);
+}
+
+void TreeNode::growClusterRight(double point){
+    content.growClusterRight(point, false);
+}
+
+void TreeNode::growClusterLeft(double point, bool force){
+    content.growClusterLeft(point, force);
+}
+
+void TreeNode::growClusterLeft(double point){
+    content.growClusterLeft(point, false);
+}
+
+string TreeNode::getPointHash(){
+    return content.pointHash;
+}
+
+int TreeNode::pointInRange(double point){
+    return content.pointInRange(point);
+}
+
+list<double> TreeNode::getAmbPoints(){
+    return content.getAmbPoints();
+}
+
+list<double> TreeNode::getForcePoints(){
+    return content.getForcePoints();
+}
+
+double TreeNode::calcRatio(){
+    return content.calcRatio();
+}

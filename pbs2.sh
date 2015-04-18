@@ -36,5 +36,5 @@
 #
 cd $PBS_O_WORKDIR
 cd $HOME/mikkel/git/OnlineClustering
-./OnlineClustering 5 9 1.6 1 1 3 1 -1 0.5
+./OnlineClustering 4 9 1.6 1 1 3 1 -1 0.5
 #
