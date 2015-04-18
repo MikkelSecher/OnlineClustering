@@ -6,8 +6,8 @@
 #include <cassert>
 #include <stdio.h>
 #include <vector>
-#include "Tree.h"
 #include "OCTester.h"
+#include "Tree.h"
 #include <cstdlib>
 #include <string>
 
