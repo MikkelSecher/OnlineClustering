@@ -28,6 +28,7 @@ class Tree
         int             print;
         TreeNode*       workingNode;
         int             nCurrentLevel;
+        int             numberOfMiniQueues;
         int             numberOfThreads = 0;
         int             successes = 0;
         int             deltas;
@@ -40,21 +41,22 @@ class Tree
         list<TreeNode*> succesfulNodes;
         list<TreeNode*> parNodeQueue[NUM_THREADS];
         list<TreeNode*> parSuccesfulNodes[NUM_THREADS];
-        list< list< list<double> > > proofSequences;
+        list< list< list<double> > > proofSequences[NUM_THREADS];
         list<TreeNode>::iterator place;
         std::vector<double> delta;
         list<list<TreeNode*>> sequencedTreeQueue;
+        list<TreeNode*> *parallelMiniQueues;
 
         /**** HANDLERS OF NEW POINTS ****/
         void addPoint(int p, double dPoint);
         bool checkPartitioning();
-        bool force_experimental(TreeNode *node, TreeNode *originalNode, list<double> forcePoints, list<double> ambPoints);
+        bool force(TreeNode *node, TreeNode *originalNode, list<double> forcePoints, list<double> ambPoints);
         list<double> getNextPoints();
         list<double> getNextPoints(TreeNode *node);
         void dictatePointBF(double point,int  level);
 
         /**** GENERAL FUNCTIONS ****/
-        void analyzeTree(int);
+
         TreeNode* newNode(int tid, double point, TreeNode* parent) ;
         void destroyNode(TreeNode *);
         void printFullTreeToFile(TreeNode *node);
@@ -91,8 +93,7 @@ class Tree
         int growClusterLeftDF(TreeNode *parent, double dPoint, int tid);
         int addToClusterDF(TreeNode *parent, double dPoint, int tid);
         void destroySubtree(TreeNode* node);
-        bool backtrackSolution(TreeNode* node, list<double>, int, int);
-        bool forwardCheck(TreeNode* node, list<double> points, int, int);
+
 
 
         /**** PARALLEL HELPER-FUNCTIONS ****/
@@ -100,6 +101,7 @@ class Tree
         int splitSuccesQueue(int);
         double getParProofTime();
         double getParDFTime();
+        void splitSequenceTree();
 
         /**** EXPERIMENTAL DF ****/
         bool miniQueueDF (list<TreeNode*> miniQueue, int levelsOfBF, int levelsOfDF);
@@ -109,7 +111,7 @@ class Tree
 
         void removeChildren(int tid, TreeNode* node);
 
-        bool startDF_experimental(int DFlevel, int dfDepth);
+        bool startDF(int DFlevel, int dfDepth);
         void sequenceTree();
 
         /***** Solution/Proof handlers ****/
@@ -137,4 +139,6 @@ bool printDoubleList(string textToPrint, list<double> listToPrint);
 bool printDoubleList(string textToPrint, list<double> listToPrint, double offset);
 void listProofsToFiles(list< list< list<double> > > proofSequences, double ratioIn);
 void listProofSequenceToTextFile( list< list<double> > proofLists);
+void listInitializeTextFile( double ratio);
+
 #endif // TREE_H

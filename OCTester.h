@@ -33,6 +33,7 @@ class OCTester
         bool hardForceTest();
         bool harderForceTest();
         bool impossibleForceTest();
+        bool unkownForceTest();
 
         /*** Tests for Check Partitioning ***/
         bool checkAboveRatioTest();
@@ -69,7 +70,10 @@ class OCTester
         bool oneNodeHardDFSuccessTest();
         bool oneNodeHarderDFSuccessTest();
         bool oneNodeHardestDFSuccessTest();
+        bool oneNodeUnknownDFTest();
 
+        /*** Test Parallel Helper ***/
+        bool splitSequenceQueue();
 
         /*** Test data generators ***/
         Tree getHardTwoChoicesRightTree(double);
@@ -78,6 +82,7 @@ class OCTester
         Tree getEndForcableTree(double);
         Tree getHardForcableTree(double);
         Tree getHarderForcableTree(double);
+        Tree getUnknownForceTree();
         Tree getStarterTestTree(double);
         Tree getDFsearchTreeOneNode();
         Tree getDFsearchTreeTwoNode();
@@ -93,6 +98,9 @@ class OCTester
         Tree getTreeAboveRatio();
         Tree getTreeForBFLevel();
         Tree getDefaultStartTree();
+        Tree getNewLowerBoundTree();
+        Tree getNewBaseTree();
+        Tree getSecondBaseTree();
         /*** I/O functions ***/
         void successPrint(string);
         void failPrint(string);

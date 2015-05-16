@@ -5,22 +5,29 @@ int OCTester::successCount = 0;
 OCTester::OCTester()
 {
 
-    Tree({3,4,5,6,2,1,0,2.5,7,8,8.5,9,10,11,9.5,12,13}, 111, 1.61);
-    Tree({2.5,1.5,3.5,0.5,4.5,4,1,0,5}, 112, 1.6);
-    Tree({3, 3.5,2,2.5,1,4.5,5.5,6.5,0}, 113, 1.6);
-    Tree({3.00,  4.00,  5.00,  6.00,  2.00,  1.00,  0.00,  7.00,  8.00,  9.00,  8.50,  10.00,  11.00,  12.00,  9.50,  13.00}, 114, 1.61);
-
-    completeForceTest();
-    completeCheckPartitioningTest();
-    completeChildrenTest();
-    completeNodeTest();
-    completeChoiceTests();
-    completePointGenerationTests();
-    completeDepthFirstTests();
-    bottomLine();
-
+//    Tree({2.00 , 3.00 , 2.50 , 3.50 , 1.00 , 4.50 , 0.00 , 5.50 , 6.50 , 7.50 , 1.50 , 7.00 , 8.50 , 9.50 , 10.50 , 8.00 , 11.50}, 101, 1.61);
+//    Tree({2.00 , 3.00 , 2.50 , 3.50 , 1.00 , 4.50 , 0.00 , 5.50 , 1.50 , 6.50 , 7.50 , 7.00 , 8.50 , 9.50 , 10.50 , 8.00 , 11.50}, 102, 1.61);
+//    Tree({2.00 , 3.00 , 2.50 , 3.50 , 1.00 , 4.50 , 0.00 , 5.50 , 6.50 , 1.50 , 7.00 , 7.50 , 8.50 , 9.50 , 10.50 , 8.00 , 11.50}, 103, 1.61);
+//    Tree({2.00 , 3.00 , 2.50 , 3.50 , 1.00 , 4.50 , 0.00 , 5.50 , 6.50 , 1.50 , 7.50 , 7.00 , 8.50 , 9.50 , 10.50 , 8.00 , 11.50}, 104, 1.61);
+//    Tree({2.00 , 3.00 , 2.50 , 3.50 , 1.00 , 4.50 , 0.00 , 5.50 , 6.50 , 7.00 , 1.50 , 7.50 , 8.50 , 9.50 , 10.50 , 8.00 , 11.50}, 105, 1.61);
+//    Tree({2.00 , 3.00 , 2.50 , 3.50 , 1.00 , 4.50 , 0.00 , 5.50 , 6.50 , 7.00 , 7.50 , 1.50 , 8.50 , 9.50 , 10.50 , 8.00 , 11.50}, 106, 1.61);
+//    Tree({2.00 , 3.00 , 2.50 , 3.50 , 1.00 , 4.50 , 0.00 , 5.50 , 6.50 , 7.50 , 1.50 , 7.00 , 8.50 , 9.50 , 10.50 , 8.00 , 11.50}, 107, 1.61);
+//    Tree({2.00 , 3.00 , 2.50 , 3.50 , 1.00 , 4.50 , 0.00 , 5.50 , 6.50 , 7.50 , 7.00 , 1.50 , 8.50 , 9.50 , 10.50 , 8.00 , 11.50}, 108, 1.61);
+//    Tree({2.00 , 3.00 , 3.50 , 1.00 , 4.50 , 0.00 , 5.50 , 1.50 , 6.50 , 7.50 , 7.00 , 8.50 , 9.50 , 10.50 , 8.00 , 11.50}, 110, 1.61);
+//    Tree({2, 3, 4, 1, 7, 8, 9, 6, 5}, 110, 1.61);
+    //Tree({2.00 , 3.00 , 3.50 , 1.00 , 4.50 , 0.00 , 5.50 , 1.50 , 6.50 , 7.50 , 7.00 , 8.50 , 9.50 , 10.50 , 0.50 , 8.00 , 6.00 , 11.50}, 110, 1.61);
+//    Tree({0.00}, 110, 1.60);
+//    completeForceTest();
+//    completeCheckPartitioningTest();
+//    completeChildrenTest();
+//    completeNodeTest();
+//    completeChoiceTests();
+//    completePointGenerationTests();
+//    completeDepthFirstTests();
+//    bottomLine();
 
 }
+
 
 /****************************/
 /*** Complete test areas ****/
@@ -43,6 +50,7 @@ void OCTester::completeForceTest(){
     endForceTest()          ? successPrint("End Force           ") : failPrint("End Force           ");
     hardForceTest()         ? successPrint("Hard Force          ") : failPrint("Hard Force          ");
     harderForceTest()       ? successPrint("Harder Force        ") : failPrint("Harder Force        ");
+//    unkownForceTest()       ? successPrint("Unknown Force        ") : failPrint("Unknown Force        ");
 }
 
 void OCTester::completeCheckPartitioningTest(){
@@ -90,7 +98,7 @@ bool OCTester::startingSequence(){
 
 //    cout << "Number of points, i.e. level: " << tree.nodes[0].front().content.nNumberOfPoints << endl;
 
-    tree.startDF_experimental(11, 18);
+    tree.startDF(11, 18);
 
 //    exit(1);
 
@@ -123,6 +131,7 @@ void OCTester::completeDepthFirstTests() {
     //~70 seconds
 //    oneNodeHardestDFSuccessTest()       ? successPrint("One Node DF Hardest   ") : failPrint("One Node DF Hardest   ");
 
+//    oneNodeUnknownDFTest()              ? successPrint("Three Node DF No Proof") : failPrint("Three Node DF No Proof ");
 }
 
 /****************************/
@@ -141,7 +150,7 @@ bool OCTester::easyForceTest(){
     list<double> forcePoints = nodeToUse->content.getForcePoints();
 
 
-    if(tree.force_experimental(nodeToUse, nodeToUse, forcePoints, ambPoints)){
+    if(tree.force(nodeToUse, nodeToUse, forcePoints, ambPoints)){
         cout << "Failed to for a forcable node" << endl;
         failCount++;
         return false;
@@ -171,7 +180,7 @@ bool OCTester::endForceTest(){
 //    cout << "Number of forcePoints: " << forcePoints.size() << endl;
 //    cout << "Nodes in sorted list " << nodeToUse->content.sortedPoints.size() << endl;
 
-    if(tree.force_experimental(nodeToUse, nodeToUse, forcePoints, ambPoints)){
+    if(tree.force(nodeToUse, nodeToUse, forcePoints, ambPoints)){
         cout << "Failed to for a forcable node" << endl;
         failCount++;
         return false;
@@ -201,7 +210,7 @@ bool OCTester::startForceTest(){
 //    cout << "Number of forcePoints: " << forcePoints.size() << endl;
 //    cout << "Nodes in sorted list " << nodeToUse->content.sortedPoints.size() << endl;
 
-    if(tree.force_experimental(nodeToUse, nodeToUse, forcePoints, ambPoints)){
+    if(tree.force(nodeToUse, nodeToUse, forcePoints, ambPoints)){
         cout << "Failed to for a forcable node" << endl;
         failCount++;
         return false;
@@ -228,7 +237,7 @@ bool OCTester::hardForceTest(){
 
     list<double> forcePoints = nodeToUse->content.getForcePoints();
 
-    if(tree.force_experimental(nodeToUse, nodeToUse, forcePoints, ambPoints)){
+    if(tree.force(nodeToUse, nodeToUse, forcePoints, ambPoints)){
         cout << "Failed to for a forcable node" << endl;
         failCount++;
         return false;
@@ -259,7 +268,7 @@ bool OCTester::harderForceTest(){
 //    cout << "Number of forcePoints: " << forcePoints.size() << endl;
 //    cout << "Nodes in sorted list " << nodeToUse->content.sortedPoints.size() << endl;
 
-    if(tree.force_experimental(nodeToUse, nodeToUse, forcePoints, ambPoints)){
+    if(tree.force(nodeToUse, nodeToUse, forcePoints, ambPoints)){
         cout << "Failed to for a forcable node" << endl;
         failCount++;
         return false;
@@ -270,6 +279,32 @@ bool OCTester::harderForceTest(){
         failCount++;
         return false;
     }
+
+    successCount++;
+    return true;
+
+}
+
+bool OCTester::unkownForceTest(){
+    ///Get ready
+    Tree tree = getUnknownForceTree();
+    TreeNode *nodeToUse = &tree.nodes[0].front();
+    nodeToUse->content.calcRatio();
+    nodeToUse->content.setAmbSpace();
+    list<double> ambPoints = tree.nodes[0].front().content.getAmbPoints();
+
+//    cout << "Number of ambiguous points: " << ambPoints.size() << endl;
+    list<double> forcePoints = nodeToUse->content.getForcePoints();
+
+//    cout << "Number of forcePoints: " << forcePoints.size() << endl;
+//    cout << "Nodes in sorted list " << nodeToUse->content.sortedPoints.size() << endl;
+
+    if(tree.force(nodeToUse, nodeToUse, forcePoints, ambPoints)){
+        cout << "Failed to for a forcable node In Unkown" << endl;
+        failCount++;
+        return false;
+    }
+
 
     successCount++;
     return true;
@@ -683,11 +718,12 @@ bool OCTester::oneNodeDFSuccessTest(){
 
     Tree tree = getDFsearchTreeOneNode();
 
-    if ( tree.startDF_experimental(0, 5) ){
+    if ( tree.startDF(0, 5) ){
         cout << "Didn't found proof, where there is one.." << endl;
         failCount++;
         return false;
     }
+
     successCount++;
     return true;
 }
@@ -733,7 +769,7 @@ bool OCTester::threeNodeDFFailTest(){
 bool OCTester::oneNodeHardDFSuccessTest(){
     Tree tree = getHardDFsearchTreeOneNode();
 
-    if ( tree.startDF_experimental(0, 7) ){
+    if ( tree.startDF(0, 7) ){
         cout << "Didn't found proof, where there is one.." << endl;
         failCount++;
         return false;
@@ -745,20 +781,20 @@ bool OCTester::oneNodeHardDFSuccessTest(){
 bool OCTester::oneNodeHarderDFSuccessTest(){
     Tree tree = getHarderDFsearchTreeOneNode();
 
-    if ( tree.startDF_experimental(0, 9) ){
+    if ( tree.startDF(0, 9) ){
         cout << "Didn't found proof, where there is one.." << endl;
         failCount++;
         return false;
     }
     successCount++;
-    tree.analyzeTree(0);
+//    tree.analyzeTree(0);
     return true;
 }
 
 bool OCTester::oneNodeHardestDFSuccessTest(){
     Tree tree = getHardestDFsearchTreeOneNode();
 
-    if ( tree.startDF_experimental(0, 10) ){
+    if ( tree.startDF(0, 10) ){
         cout << "Didn't find proof, where there is one.." << endl;
         failCount++;
         return false;
@@ -767,6 +803,54 @@ bool OCTester::oneNodeHardestDFSuccessTest(){
     return true;
 }
 
+bool OCTester::oneNodeUnknownDFTest(){
+    Tree tree = getUnknownForceTree();
+
+    if ( tree.startDF(0, 3) ){
+        cout << "Didn't find proof, where there is one.." << endl;
+        failCount++;
+        return false;
+    }
+    successCount++;
+    return true;
+}
+
+
+/****************************/
+/*** Test Parallel Helper ***/
+/****************************/
+
+bool OCTester::splitSequenceQueue(){
+
+    Tree tree(0, {1, -1, 0.5}, 1111, 1.6, 2);
+
+    for(int level = 0; level < 3; level++)
+    {
+        cout << "Level: " << level << endl;
+        cout << "NodeQueue size: " << tree.nodeQueue.size() << endl;
+        cout << endl;
+        tree.addLevelBF(level);
+        tree.treeCleanup();
+    }
+
+
+
+    cout << "Size of BF queue after initial levels: "<< tree.nodeQueue.size() << endl;
+    if(tree.nodeQueue.size() != 12){
+        return false;
+    }
+
+    tree.sequenceTree();
+
+    cout << "Size of sequenceQueue after prep: " << tree.sequencedTreeQueue.size() << endl;
+
+    tree.splitSequenceTree();
+
+
+
+
+    return false;
+}
 
 /****************************/
 /*** Test data generators ***/
@@ -905,6 +989,32 @@ Tree OCTester::getHarderForcableTree(double targetRatio){
 
     return tree;
 }
+
+Tree OCTester::getUnknownForceTree(){
+    list<double> deltas = {1, -0.5, -1};
+    Tree tree(0, deltas, 7357, 1.61, 2);
+
+    tree.nodes[0].front().growClusterRight(1);
+    tree.nodes[0].front().openCluster(2);
+    tree.nodes[0].front().openCluster(3);
+    tree.nodes[0].front().growClusterRight(4);
+    tree.nodes[0].front().openCluster(5);
+    tree.nodes[0].front().growClusterRight(6);
+    tree.nodes[0].front().openCluster(6.5);
+    tree.nodes[0].front().openCluster(7.5);
+    tree.nodes[0].front().growClusterRight(8.5);
+    tree.nodes[0].front().openCluster(9.5);
+    tree.nodes[0].front().openCluster(10.5);
+    tree.nodes[0].front().growClusterRight(11.5);
+    tree.nodes[0].front().openCluster(12.5);
+
+    //    cout << endl;
+//    cout << "Created tree with starting node containing " << tree.nodes[0].front().content.nNumberOfPoints << " points, and " << tree.nodes[0].front().content.nNumberOfClusters << " clusters" << endl;
+//    cout << endl;
+
+    return tree;
+}
+
 
 Tree OCTester::getStarterTestTree(double targetRatio){
     list<double> deltas = {1, 0.5, -1};
@@ -1180,6 +1290,75 @@ Tree OCTester::getDefaultStartTree(){
     tree.nodes[0].front().openCluster(0);
 
     return tree;
+}
+
+Tree OCTester::getNewLowerBoundTree(){
+    list<double> deltas = {1, 0.5, -1};
+    Tree tree(3, deltas, 7357, 1.63, 2);
+
+    tree.nodes[0].front().growClusterRight(4);
+    tree.nodes[0].front().openCluster(5);
+    tree.nodes[0].front().openCluster(6);
+    tree.nodes[0].front().openCluster(2);
+    tree.nodes[0].front().growClusterLeft(1);
+    tree.nodes[0].front().openCluster(0);
+    tree.nodes[0].front().openCluster(2.5);
+    tree.nodes[0].front().growClusterRight(7);
+    tree.nodes[0].front().openCluster(8);
+    tree.nodes[0].front().openCluster(8.5);
+    tree.nodes[0].front().growClusterRight(9);
+    tree.nodes[0].front().openCluster(10);
+    tree.nodes[0].front().growClusterRight(11);
+
+
+    return tree;
+
+}
+
+Tree OCTester::getNewBaseTree(){
+//        2.00  3.00  2.50  3.50  1.00  4.50  0.00  5.50
+//        [ 0.00 , 1.00 ] [ 2.00 , 3.00 ] [ 3.50 , 3.50 ] [ 4.50 , 5.50 ]
+    list<double> deltas = {1, 0.5, -1};
+    Tree tree(2, deltas, 7357, 1.63, 2);
+
+    tree.nodes[0].front().growClusterRight(3);
+//    tree.nodes[0].front().addPointToCluster(2.5);
+    tree.nodes[0].front().openCluster(3.5);
+    tree.nodes[0].front().openCluster(1);
+    tree.nodes[0].front().openCluster(4.5);
+    tree.nodes[0].front().growClusterLeft(0);
+    tree.nodes[0].front().growClusterRight(5.5);
+    //Till here can easily be proven
+    tree.nodes[0].front().openCluster(1.5);
+    tree.nodes[0].front().openCluster(6.5);
+    tree.nodes[0].front().openCluster(7.5);
+    tree.nodes[0].front().growClusterLeft(7);
+    tree.nodes[0].front().openCluster(8.5);
+    tree.nodes[0].front().growClusterRight(9.5);
+    tree.nodes[0].front().openCluster(10.5);
+
+
+
+    return tree;
+
+}
+
+
+Tree OCTester::getSecondBaseTree(){
+        // 2, 3, 4, 1, 7, 8, 9, 6, 5
+    list<double> deltas = {1, 0.5, -1};
+    Tree tree(2, deltas, 7357, 1.61, 2);
+
+    tree.nodes[0].front().growClusterRight(3);
+    tree.nodes[0].front().openCluster(4);
+    tree.nodes[0].front().openCluster(1);
+    tree.nodes[0].front().openCluster(7);
+    tree.nodes[0].front().growClusterRight(8);
+    tree.nodes[0].front().openCluster(9);
+    tree.nodes[0].front().openCluster(6);
+
+    return tree;
+
 }
 
 /****************************/

@@ -7,8 +7,6 @@ int main(int argc, char* argv[])
 {
     ///Comment in for tests
 
-
-
     OCTester test1 = OCTester();
 //    exit(1);
 
@@ -22,38 +20,45 @@ int main(int argc, char* argv[])
     int     levelsOfDF      = atoi(argv[2]); //Depth for DF search to stop
     double  ratio           = atof(argv[3]); //Threshold ratio
     int     prefix          = atoi(argv[4]); //Prefix for result files
-    int     print           = atoi(argv[5]); //Level of printing
-    int     numberOfDeltas  = atoi(argv[6]); //Number of deltas in the list
+//    int     print           = atoi(argv[5]); //Level of printing
+    int     print           = 2; //Level of printing
+    //int     numberOfDeltas  = atoi(argv[6]); //Number of deltas in the list
 
     list<double> deltaValues;
 
-    if(numberOfDeltas != argc-7)
-    {
-            cout << "Number of deltas must match second argument " << argc-6 << " and " << numberOfDeltas << endl;
-            return 0;
-    }
-    for(int i = 7; i < argc; i++)
-    {
-            deltaValues.push_front(atof(argv[i]));
-    }
+//    if(numberOfDeltas != argc-7){
+//            cout << "Number of deltas must match second argument " << argc-6 << " and " << numberOfDeltas << endl;
+//            return 0;
+//    }
+//    for(int i = 7; i < argc; i++){
+//            deltaValues.push_front(atof(argv[i]));
+//    }
     list<double> testSequence;
 
-
+    deltaValues = {1, -1, 0.5};
 
 
     startTimeBF = omp_get_wtime();
     //For regular runs
     Tree tree(startingPoint, deltaValues, prefix, ratio, print);
-
     //First argument is the number of levels the program should go down breadth first...
     int startingLevel = testSequence.size();
 
-    if (startingLevel == 0)
-    {
+    if (startingLevel == 0){
         startingLevel = 1;
     }
 
-    tree = test1.getDefaultStartTree();
+//    tree = test1.getDefaultStartTree();
+//    tree = test1.getNewLowerBoundTree();
+
+
+    if(prefix == 100){
+        tree = test1.getNewBaseTree();
+    }
+    if(prefix == 200){
+        tree = test1.getSecondBaseTree();
+    }
+
 
     for(int level = startingLevel; level < levelsOfBF+startingLevel; level++)
     {
@@ -67,7 +72,7 @@ int main(int argc, char* argv[])
 
     cout << "Finished cleanup - starting depth first" << endl;
 
-    tree.startDF_experimental(levelsOfBF, levelsOfDF);
+    tree.startDF(levelsOfBF, levelsOfDF);
 
     cout << endl;
     endTime = omp_get_wtime();

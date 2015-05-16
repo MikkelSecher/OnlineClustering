@@ -34,6 +34,7 @@ Tree::Tree(list<double> sequence, int prefix, double ratioIn){
     ratio       = ratioIn;
 
 
+
     list<double>::iterator  pointIt = sequence.begin();
 
     nodes[0].push_front( TreeNode( (*pointIt), NULL) );
@@ -76,29 +77,10 @@ Tree::Tree(list<double> sequence, int prefix, double ratioIn){
 
     list<TreeNode>::iterator nodeIt = nodes[0].begin();
 
-//    for (nodeIt; nodeIt != nodes[0].end() ; nodeIt++)
-//    {
-//        (*nodeIt).listClusters();
-//        (*nodeIt).listPoints();
-//    }
+
 }
 
-//void Tree::dictatePointBF(double point, int level){
-//
-//        list<TreeNode*>::iterator nodeIt;
-//
-//        for(nodeIt = nodeQueue.begin() ; nodeIt != nodeQueue.end() ; nodeIt++ )
-//        {
-////            cout << "Node level " << (*nodeIt)->depth << endl;
-//            if( (*nodeIt)->depth == level-1 ) {
-//                addPoint( 0, (*pointIt) );
-//                nodeIt = nodeQueue.erase( nodeIt );
-//                nodeIt--;
-//            }
-//        }
-//
-//
-//}
+
 
 void Tree::printFullTreeToFile(TreeNode *node){
 
@@ -153,6 +135,7 @@ void Tree::addLevelBF(int level)
         for(nodeIt = nodeQueue.begin() ; nodeIt != nodeQueue.end() ; nodeIt++ )
         {
             if( (*nodeIt)->depth == level-1 ) {
+
                 pointsToAdd = getNextPoints( *nodeIt );
 
                 for( nextPoint = pointsToAdd.begin() ; nextPoint != pointsToAdd.end() ; nextPoint++ ){
@@ -189,7 +172,7 @@ bool Tree::checkPartitioning(){
     workingPartitioning->setAmbSpace();
     list<double> ambPoints = workingPartitioning->getAmbPoints();
 
-    if( !force_experimental(workingNode , workingNode , workingPartitioning->getForcePoints( ), ambPoints) ){
+    if( !force(workingNode , workingNode , workingPartitioning->getForcePoints( ), ambPoints) ){
 
         return false;
     }
@@ -197,7 +180,7 @@ bool Tree::checkPartitioning(){
     return true;
 }
 
-bool Tree::force_experimental(TreeNode *node, TreeNode *originalNode, list<double> forcePoints, list<double> ambPoints)
+bool Tree::force(TreeNode *node, TreeNode *originalNode, list<double> forcePoints, list<double> ambPoints)
 { ///TODO: Cleanup
     int tid = omp_get_thread_num();
 
@@ -238,7 +221,7 @@ bool Tree::force_experimental(TreeNode *node, TreeNode *originalNode, list<doubl
                     emptyList = ambPoints; ///Get ready to call the force with an empty ambPoints list
                     emptyList.remove( ambPoints.front() );
 
-                    if( !force_experimental( forceNode, originalNode, forcePoints, emptyList ) ) {///Call it
+                    if( !force( forceNode, originalNode, forcePoints, emptyList ) ) {///Call it
                         //If it is now forcable, return false (Success)
                         node->content.forced = true;
                         node->live = false;
@@ -277,8 +260,8 @@ bool Tree::force_experimental(TreeNode *node, TreeNode *originalNode, list<doubl
 
 
         if(geq(forceNode->calcRatio(), ratio) || ///If the ratio is broken by this
-        !force_experimental(forceNode, originalNode, forcePoints, ambPoints ) || ///Else call again with the forcepoint list
-        !force_experimental( forceNode, originalNode, emptyList, ambPoints ) ){ ///Else try with ambiguous points
+        !force(forceNode, originalNode, forcePoints, ambPoints ) || ///Else call again with the forcepoint list
+        !force( forceNode, originalNode, emptyList, ambPoints ) ){ ///Else try with ambiguous points
             ///If successful
             node->content.forced = true;
             node->live = false;
@@ -324,75 +307,6 @@ list<double> Tree::getNextPoints( TreeNode *node ){
 
     return nextPoints;
 }
-
-/*********************************
-****** GENERAL FUNCTIONS *********
-*********************************/
-
-void Tree::analyzeTree( int levelsOfBF ) //FINDS PROOFS AFTER DF PART IS DONE
-{
-//Start the analysis of the complete tree.
-//Running through the list of succesfull nodes with subproofs
-//Will count the number of subproofs resulting in proofs
-//    cout << endl;
-//    cout << "Analyzing search tree" << endl;
-//    cout << "---------------------------------------------" << endl;
-//    cout << endl;
-
-    //int amount = 0;
-    successes = 0;
-    int numberOfThreads = 0;
-
-    double startTime = omp_get_wtime();
-    double endTime;
-
-    omp_set_num_threads(NUM_THREADS);
-
-    #pragma omp parallel
-    {
-        int succes = 0;
-        list<TreeNode*>::iterator i;
-        numberOfThreads = omp_get_num_threads();
-            #pragma omp master
-        {
-            splitSuccesQueue(numberOfThreads);
-        }
-        #pragma omp barrier
-//        cout << "Split the nodes" << endl;
-        #pragma omp for
-        for(int t = 0; t < numberOfThreads; t++)
-        {
-            for(i = parSuccesfulNodes[t].begin(); i != parSuccesfulNodes[t].end(); i++)
-            {
-                if((*i)->nId = 1 and backtrackSolution((*i), (*i)->content.points, levelsOfBF, succes))
-                {
-                    cout << "from root PROOF FOUND in thread "<< t << endl;
-                    succes++;
-                }
-
-
-                //amount++;
-                if((*i)->nId != 1 and backtrackSolution((*i)->parentNode, (*i)->content.points, levelsOfBF, succes))
-                {
-                    cout << " from non-root PROOF FOUND in thread "<< t << endl;
-                    succes++;
-                }
-            }
-        }
-        #pragma omp atomic
-        successes += succes;
-    }
-    endTime = omp_get_wtime();
-    proofTime = endTime-startTime;
-    cout << endl;
-    cout << "SUMMARY:" << endl;
-    cout << "---------------------------------------------" << endl;
-    cout << "Found " << successes << " proofs for the ratio "<< ratio << endl;
-    cout << endl;
-    cout << "Time spent in parallel proof finding: " << proofTime << endl;
-
-}
-
 
 
 /*********************************
@@ -696,13 +610,14 @@ int Tree::addToClusterBF(TreeNode *parent, double point, int tid){
 ****** DEPTH-FIRST FUNCTIONS *****
 *********************************/
 
-bool Tree::startDF_experimental(int levelsOfBF, int levelsOfDF) {
+bool Tree::startDF(int levelsOfBF, int levelsOfDF) {
     int tid = omp_get_thread_num();
 
     if( nodeQueue.size() > 1 ){
         nodeQueue.sort( node_compare_sequence ); //Sort queue wrt. sequence of points
     }
     sequenceTree(); //sort queue into miniqueues sorted by sequence of points
+    splitSequenceTree();
 
     list<TreeNode*>::iterator nodeIt = sequencedTreeQueue.front().begin();
     list<TreeNode>::iterator temp = nodes[tid].begin();
@@ -714,29 +629,30 @@ bool Tree::startDF_experimental(int levelsOfBF, int levelsOfDF) {
     list< list<TreeNode*> >::iterator listIt = sequencedTreeQueue.begin();
     int proofsToTry = sequencedTreeQueue.size() ;
     cout << "Possibilities for proofs: " << proofsToTry << endl;
-    for( listIt ; listIt != sequencedTreeQueue.end() ; listIt++ ){
-        ++tryCount;
-        if(tryCount % 100 == 0){
-            cout << tryCount << "/" << proofsToTry << endl;
-        }
-        if(!miniQueueDF( (*listIt) , levelsOfBF , levelsOfDF ) ){
-            proofCount++;
-            listProofSequenceToTextFile( proofSequences.back());
-//            cout << "proofed -----------------------------------------"  << endl;
+    listInitializeTextFile(ratio);
+
+    int startTime = omp_get_wtime();
+    #pragma omp parallel for num_threads(NUM_THREADS)
+    for(int miniQueue = 0; miniQueue < numberOfMiniQueues; miniQueue++){
+        if(!miniQueueDF(parallelMiniQueues[miniQueue], levelsOfBF, levelsOfDF) ) {
+            //cout << "Proof Found in thread "<< omp_get_thread_num() << endl;
+            #pragma omp critical
+            {
+                listProofSequenceToTextFile( proofSequences[omp_get_thread_num()].back());
+            }
         }
     }
 
-    if(proofCount > 0){
+    cout << "Time spent in parallel: " << omp_get_wtime() - startTime << endl;
+
         normalizeSolutions();
         printSolutionSequences();
 
-        listProofsToFiles(proofSequences, ratio);
+        for(int i = 0; i < NUM_THREADS; i++){
+            listProofsToFiles(proofSequences[i], ratio);
+        }
+    return false;
 
-        return false;
-    }
-    return true;
-
-    analyzeTree(levelsOfBF);
     exit(1);
 }
 
@@ -746,14 +662,12 @@ bool Tree::miniQueueDF (list<TreeNode*> miniQueue, int levelsOfBF, int levelsOfD
     list<TreeNode*>::iterator nodeIt = miniQueue.begin();
 
     makeNewSequenceReady();
-
 //    cout << "Size of miniQueue " << miniQueue.size() << endl;
 
     for( nodeIt ; nodeIt != miniQueue.end() ; nodeIt++ ) {
 
 
         depthFirstQueue[tid].push_front( (*nodeIt) );
-
         if( addPointRecursive( levelsOfBF , levelsOfDF ) ){
 
             depthFirstQueue[tid].clear();
@@ -771,7 +685,6 @@ bool Tree::miniQueueDF (list<TreeNode*> miniQueue, int levelsOfBF, int levelsOfD
 //    cout << "Found full proof "<< endl;
     return false; ///Success
 }
-
 
 void Tree::destroySubtree(TreeNode* node) {
 
@@ -831,117 +744,6 @@ int Tree::addPointDF_experimental(double point, TreeNode *node){
     }
 
     return nodesAdded;
-}
-
-bool Tree::backtrackSolution(TreeNode* node, list<double> points, int levelsOfBF, int succesNumber) {
-    //Backtracks through to the root of the tree, and explores to see if
-    //all leafs end in ratios higher than threshold
-//    node->content.listClusters();
-//    cout << "Nodes ID: "<< node->nId << endl;
-    int tid = omp_get_thread_num();
-    FILE * pFile;
-    string sNodeID = node->content.stringIt(node->nId);
-    if(node->nId != 1 and node->parentNode != NULL )
-    {
-        cout << "nID: " << node->nId << endl;
-        if(!backtrackSolution(node->parentNode, points, levelsOfBF, succesNumber))
-            return false;
-        else
-            return true;
-    }
-
-    char filename[30];
-    sprintf( filename , "res\\%d_%d_solution_%d .gml" , resPrefix , tid , succesNumber );
-
-    if(node->depth == 0 or node->rootNode)
-    {
-//        cout << "node " << node->nId << " number of children " <<  node->children.size() << endl;
-//        node->children.front()->content.listClusters();
-//        node->children.back()->content.listClusters();
-        if(print >= 1)
-        {
-
-            pFile = fopen (filename,"w"); //cleans the previous file
-            fprintf(pFile, "graph \n [ \n");
-            fprintf(pFile, "node \n [ \n id n%s \n ] \n ", sNodeID.c_str());
-            fclose(pFile);
-        }
-
-        if(!forwardCheck(node, points, levelsOfBF, succesNumber))
-        {
-            return false;
-        }
-    }
-    if(print >= 1)
-    {
-        pFile = fopen (filename,"a");
-        fprintf(pFile, "]");
-        fclose(pFile);
-    }
-    return true;
-}
-
-bool Tree::forwardCheck(TreeNode* node, list<double> points, int levelsOfBF, int succesNumber) {
-//    cout << "REACHED FORWARD CHECK" << endl;
-    if(points.size() == 0)
-    {
-        return false;
-    }
-
-    double point = points.front();
-    points.pop_front();
-
-    double difference =  point-points.front();
-    int livingChildren = 0;
-    list<TreeNode*>::iterator i;
-
-    for(i = node->children.begin(); i != node->children.end(); i++){
-        if(deq((*i)->content.difference, difference) and (*i)->depth < levelsOfBF){
-
-            if(print >= 1){
-                (*i)->content.insertNodeLabel(false, (*i)->nId, succesNumber, resPrefix);
-            }
-
-            livingChildren++;
-            if(!forwardCheck((*i), points, levelsOfBF, succesNumber)){
-                return false;
-            }
-            if(print >= 1){
-                (*i)->content.insertEdgeLabel((*i)->parentNode->nId, (*i)->nId, succesNumber, resPrefix);
-
-            }
-        }
-
-        if((*i)->depth == levelsOfBF and deq((*i)->content.difference, difference)){
-            if((*i)->live == true){
-                return false;
-            }
-            (*i)->live = true;
-            if(print >= 1){
-                (*i)->content.insertNodeLabel(true, (*i)->nId, succesNumber, resPrefix);
-            }
-
-            list<double> newPoints;
-            for(int j = 0; j < levelsOfBF; j++)
-                newPoints.push_back(node->workingSequence[j]);
-
-            if(!forwardCheck((*i), newPoints, levelsOfBF, succesNumber)){
-                return false;
-            }
-            if(print >= 1){
-                (*i)->content.insertEdgeLabel((*i)->parentNode->nId, (*i)->nId, succesNumber, resPrefix);
-            }
-        }
-
-        if((*i)->depth > levelsOfBF){
-            if(print >= 1 and (geq((*i)->content.calcRatio(), ratio) or (*i)->children.size() > 0)){
-                (*i)->content.insertNodeLabel(false, (*i)->nId, succesNumber, resPrefix);
-                (*i)->content.insertEdgeLabel((*i)->parentNode->nId, (*i)->nId, succesNumber, resPrefix);
-            }
-            forwardCheck((*i), points, levelsOfBF, succesNumber);
-        }
-    }
-    return true;
 }
 
 int Tree::twoChoicesLeftDF(TreeNode *parent, double point){
@@ -1110,8 +912,8 @@ int Tree::addToClusterDF(TreeNode *parent, double point, int tid){
 *** PARALLEL HELPER FUNCTIONS ****
 *********************************/
 
-int Tree::splitNodeQueue(int numberOfThreads) //SPLITS THE NODEQUEUE INTO CHUNKS - 1 FOR EACH THREAD
-{
+int Tree::splitNodeQueue(int numberOfThreads){ //SPLITS THE NODEQUEUE INTO CHUNKS - 1 FOR EACH THREAD
+
     list<TreeNode*>::iterator i, first, last;
     first = nodeQueue.begin();
     last = nodeQueue.end();
@@ -1119,25 +921,18 @@ int Tree::splitNodeQueue(int numberOfThreads) //SPLITS THE NODEQUEUE INTO CHUNKS
     int counter = 0;
     int listsMade = 1;
 
-
     //calculate splitpoints
     int splits = sizeOfQueue/numberOfThreads;
 
     cout << "Queue of " << nodeQueue.size() << " is split into " << numberOfThreads << " of " << splits << endl;
 
-
-    for(i = nodeQueue.begin(); i != nodeQueue.end(); i++)
-    {
-
-        if(listsMade == numberOfThreads)
-        {
+    for(i = nodeQueue.begin(); i != nodeQueue.end(); i++){
+        if(listsMade == numberOfThreads){
             nodeQueue.splice(parNodeQueue[listsMade-1].begin(), parNodeQueue[listsMade-1], first, last);
             goto finish;
         }
 
-        if(counter == splits*listsMade)
-        {
-
+        if(counter == splits*listsMade){
             nodeQueue.splice(parNodeQueue[listsMade-1].begin(), parNodeQueue[listsMade-1], first, i);
             first = i;
             listsMade++;
@@ -1145,20 +940,16 @@ int Tree::splitNodeQueue(int numberOfThreads) //SPLITS THE NODEQUEUE INTO CHUNKS
         counter++;
 
     }
-
     finish:
-
-    for(int i = 0; i < numberOfThreads; i++)
-    {
+    for(int i = 0; i < numberOfThreads; i++){
         cout << "Size of the parallel queue " << i << " " << parNodeQueue[i].size() << endl;
     }
-
     return 0;
 
 }
 
-int Tree::splitSuccesQueue(int numberOfThreads) //SPLITS SUCCESQUEUE INTO CHUNKS - 1 FOR EACH THREAD
-{
+int Tree::splitSuccesQueue(int numberOfThreads){ //SPLITS SUCCESQUEUE INTO CHUNKS - 1 FOR EACH THREAD
+
     list<TreeNode*>::iterator i, first, last;
     first = succesfulNodes.begin();
     last = succesfulNodes.end();
@@ -1204,7 +995,24 @@ int Tree::splitSuccesQueue(int numberOfThreads) //SPLITS SUCCESQUEUE INTO CHUNKS
 
 }
 
+void Tree::splitSequenceTree(){
 
+    list<list<TreeNode*>>::iterator nodeIt, first, last;
+    first = sequencedTreeQueue.begin();
+    last = sequencedTreeQueue.end();
+    int sizeOfQueue = sequencedTreeQueue.size();
+
+
+    parallelMiniQueues = new list<TreeNode*>[sizeOfQueue];
+
+    for(int i = 0; i < sizeOfQueue; i++){
+        parallelMiniQueues[i] = sequencedTreeQueue.front();
+        sequencedTreeQueue.pop_front();
+    }
+
+
+    numberOfMiniQueues = sizeOfQueue;
+}
 
 /*********************************
 ****** EXPERIMENTAL DF ***********
@@ -1240,8 +1048,7 @@ bool Tree::addPointRecursive(int level, int maxLevel){ //Returns false if a subp
         if(nodesAdded == 0){
 //            printDoubleList("Sorted Points", nodes[0].front().content.points);
 
-            addSolutionSequence(&nodes[0].front());
-
+            addSolutionSequence(&nodes[tid].front());
             return false;
         }
         else if(!addPointRecursive(level+1, maxLevel)){
@@ -1258,6 +1065,11 @@ int Tree::addLevel( int level , int maxLevel , double point ) {
     int nodesAdded = 0;
     int tid = omp_get_thread_num();
     list<TreeNode*>::iterator nodeIt;
+
+    if(level == maxLevel)
+    {
+        return 1;
+    }
 
     for(nodeIt = depthFirstQueue[tid].begin(); nodeIt != depthFirstQueue[tid].end(); nodeIt++) {
         if((*nodeIt)->depth == level) {
@@ -1319,22 +1131,25 @@ void Tree::sequenceTree(){
 }
 
 void Tree::makeNewSequenceReady(){
+    int tid = omp_get_thread_num();
 
     list< list<double> > emptyList;
-    proofSequences.push_back(emptyList);
+    proofSequences[tid].push_back(emptyList);
 }
 
 void Tree::removePartialSequences(){
+    int tid = omp_get_thread_num();
 
-    proofSequences.pop_back();
+    proofSequences[tid].pop_back();
 }
 
 
 void Tree::addSolutionSequence(TreeNode *node){
 
+    int tid = omp_get_thread_num();
 
 
-    proofSequences.back().push_back( (node->content.points) ) ;
+    proofSequences[tid].back().push_back( (node->content.points) ) ;
 
 }
 
@@ -1342,26 +1157,33 @@ void Tree::normalizeSolutions(){
 
     list< list< list<double> > >::iterator proofIt;
 
-    for(proofIt = proofSequences.begin() ; proofIt != proofSequences.end(); proofIt++){
 
-        normalizeProof(&(*proofIt));
+    for(int i = 0; i < NUM_THREADS; i++){
+        for(proofIt = proofSequences[i].begin() ; proofIt != proofSequences[i].end(); proofIt++){
 
+            normalizeProof(&(*proofIt));
+        }
     }
-
 
 }
 
 void Tree::printSolutionSequences(){
 
-    list< list< list<double> > >::iterator proofIt = proofSequences.begin();
+    list< list< list<double> > >::iterator proofIt;
 
     list< list<double> >::iterator listIt;
     double offset;
-    for(proofIt; proofIt != proofSequences.end(); proofIt++){
-        cout << "-----------------" << endl;
-        //offset = normalizeProof(&(*proofIt));
-        for(listIt = (*proofIt).begin() ; listIt != (*proofIt).end() ; listIt++ ){
-            printDoubleList( "Proof : " , *listIt, 0);
+    for(int i = 0; i < NUM_THREADS; i++)    {
+        for(proofIt = proofSequences[i].begin(); proofIt != proofSequences[i].end(); proofIt++){
+            cout << "-----------------" << endl;
+            //offset = normalizeProof(&(*proofIt));
+
+
+            for(listIt = (*proofIt).begin() ; listIt != (*proofIt).end() ; listIt++ ){
+                printDoubleList( "Proof : " , *listIt, 0);
+
+            }
+
 
         }
     }
@@ -1454,22 +1276,26 @@ void listProofSequenceToTextFile( list< list<double> > proofLists){
     for(listIt = proofLists.begin(); listIt != proofLists.end(); listIt++){
         fprintf(pFile, " { ");
         for(pointIt = (*listIt).begin(); pointIt != (*listIt).end(); pointIt++){
-            fprintf(pFile, " %2.2f ", (*pointIt) );
+            fprintf(pFile, " %2.2f ,", (*pointIt) );
         }
         fprintf(pFile, " }\n ");
 
 
     }
-
-
-
-
-//    fprintf(pFile, "node \n [ \n id n%s \n ] \n ", sNodeID.c_str());
     fclose(pFile);
-
 }
 
+void listInitializeTextFile( double ratio){
+    FILE *pFile;
+    cout << "Initializing sequence file" << endl;
 
+
+    pFile = fopen ("KnownProofSequences.txt","a"); //Append to the file
+
+    fprintf(pFile, "\n The following sequences are for ratio: %2.2f ---------------------------\n", ratio);
+
+    fclose(pFile);
+}
 
 bool printDoubleList(string textToPrint, list<double> listToPrint) {
     printDoubleList(textToPrint , listToPrint, 0);
