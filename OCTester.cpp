@@ -17,14 +17,14 @@ OCTester::OCTester()
 //    Tree({2, 3, 4, 1, 7, 8, 9, 6, 5}, 110, 1.61);
     //Tree({2.00 , 3.00 , 3.50 , 1.00 , 4.50 , 0.00 , 5.50 , 1.50 , 6.50 , 7.50 , 7.00 , 8.50 , 9.50 , 10.50 , 0.50 , 8.00 , 6.00 , 11.50}, 110, 1.61);
 //    Tree({0.00}, 110, 1.60);
-    completeForceTest();
-    completeCheckPartitioningTest();
-    completeChildrenTest();
-    completeNodeTest();
-    completeChoiceTests();
-    completePointGenerationTests();
-    completeDepthFirstTests();
-    bottomLine();
+//    completeForceTest();
+//    completeCheckPartitioningTest();
+//    completeChildrenTest();
+//    completeNodeTest();
+//    completeChoiceTests();
+//    completePointGenerationTests();
+//    completeDepthFirstTests();
+//    bottomLine();
 
 }
 

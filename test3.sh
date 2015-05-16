@@ -35,6 +35,6 @@
 # Change to the directory where the qsub command was issued.
 #
 cd $PBS_O_WORKDIR
-cd $HOME/mikkel/largetests/test7/OnlineClustering
-./OnlineClustering 7 13 1.6 1 1 3 1 -1 0.5
+cd $HOME/mikkel/largetests/test3/OnlineClustering
+./OnlineClustering 6 17 1.63 100
 #
