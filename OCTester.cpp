@@ -1345,7 +1345,7 @@ Tree OCTester::getNewBaseTree(){
 Tree OCTester::getSecondBaseTree(){
         // 2, 3, 4, 1, 7, 8, 9, 6, 5
     list<double> deltas = {1, 0.5, -1};
-    Tree tree(2, deltas, 7357, 1.61, 2);
+    Tree tree(2, deltas, 7357, 1.63, 2);
 
     tree.nodes[0].front().growClusterRight(3);
     tree.nodes[0].front().openCluster(4);
