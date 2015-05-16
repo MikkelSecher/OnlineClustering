@@ -17,14 +17,14 @@ OCTester::OCTester()
 //    Tree({2, 3, 4, 1, 7, 8, 9, 6, 5}, 110, 1.61);
     //Tree({2.00 , 3.00 , 3.50 , 1.00 , 4.50 , 0.00 , 5.50 , 1.50 , 6.50 , 7.50 , 7.00 , 8.50 , 9.50 , 10.50 , 0.50 , 8.00 , 6.00 , 11.50}, 110, 1.61);
 //    Tree({0.00}, 110, 1.60);
-//    completeForceTest();
-//    completeCheckPartitioningTest();
-//    completeChildrenTest();
-//    completeNodeTest();
-//    completeChoiceTests();
-//    completePointGenerationTests();
-//    completeDepthFirstTests();
-//    bottomLine();
+    completeForceTest();
+    completeCheckPartitioningTest();
+    completeChildrenTest();
+    completeNodeTest();
+    completeChoiceTests();
+    completePointGenerationTests();
+    completeDepthFirstTests();
+    bottomLine();
 
 }
 
@@ -152,17 +152,17 @@ bool OCTester::easyForceTest(){
 
     if(tree.force(nodeToUse, nodeToUse, forcePoints, ambPoints)){
         cout << "Failed to for a forcable node" << endl;
-        failCount++;
+        ++failCount;
         return false;
     }
 
     if(tree.nodes[0].front().content.forcedPoints.size() != 3 ){
         cout << "Not forced with the correct number of points" << endl;
-        failCount++;
+        ++failCount;
         return false;
     }
 
-    successCount++;
+    ++successCount;
     return true;
 
 }
@@ -182,17 +182,17 @@ bool OCTester::endForceTest(){
 
     if(tree.force(nodeToUse, nodeToUse, forcePoints, ambPoints)){
         cout << "Failed to for a forcable node" << endl;
-        failCount++;
+        ++failCount;
         return false;
     }
 
     if(tree.nodes[0].front().content.forcedPoints.size() != 1 ){
         cout << "Not forced with the correct number of points" << endl;
-        failCount++;
+        ++failCount;
         return false;
     }
 
-    successCount++;
+    ++successCount;
     return true;
 
 }
@@ -212,17 +212,17 @@ bool OCTester::startForceTest(){
 
     if(tree.force(nodeToUse, nodeToUse, forcePoints, ambPoints)){
         cout << "Failed to for a forcable node" << endl;
-        failCount++;
+        ++failCount;
         return false;
     }
 
     if(tree.nodes[0].front().content.forcedPoints.size() != 1 ){
         cout << "Not forced with the correct number of points" << endl;
-        failCount++;
+        ++failCount;
         return false;
     }
 
-    successCount++;
+    ++successCount;
     return true;
 
 }
@@ -239,17 +239,17 @@ bool OCTester::hardForceTest(){
 
     if(tree.force(nodeToUse, nodeToUse, forcePoints, ambPoints)){
         cout << "Failed to for a forcable node" << endl;
-        failCount++;
+        ++failCount;
         return false;
     }
 
     if(tree.nodes[0].front().content.forcedPoints.size() != 4 ){
         cout << "Not forced with the correct number of points" << endl;
-        failCount++;
+        ++failCount;
         return false;
     }
 
-    successCount++;
+    ++successCount;
     return true;
 
 }
@@ -270,17 +270,17 @@ bool OCTester::harderForceTest(){
 
     if(tree.force(nodeToUse, nodeToUse, forcePoints, ambPoints)){
         cout << "Failed to for a forcable node" << endl;
-        failCount++;
+        ++failCount;
         return false;
     }
 
     if(tree.nodes[0].front().content.forcedPoints.size() != 6 ){
         cout << "Not forced with the correct number of points" << endl;
-        failCount++;
+        ++failCount;
         return false;
     }
 
-    successCount++;
+    ++successCount;
     return true;
 
 }
@@ -301,12 +301,12 @@ bool OCTester::unkownForceTest(){
 
     if(tree.force(nodeToUse, nodeToUse, forcePoints, ambPoints)){
         cout << "Failed to for a forcable node In Unkown" << endl;
-        failCount++;
+        ++failCount;
         return false;
     }
 
 
-    successCount++;
+    ++successCount;
     return true;
 
 }
@@ -321,10 +321,10 @@ bool OCTester::checkAboveRatioTest(){
 
     if( !tree.checkPartitioning() )
     {
-        OCTester::successCount++;
+        ++successCount;
         return true;
     }
-    OCTester::failCount++;
+    ++failCount;
     return false;
 
 }
@@ -336,10 +336,10 @@ bool OCTester::checkForceNeededTest(){
 
     if( !tree.checkPartitioning() )
     {
-        OCTester::successCount++;
+        ++successCount;
         return true;
     }
-    OCTester::failCount++;
+    ++failCount;
     return false;
 }
 
@@ -350,10 +350,10 @@ bool OCTester::checkUnforcableTest(){
 
     if( tree.checkPartitioning() )
     {
-        OCTester::successCount++;
+       ++successCount;
         return true;
     }
-    OCTester::failCount++;
+    ++failCount;
     return false;
 }
 
@@ -363,10 +363,10 @@ bool OCTester::checkForRootNodeTest(){
 
     if( tree.checkPartitioning() )
     {
-        OCTester::successCount++;
+        ++successCount;
         return true;
     }
-    OCTester::failCount++;
+    ++failCount;
     return false;
 }
 
@@ -381,10 +381,10 @@ bool OCTester::hardTwoChoicesRightTest(){
     tree.addPointDF_experimental(10, nodeToUse);
 
     if(nodeToUse->children.size() == 1){
-        OCTester::successCount++;
+        ++successCount;
         return true;
     }
-    OCTester::failCount++;
+    ++failCount;
     return false;
 }
 
@@ -394,10 +394,10 @@ bool OCTester::addLevelBFTest(){
     tree.addLevelBF(2);
 
     if( tree.nodes[0].size() == 9 ){
-        OCTester::successCount++;
+        ++successCount;
         return true;
     }
-    OCTester::failCount++;
+    ++failCount;
     return false;
 
 }
@@ -412,7 +412,7 @@ bool OCTester::createNewNodeTest(){
 
     if(tree.nodes[0].size() != 1){
         cout << "Size of newly generated tree is not 1" << endl;
-        failCount++;
+        ++failCount;
         return false;
     }
 
@@ -420,10 +420,10 @@ bool OCTester::createNewNodeTest(){
 
     if( tree.nodes[0].size() != 2 ){
         cout << "Size of tree after new node is not 2" << endl;
-        failCount++;
+        ++failCount;
         return false;
     }
-    successCount++;
+    ++successCount;
     return true;
 }
 
@@ -436,11 +436,11 @@ bool OCTester::destroyNodeTest(){
 
     if( tree.nodes[0].size() != 1 ){
         cout << "Node was not erased" << endl;
-        failCount++;
+        ++failCount;
         return false;
     }
 
-    successCount++;
+    ++successCount;
     return true;
 }
 
@@ -454,15 +454,15 @@ bool OCTester::threeChoiceTest(){
 
     if(tree.nodes[0].front().content.pointInRange(4) != 3){
         cout << "Failed at 4" << endl;
-        failCount++;
+        ++failCount;
         return false;
     }
     if(tree.nodes[0].front().content.pointInRange(5.25) != 3){
             cout << "Failed at 5.25" << endl;
-        failCount++;
+        ++failCount;
         return false;
     }
-    successCount++;
+    ++successCount;
     return true;
 }
 
@@ -471,21 +471,21 @@ bool OCTester::twoChoiceRightTest(){
 
     if(tree.nodes[0].front().content.pointInRange(3.75) != 2){
         cout << "Failed at 4" << endl;
-        failCount++;
+        ++failCount;
         return false;
     }
     if(tree.nodes[0].front().content.pointInRange(6.5) != 2){
             cout << "Failed at 6.5" << endl;
-        failCount++;
+        ++failCount;
         return false;
     }
     if(tree.nodes[0].front().content.pointInRange(6.25) != 2){
             cout << "Failed at 6.25" << endl;
-        failCount++;
+        ++failCount;
         return false;
     }
 
-    successCount++;
+    ++successCount;
     return true;
 }
 
@@ -494,21 +494,21 @@ bool OCTester::twoChoiceLeftTest(){
 
     if(tree.nodes[0].front().content.pointInRange(2.5) != -2){
         cout << "Failed at 2.5" << endl;
-        failCount++;
+        ++failCount;
         return false;
     }
     if(tree.nodes[0].front().content.pointInRange(2.75) != -2){
             cout << "Failed at 2.75" << endl;
-        failCount++;
+        ++failCount;
         return false;
     }
     if(tree.nodes[0].front().content.pointInRange(4.25) != -2){
             cout << "Failed at 4.25" << endl;
-        failCount++;
+        ++failCount;
         return false;
     }
 
-    successCount++;
+    ++successCount;
     return true;
 }
 
@@ -516,14 +516,14 @@ bool OCTester::oneChoiceTest(){
     Tree tree = getChoiceTreeZeroOne();
 
     if(tree.nodes[0].front().content.pointInRange(3.5) != 1){
-        failCount++;
+        ++failCount;
         return false;
     }
     if(tree.nodes[0].front().content.pointInRange(5.5) != 1){
-        failCount++;
+        ++failCount;
         return false;
     }
-    successCount++;
+    ++successCount;
     return true;
 }
 
@@ -531,18 +531,18 @@ bool OCTester::noChoiceTest(){
     Tree tree = getChoiceTreeZeroOne();
 
     if(tree.nodes[0].front().content.pointInRange(2.5) != 0){
-        failCount++;
+        ++failCount;
         return false;
     }
     if(tree.nodes[0].front().content.pointInRange(4.5) != 0){
-        failCount++;
+        ++failCount;
         return false;
     }
     if(tree.nodes[0].front().content.pointInRange(6.5) != 0){
-        failCount++;
+        ++failCount;
         return false;
     }
-    successCount++;
+    ++successCount;
     return true;
 }
 
@@ -551,66 +551,66 @@ bool OCTester::existingPointTest(){
 
     if(tree.nodes[0].front().doesPointExist(-3)){
         cout << "Failed at 1" << endl;
-        failCount++;
+        ++failCount;
         return false;
     }
     if(tree.nodes[0].front().doesPointExist(-2)){
         cout << "Failed at -2" << endl;
-        failCount++;
+        ++failCount;
         return false;
     }
     if(tree.nodes[0].front().doesPointExist(-1)){
         cout << "Failed at -1" << endl;
-        failCount++;
+        ++failCount;
         return false;
     }
     if(tree.nodes[0].front().doesPointExist(0)){
         cout << "Failed at 0" << endl;
-        failCount++;
+        ++failCount;
         return false;
     }
     if(tree.nodes[0].front().content.doesPointExist(1)){
         cout << "Failed at 1" << endl;
-        failCount++;
+        ++failCount;
         return false;
     }
     if(tree.nodes[0].front().content.doesPointExist(2)){
         cout << "Failed at 2" << endl;
-        failCount++;
+        ++failCount;
         return false;
     }
         if(tree.nodes[0].front().content.doesPointExist(3)){
         cout << "Failed at 3" << endl;
-        failCount++;
+        ++failCount;
         return false;
     }
     if(!tree.nodes[0].front().content.doesPointExist(-4)){
         cout << "Failed at -4" << endl;
-        failCount++;
+        ++failCount;
         return false;
     }
     if(!tree.nodes[0].front().content.doesPointExist(-2.5)){
         cout << "Failed at -2.5" << endl;
-        failCount++;
+        ++failCount;
         return false;
     }
     if(!tree.nodes[0].front().content.doesPointExist(0.2)){
         cout << "Failed at 0.2" << endl;
-        failCount++;
+        ++failCount;
         return false;
     }
     if(!tree.nodes[0].front().content.doesPointExist(2.5)){
         cout << "Failed at 2.5" << endl;
-        failCount++;
+        ++failCount;
         return false;
     }
     if(!tree.nodes[0].front().content.doesPointExist(4)){
         cout << "Failed at 4" << endl;
-        failCount++;
+        ++failCount;
         return false;
     }
 
-    successCount++;
+    ++successCount;
     return true;
 
 }
@@ -631,21 +631,21 @@ bool OCTester::threeUsualDeltasTest(){
 
     if ( nextPointList.size() != controlList.size() ){
         cout << "Failed at size of list" << endl;
-        failCount++;
+        ++failCount;
         return false;
     }
 
-    list<double>::iterator result, control;
+    list<double>::iterator result;
 
     for ( result = nextPointList.begin(); result != nextPointList.end() ; result++ ){
         if ( (*result) != controlList.front() ){
             cout << "Didn't get point: "<< (*result) << endl;
-            failCount++;
+            ++failCount;
             return false;
         }
         controlList.pop_front();
     }
-    successCount++;
+    ++successCount;
     return true;
 
 }
@@ -653,28 +653,28 @@ bool OCTester::threeUsualDeltasTest(){
 bool OCTester::withoutInputNodeTest(){
     Tree tree = getEasyForcableTree(1.6);
 
-    TreeNode *nodeToUse = &tree.nodes[0].front();
+
 
     list<double> controlList = { 5 , 3.5 , 2.5 , 1.5 , 0.5 , 0 };
     list<double> nextPointList = tree.getNextPoints();
 
     if ( nextPointList.size() != controlList.size() ){
         cout << "Failed at size of list" << endl;
-        failCount++;
+        ++failCount;
         return false;
     }
 
-    list<double>::iterator result, control;
+    list<double>::iterator result;
 
     for ( result = nextPointList.begin(); result != nextPointList.end() ; result++ ){
         if ( (*result) != controlList.front() ){
             cout << "Didn't get point: "<< (*result) << endl;
-            failCount++;
+            ++failCount;
             return false;
         }
         controlList.pop_front();
     }
-    successCount++;
+    ++successCount;
     return true;
 
 
@@ -683,28 +683,26 @@ bool OCTester::withoutInputNodeTest(){
 bool OCTester::fromOnePointTest(){
  Tree tree = getSimpleTree();
 
-    TreeNode *nodeToUse = &tree.nodes[0].front();
-
     list<double> controlList = { 4 , 3.5 , 2 };
     list<double> nextPointList = tree.getNextPoints();
 
     if ( nextPointList.size() != controlList.size() ){
         cout << "Failed at size of list" << endl;
-        failCount++;
+        ++failCount;
         return false;
     }
 
-    list<double>::iterator result, control;
+    list<double>::iterator result;
 
     for ( result = nextPointList.begin(); result != nextPointList.end() ; result++ ){
         if ( (*result) != controlList.front() ){
             cout << "Didn't get point: "<< (*result) << endl;
-            failCount++;
+            ++failCount;
             return false;
         }
         controlList.pop_front();
     }
-    successCount++;
+    ++successCount;
     return true;
 
 }
@@ -720,11 +718,11 @@ bool OCTester::oneNodeDFSuccessTest(){
 
     if ( tree.startDF(0, 5) ){
         cout << "Didn't found proof, where there is one.." << endl;
-        failCount++;
+        ++failCount;
         return false;
     }
 
-    successCount++;
+    ++successCount;
     return true;
 }
 
@@ -734,10 +732,10 @@ bool OCTester::twoNodeDFSuccessTest(){
 
     if ( tree.miniQueueDF(tree.sequencedTreeQueue.front(), 1, 6 ) ){
         cout << "Didn't found proof, where there is one.." << endl;
-        failCount++;
+        ++failCount;
         return false;
     }
-    successCount++;
+    ++successCount;
     return true;
 }
 
@@ -747,10 +745,10 @@ bool OCTester::threeNodeDFSuccessTest(){
 
     if ( tree.miniQueueDF(tree.sequencedTreeQueue.front(), 1, 6 ) ){
         cout << "Didn't found proof, where there is one.." << endl;
-        failCount++;
+        ++failCount;
         return false;
     }
-    successCount++;
+    ++successCount;
     return true;
 }
 
@@ -759,10 +757,10 @@ bool OCTester::threeNodeDFFailTest(){
 
     if ( !tree.miniQueueDF(tree.sequencedTreeQueue.front(), 1, 6 ) ){
         cout << "Found a proof where there isn't one.." << endl;
-        failCount++;
+        ++failCount;
         return false;
     }
-    successCount++;
+    ++successCount;
     return true;
 }
 
@@ -771,10 +769,10 @@ bool OCTester::oneNodeHardDFSuccessTest(){
 
     if ( tree.startDF(0, 7) ){
         cout << "Didn't found proof, where there is one.." << endl;
-        failCount++;
+        ++failCount;
         return false;
     }
-    successCount++;
+    ++successCount;
     return true;
 }
 
@@ -783,10 +781,10 @@ bool OCTester::oneNodeHarderDFSuccessTest(){
 
     if ( tree.startDF(0, 9) ){
         cout << "Didn't found proof, where there is one.." << endl;
-        failCount++;
+        ++failCount;
         return false;
     }
-    successCount++;
+    ++successCount;
 //    tree.analyzeTree(0);
     return true;
 }
@@ -796,10 +794,10 @@ bool OCTester::oneNodeHardestDFSuccessTest(){
 
     if ( tree.startDF(0, 10) ){
         cout << "Didn't find proof, where there is one.." << endl;
-        failCount++;
+        ++failCount;
         return false;
     }
-    successCount++;
+    ++successCount;
     return true;
 }
 
@@ -808,10 +806,10 @@ bool OCTester::oneNodeUnknownDFTest(){
 
     if ( tree.startDF(0, 3) ){
         cout << "Didn't find proof, where there is one.." << endl;
-        failCount++;
+        ++failCount;
         return false;
     }
-    successCount++;
+    ++successCount;
     return true;
 }
 

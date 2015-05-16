@@ -36,26 +36,12 @@ TreeNode::TreeNode(double dPoint, TreeNode *parent){
 /*********************************/
 /********* INITITALIZATION ********/
 /*********************************/
-void TreeNode::setParent(TreeNode *parent){
-    parentNode = parent;
-}
 
 void TreeNode::addChild(TreeNode *child){
     children.push_front(child);
     livingChildren++;
 }
 
-/*********************************/
-/************* CHECKING ***********/
-/*********************************/
-bool TreeNode::doesChildExist(TreeNode *node){
-    list<TreeNode*>::iterator i;
-    for(i = children.begin(); i != children.end(); i++){
-        if((*i)->nId == node->nId)
-            return false;
-    }
-    return true;
-}
 
 /*********************************/
 /******** CONTENT FUNCTIONS *******/

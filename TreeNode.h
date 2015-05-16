@@ -30,11 +30,11 @@ class TreeNode
         list<TreeNode*>::iterator queueLink;
 
         /**** INITITALIZATION ****/
-        void setParent(TreeNode *parent);
+
         void addChild(TreeNode *child);
 
         /**** CHECKING ****/
-        bool doesChildExist(TreeNode *node);
+//        bool doesChildExist(TreeNode *node);
 
         /**** CONTENT FUNCTIONS ****/
         void listClusters();

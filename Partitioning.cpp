@@ -13,19 +13,16 @@ using namespace std;
 /*********************************/
 /********** CONSTRUCTORS **********/
 /*********************************/
-Partitioning::Partitioning()
-{
+Partitioning::Partitioning(){
     nNumberOfClusters = 0;
     nNumberOfPoints = 0;
 }
 
-Partitioning::Partitioning(double point)
-{
-    // Constructor for the root of the tree. Only called once.
-//    cout << "Creating root partitioning..." << endl;
+Partitioning::Partitioning(double point){
+//  Constructor for the root of the tree. Only called once.
+//  cout << "Creating root partitioning..." << endl;
     nNumberOfClusters = 1;
     nNumberOfPoints = 1;
-
 
     adClusters[0][0] = point;
     adClusters[0][1] = point;
@@ -37,34 +34,21 @@ Partitioning::Partitioning(double point)
     s << point;
 
     pointHash.append(s.str());
-//    cout << "Hash before " <<pointHash << " " << point <<endl;
     updateHashes();
-//    cout << "Hash after " <<pointHash << endl;
-
-
 }
 
-Partitioning::Partitioning(Partitioning *parent)
-{
+Partitioning::Partitioning(Partitioning *parent){
 // General constructor for a partitioning.
 // Takes the necessary data from the parent, and creates a new partitioning
 // from it.
-// TODO: Maybe this can be handled by copying the parent, instead of constructing a new object.
     nNumberOfClusters = parent->nNumberOfClusters;
 
-//    for(int i = 0; i < nNumberOfClusters; i++)
-//    {
-//       adClusters[i][0] = parent->adClusters[i][0];
-//       adClusters[i][1] = parent->adClusters[i][1];
-//    }
-//
     memcpy ( adClusters , parent->adClusters, sizeof( parent->adClusters) );
     nNumberOfPoints = parent->nNumberOfPoints;
     points = parent->points;
     sortedPoints = parent->sortedPoints;
     pointHash.append(parent->pointHash);
 }
-
 
 
 /*********************************/
@@ -289,16 +273,6 @@ int Partitioning::optimal(){
             optSpace[clusterCount-1][1] = currentStart;
         }
     }
-//    cout << "Optimal cluster:        ";
-//    for(int j = 0; j < clusterCount; j++)
-//    {
-//        cout << " [" << optSpace[j][0] << " , " << optSpace[j][1] << "] ";
-//    }
-//    cout << endl;
-//    listClusters();
-//    cout << "Optimal number of clusters is: " << clusterCount << endl;
-//
-//    cout << "" << endl;
     optimalClusters = clusterCount;
     return clusterCount;
 }
@@ -326,16 +300,10 @@ void Partitioning::setAmbSpace(){
 
     //check if there is ambiguous space in the end
     if(!geq((adClusters[nNumberOfClusters-1][1]-adClusters[nNumberOfClusters-1][0]),1)){
-        double first = adClusters[nNumberOfClusters-2][0]+1;
-        double second = adClusters[nNumberOfClusters-1][1]-1;
-
-//        cout << "First and second points are: " << first << " and " << second << endl;
 
         ambSpace[nNumberOfAmbs][0] = max((adClusters[nNumberOfClusters-2][0]+1), (adClusters[nNumberOfClusters-1][1]-1));
         ambSpace[nNumberOfAmbs][1] = adClusters[nNumberOfClusters-1][0]+1;
         nNumberOfAmbs++;
-
-//        cout << "So now the last abiguous space is from " << ambSpace[nNumberOfAmbs-1][0] << " to " << ambSpace[nNumberOfAmbs-1][1] << endl;
 
         if(geq((ambSpace[nNumberOfAmbs-1][1]-ambSpace[nNumberOfAmbs-1][0]),1)){
             ambSpace[nNumberOfAmbs][1] = adClusters[nNumberOfClusters-1][1];
@@ -344,17 +312,6 @@ void Partitioning::setAmbSpace(){
         }
         nNumberOfAmbs++;
     }
-
-
-//    cout << "Ambiguous space: ";
-//
-//    for(int j = 0; j < nNumberOfAmbs; j++)
-//    {
-//        cout << " [" << ambSpace[j][0] << " , " << ambSpace[j][1] << "] ";
-//    }
-//    cout << "" << endl;
-//    cout << "" << endl;
-
 }
 
 list<double> Partitioning::getAmbPoints(){
@@ -363,12 +320,9 @@ list<double> Partitioning::getAmbPoints(){
 
     int ambPos = 0;
     int optPos = 0;
-    double ambOffset;
+
     nNumberOfOverlaps = 0;
     while(ambPos != nNumberOfAmbs and optPos != nNumberOfClusters and nNumberOfAmbs != 0){
-//        cout << endl;
-//        cout << "opt: " << optSpace[optPos][0] << " , " << optSpace[optPos][1] << endl;
-//        cout << "amb: " <<ambSpace[ambPos][0] << " , " << ambSpace[ambPos][1] << endl;
         if(!leq(optSpace[optPos][0], ambSpace[ambPos][1])) { //if optCluster starts after the end of ambCluster inc ambPos
 
             ambPos++;
@@ -392,19 +346,11 @@ list<double> Partitioning::getAmbPoints(){
         optPos++;
     }
 
-//    cout << "Overlapping space: ";
-//    for(int j = 0; j < nNumberOfOverlaps; j++)
-//    {
-//        cout << " [" << overlappingSpace[j][0] << " , " << overlappingSpace[j][1] << "] ";
-//    }
-//    cout << "" << endl;
-//    cout << "" << endl;
-
+    double ambOffset;
     for(int j = 0; j < nNumberOfOverlaps; j++){
         ambOffset = (overlappingSpace[j][1]-overlappingSpace[j][0])/2;
         if(doesPointExist(overlappingSpace[j][0]+ambOffset)){
             ambPoints.push_back(overlappingSpace[j][0]+ambOffset);
-//            cout << "Added: "<< overlappingSpace[j][0]+ambOffset << endl;
         }
     }
     return ambPoints;
@@ -416,24 +362,12 @@ list<double> Partitioning::getAmbPoints(){
 
 list<double> Partitioning::getForcePoints(){
     double freeSpace[50][2] = {{0}};
-
-    double start;
-    double finish;
-
     list<double> forcePoints;
 
-    list<double>::iterator it;
-
-
-    for(int i = 1; i < nNumberOfClusters-1; i++)
-    {
-
-        start = (adClusters[i][0])+1;
-
-        finish = adClusters[i+1][1]-1;
-
-        if((start+precision) < (finish-precision))
-        {
+    for(int i = 1; i < nNumberOfClusters-1; i++){
+        double start = (adClusters[i][0])+1;
+        double finish = adClusters[i+1][1]-1;
+        if((start+precision) < (finish-precision)){
             freeSpace[i][0] = start;
             freeSpace[i][1] = finish;
         }
@@ -442,6 +376,7 @@ list<double> Partitioning::getForcePoints(){
     if(geq((adClusters[0][1] - adClusters[0][0]), 0) and !deq((adClusters[0][1] - adClusters[0][0]),0)){
         forcePoints.push_back(((adClusters[0][1])-1-precision));
     }
+
     if(!deq(adClusters[nNumberOfClusters-2][1]-adClusters[nNumberOfClusters-2][0], 0) and
        !deq(adClusters[nNumberOfClusters-1][1]-adClusters[nNumberOfClusters-1][0], 0)
        ){
@@ -467,22 +402,14 @@ list<double> Partitioning::getForcePoints(){
         double forcepoint = freeSpace[i][0]+ offset;
 
         if(!deq(0, forcepoint)){ //Why can't the point be 0?
-
             forcePoints.push_back(forcepoint);
         }
     }
-
-//    cout << "Found forcepoints: ";
-//    for(it = forcePoints.begin(); it != forcePoints.end(); it++)
-//    {
-//        cout << (*it) << " , ";
-//    }
-//    cout << endl;
     return forcePoints;
 }
 
 /*********************************/
-/********** TERMINAL IO ***********/
+/********** TERMINAL IO **********/
 /*********************************/
 void Partitioning::listClusters(){
 // Print out the clusters
@@ -584,67 +511,6 @@ void Partitioning::insertEdgeLabel(long long parentID, long long nodeID, int suc
     fclose(pFile);
 }
 
-
-
-void Partitioning::listPointsToFile(int t){
-    FILE *pFile;
-    char filename[30];
-
-    sprintf(filename, "%d_subProofSequences.txt", t);
-    pFile = fopen (filename,"a");
-
-    list<double>::iterator i;
-
-    for(i = points.begin(); i != points.end(); i++){
-        fprintf(pFile, "%2.2f ", *i);
-    }
-
-    fclose(pFile);
-}
-
-void Partitioning::listClustersToFile(int t){
-    FILE *pFile;
-    char filename[30];
-
-    sprintf(filename, "%d_subProofSequences.txt", t);
-    pFile = fopen (filename,"a");
-    for(int i = 0; i < nNumberOfClusters; i++){
-        fprintf(pFile, "[%2.2f , %2.2f] ", adClusters[i][0], adClusters[i][1]);
-    }
-    fclose(pFile);
-}
-
-void Partitioning::listClustersFile(){
-// Print out the clusters
-    FILE * pFile;
-
-
-    cout << ".";
-    pFile = fopen ("myfile.tex","a");
-
-    fprintf(pFile, "\\begin{tikzpicture}[scale=1.5] \n");
-    fprintf(pFile, "\\\draw [dotted] (-1.2,0) -- (6,0);\n");
-    fprintf(pFile, "\\foreach \\x in  {0,1,2,3,4,5}\n");
-    fprintf(pFile, "\\draw[shift={(\\x,0)},color=black] (0pt,0pt) -- (0pt,-3pt) node[below] {$\\x$}; \n");
-
-
-    for(int i = 0; i < nNumberOfClusters; i++){
-        fprintf (pFile, "\\draw[red, ultra thick] (%2.2f,0) -- (%2.2f,0); \n", adClusters[i][0] , adClusters[i][1]);
-    }
-
-    list<double>::iterator i;
-    for(i = points.begin(); i != points.end(); i++){
-        fprintf(pFile, "\\draw [fill] (%f,0) circle [radius=0.05]; \n", *i);
-    }
-
-    fprintf(pFile, "\\end{tikzpicture}");
-    fprintf(pFile, "\\");
-    fprintf(pFile, "\\");
-    fprintf(pFile, "\n");
-    fclose (pFile);
-}
-
-
 /*********************************/
 /********** OTHER STUFF ***********/
 /*********************************/
@@ -681,7 +547,6 @@ void Partitioning::updateHashes(){
     }
 
     fullHash.append(s.str());
-    //cout << "Hashes " << pointHash << " " << fullHash << endl;
 }
 
 /*********************************/

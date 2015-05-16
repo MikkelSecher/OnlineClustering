@@ -61,9 +61,6 @@ class Partitioning
         /**** FILE IO ****/
         void insertNodeLabel(bool level, long long nodeId, int successNumber, int prefix);
         void insertEdgeLabel(long long, long long, int, int);
-        void listPointsToFile(int);
-        void listClustersToFile(int);
-        void listClustersFile();
 
         /**** OTHER STUFF ****/
         string stringIt(long long);

@@ -14,7 +14,8 @@
 #include <sstream>
 #include <inttypes.h>
 
-#define NUM_THREADS 4
+#define NUM_THREADS 16
+#define CHUNK_SIZE 1000
 class Tree
 {
     public:
@@ -29,7 +30,7 @@ class Tree
         TreeNode*       workingNode;
         int             nCurrentLevel;
         int             numberOfMiniQueues;
-        int             numberOfThreads = 0;
+        int             numberOfThreads = NUM_THREADS;
         int             successes = 0;
         int             deltas;
         double          proofTime;
@@ -97,8 +98,6 @@ class Tree
 
 
         /**** PARALLEL HELPER-FUNCTIONS ****/
-        int splitNodeQueue(int);
-        int splitSuccesQueue(int);
         double getParProofTime();
         double getParDFTime();
         void splitSequenceTree();

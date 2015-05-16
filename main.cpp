@@ -37,8 +37,6 @@ int main(int argc, char* argv[])
 
     deltaValues = {1, -1, 0.5};
 
-
-    startTimeBF = omp_get_wtime();
     //For regular runs
     Tree tree(startingPoint, deltaValues, prefix, ratio, print);
     //First argument is the number of levels the program should go down breadth first...
@@ -59,7 +57,7 @@ int main(int argc, char* argv[])
         tree = test1.getSecondBaseTree();
     }
 
-
+    startTimeBF = omp_get_wtime();
     for(int level = startingLevel; level < levelsOfBF+startingLevel; level++)
     {
         cout << "Level: " << level << endl;
@@ -83,8 +81,8 @@ int main(int argc, char* argv[])
     pFile = fopen (filename,"w");
     fprintf(pFile, "Summary for run with id: %d \n \n", prefix);
     fprintf(pFile, "#Threads: %d \n", tree.numberOfThreads);
-    fprintf(pFile, "#Levels before DF: %d \n", levelsOfBF);
-    fprintf(pFile, "#Levels with DF: %d \n", levelsOfDF);
+    fprintf(pFile, "#Levels of BF: %d \n", levelsOfBF);
+    fprintf(pFile, "#Max level for DF: %d \n", levelsOfDF);
     fprintf(pFile, "Ratio: %3.2f \n", ratio);
     fprintf(pFile, "Deltas: {");
     list<double>::iterator i;
