@@ -15,7 +15,7 @@
 #include <inttypes.h>
 
 #define NUM_THREADS 16
-#define CHUNK_SIZE 1000
+#define CHUNK_SIZE 10000
 class Tree
 {
     public:
@@ -48,6 +48,7 @@ class Tree
         list<list<TreeNode*>> sequencedTreeQueue;
         list<TreeNode*> *parallelMiniQueues;
 
+
         /**** HANDLERS OF NEW POINTS ****/
         void addPoint(int p, double dPoint);
         bool checkPartitioning();
@@ -56,13 +57,15 @@ class Tree
         list<double> getNextPoints(TreeNode *node);
         void dictatePointBF(double point,int  level);
 
+
         /**** GENERAL FUNCTIONS ****/
 
         TreeNode* newNode(int tid, double point, TreeNode* parent) ;
         void destroyNode(TreeNode *);
         void printFullTreeToFile(TreeNode *node);
-        /**** TREE CLEANUP ****/
 
+
+        /**** TREE CLEANUP ****/
         void treeCleanup();
         void normalize(TreeNode *node);
 
@@ -96,7 +99,6 @@ class Tree
         void destroySubtree(TreeNode* node);
 
 
-
         /**** PARALLEL HELPER-FUNCTIONS ****/
         double getParProofTime();
         double getParDFTime();
@@ -114,7 +116,6 @@ class Tree
         void sequenceTree();
 
         /***** Solution/Proof handlers ****/
-
         void addSolutionSequence(TreeNode* node);
         void makeNewSequenceReady();
         void removePartialSequences();
@@ -128,8 +129,6 @@ class Tree
 
 bool node_compare(const TreeNode*,const TreeNode*);
 bool node_pointscompare(const TreeNode*,const TreeNode*);
-
-
 
 bool node_compare_sequence(const TreeNode*,const TreeNode*);
 bool list_compare(const list<TreeNode*>,const list<TreeNode*>);

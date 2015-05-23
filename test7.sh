@@ -36,5 +36,5 @@
 #
 cd $PBS_O_WORKDIR
 cd $HOME/mikkel/largetests/test7/OnlineClustering
-./OnlineClustering 6 15 1.63 200
+./OnlineClustering 6 11 1.63 100
 #
