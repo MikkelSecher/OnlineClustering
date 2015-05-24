@@ -1,6 +1,7 @@
 #ifndef MAIN_H_INCLUDED
 #define MAIN_H_INCLUDED
 #include "omp.h"
+#include "mpi.h"
 #include <iostream>
 #include <stdlib.h>
 #include <cassert>
