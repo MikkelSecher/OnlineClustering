@@ -94,7 +94,6 @@ int main(int argc, char* argv[])
     fprintf(pFile, "Time in DF expansion: %.2f \n", tree.dfTime);
     fprintf(pFile, "Time in proof: %.2f \n \n", tree.proofTime);
     fprintf(pFile, "Number of proofs found: %d \n", tree.successes);
-    fprintf(pFile, "Number of nodes explored: %lld \n \n", tree.nodes[0].back().nodeCounter);
 }
 
 

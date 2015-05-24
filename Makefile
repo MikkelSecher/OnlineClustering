@@ -1,4 +1,4 @@
-﻿CXX=g++
+﻿CXX= mpicc 
 
 EXE = OnlineClustering
 

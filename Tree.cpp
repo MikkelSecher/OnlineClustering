@@ -308,6 +308,7 @@ bool node_compare( const TreeNode *first,const TreeNode *second ) { ///TODO: Tes
     if(first->content.fullHash.compare(second->content.fullHash) < 0){
         return true;
     }
+    return false;
 }
 
 bool node_compare_sequence( const TreeNode *first,const TreeNode *second ) { ///TODO: Test
@@ -318,6 +319,7 @@ bool node_compare_sequence( const TreeNode *first,const TreeNode *second ) { ///
     if(first->content.fullHash.compare(second->content.pointHash) < 0){
         return true;
     }
+    return false;
 }
 
 
@@ -500,6 +502,7 @@ int Tree::openClusterBF(TreeNode *parent, double point, int tid){
 
     normalize(&nodes[tid].front());
     nCount++;
+    return 0;
 }
 
 int Tree::growClusterRightBF(TreeNode *parent, double point, int tid){
@@ -528,6 +531,7 @@ int Tree::growClusterRightBF(TreeNode *parent, double point, int tid){
     }
 
     normalize(&nodes[tid].front());
+    return 0;
 }
 
 int Tree::growClusterLeftBF(TreeNode *parent, double point, int tid){
@@ -556,7 +560,7 @@ int Tree::growClusterLeftBF(TreeNode *parent, double point, int tid){
     }
 
     normalize(&nodes[tid].front());
-
+    return 0;
 
 }
 
@@ -585,7 +589,7 @@ int Tree::addToClusterBF(TreeNode *parent, double point, int tid){
     }
 
     normalize(&nodes[tid].front());
-
+    return 0;
 }
 
 /*********************************/
@@ -1076,6 +1080,7 @@ bool list_compare(const list<TreeNode*> first,const list<TreeNode*> second) {
     if (first.size() < second.size()){
         return true;
     }
+    return false;
 }
 
 bool printDoubleList(string textToPrint, list<double> listToPrint, double offset){
@@ -1088,6 +1093,7 @@ bool printDoubleList(string textToPrint, list<double> listToPrint, double offset
         cout << (*doubleIt)-offset << " , ";
     }
     cout << endl;
+    return false;
 }
 
 void listProofsToFiles(list< list< list<double> > > proofSequences, double ratioIn){
@@ -1132,4 +1138,5 @@ void listInitializeTextFile( double ratio){
 
 bool printDoubleList(string textToPrint, list<double> listToPrint) {
     printDoubleList(textToPrint , listToPrint, 0);
+    return false;
 }

@@ -19,9 +19,9 @@ class Partitioning
 
         int nNumberOfClusters;
         double adClusters[30][2] = {{0}};
-        double optSpace[20][2] = {{NULL}};
-        double ambSpace[20][2] = {{NULL}};
-        double overlappingSpace[20][2] = {{NULL}};
+        double optSpace[20][2] = {{-1000}};
+        double ambSpace[20][2] = {{-1000}};
+        double overlappingSpace[20][2] = {{-1000}};
         int nNumberOfPoints;
         int optimalClusters;
         int nNumberOfOverlaps;
