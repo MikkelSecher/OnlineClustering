@@ -51,13 +51,13 @@ int main(int argc, char* argv[])
 //    tree = test1.getNewLowerBoundTree();
 
 
-    if(prefix == 100){
-        tree = test1.getNewBaseTree();
-    }
-    if(prefix == 200){
-        tree = test1.getSecondBaseTree();
-    }
-
+//    if(prefix == 100){
+//        tree = test1.getNewBaseTree();
+//    }
+//    if(prefix == 200){
+//        tree = test1.getSecondBaseTree();
+//    }
+//    tree.startingPoint = 1000;
     startTimeBF = omp_get_wtime();
     for(int level = startingLevel; level < levelsOfBF+startingLevel; level++)
     {

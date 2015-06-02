@@ -14,7 +14,7 @@
 #include <sstream>
 #include <inttypes.h>
 
-#define NUM_THREADS 1
+#define NUM_THREADS 16
 //#define CHUNK_SIZE 1000
 class Tree
 {
@@ -34,6 +34,7 @@ class Tree
         int             successes = 0;
         int             numberOfProofs = 0;
         int             deltas;
+        int             startingPoint = 0;
         double          proofTime;
         double          dfTime;
         TreeNode*       rootNode;
