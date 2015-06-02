@@ -604,7 +604,8 @@ bool Tree::startDF(int levelsOfBF, int levelsOfDF) {
     listInitializeTextFile(ratio);
 
     int startTime = omp_get_wtime();
-    #pragma omp parallel for num_threads(NUM_THREADS) schedule(dynamic , CHUNK_SIZE)
+
+    #pragma omp parallel for num_threads(NUM_THREADS) schedule(dynamic , chunkSize)
     for(int miniQueue = 0; miniQueue < numberOfMiniQueues; miniQueue++){
         if(!miniQueueDF(parallelMiniQueues[miniQueue], levelsOfBF, levelsOfDF) ) {
             #pragma omp critical
@@ -612,17 +613,21 @@ bool Tree::startDF(int levelsOfBF, int levelsOfDF) {
                 listProofSequenceToTextFile( proofSequences[omp_get_thread_num()].back());
             }
         }
-        cout << "Checked from " << omp_get_thread_num() << " miniQueue number: "<< miniQueue << endl;
+        //cout << "Checked from " << omp_get_thread_num() << " miniQueue number: "<< miniQueue << endl;
     }
 
     cout << "Time spent in parallel: " << omp_get_wtime() - startTime << endl;
     dfTime = omp_get_wtime() - startTime;
         normalizeSolutions();
-        printSolutionSequences();
+        //printSolutionSequences();
 
         for(int i = 0; i < NUM_THREADS; i++){
-            listProofsToFiles(proofSequences[i], ratio);
+            numberOfProofs += proofSequences[i].size();
+            //listProofsToFiles(proofSequences[i], ratio);
         }
+
+        cout << "Number of proofs: " << numberOfProofs << endl;
+
     return false;
 }
 
@@ -645,8 +650,10 @@ bool Tree::miniQueueDF (list<TreeNode*> miniQueue, int levelsOfBF, int levelsOfD
         }
         (*nodeIt)->live = false;
         succesfulNodes.push_back(*nodeIt);
+
         depthFirstQueue[tid].clear();
     }
+
     return false; ///Success - found a full proof
 }
 

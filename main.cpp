@@ -20,6 +20,7 @@ int main(int argc, char* argv[])
     int     levelsOfDF      = atoi(argv[2]); //Depth for DF search to stop
     double  ratio           = atof(argv[3]); //Threshold ratio
     int     prefix          = atoi(argv[4]); //Prefix for result files
+    int     chunkSize       = atoi(argv[5]); //size of parallel chunks
 //    int     print           = atoi(argv[5]); //Level of printing
     int     print           = 2; //Level of printing
     //int     numberOfDeltas  = atoi(argv[6]); //Number of deltas in the list
@@ -69,7 +70,7 @@ int main(int argc, char* argv[])
     endTimeBF = omp_get_wtime();
 
     cout << "Finished cleanup - starting depth first" << endl;
-
+    tree.chunkSize = chunkSize;
     tree.startDF(levelsOfBF, levelsOfDF);
 
     cout << endl;
@@ -78,7 +79,11 @@ int main(int argc, char* argv[])
     FILE * pFile;
     char filename[30];
     sprintf(filename, "res_%d_Summary.txt", prefix);
-    pFile = fopen (filename,"w");
+    pFile = fopen (filename,"a");
+
+
+
+    fprintf(pFile, "********************************* \n", prefix);
     fprintf(pFile, "Summary for run with id: %d \n \n", prefix);
     fprintf(pFile, "#Threads: %d \n", tree.numberOfThreads);
     fprintf(pFile, "#Levels of BF: %d \n", levelsOfBF);
@@ -92,8 +97,9 @@ int main(int argc, char* argv[])
     fprintf(pFile, "Total runtime: %.2f \n", endTime-startTime);
     fprintf(pFile, "Time in BF expansion: %.2f \n", endTimeBF-startTimeBF);
     fprintf(pFile, "Time in DF expansion: %.2f \n", tree.dfTime);
-    fprintf(pFile, "Time in proof: %.2f \n \n", tree.proofTime);
-    fprintf(pFile, "Number of proofs found: %d \n", tree.successes);
+    fprintf(pFile, "Chunksize: %d \n", chunkSize );
+
+    fprintf(pFile, "Number of proofs found: %d \n", tree.numberOfProofs);
     fprintf(pFile, "Number of nodes explored: %lld \n \n", tree.nodes[0].back().nodeCounter);
 }
 

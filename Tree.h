@@ -14,8 +14,8 @@
 #include <sstream>
 #include <inttypes.h>
 
-#define NUM_THREADS 16
-#define CHUNK_SIZE 10000
+#define NUM_THREADS 1
+//#define CHUNK_SIZE 1000
 class Tree
 {
     public:
@@ -32,6 +32,7 @@ class Tree
         int             numberOfMiniQueues;
         int             numberOfThreads = NUM_THREADS;
         int             successes = 0;
+        int             numberOfProofs = 0;
         int             deltas;
         double          proofTime;
         double          dfTime;
@@ -47,7 +48,7 @@ class Tree
         std::vector<double> delta;
         list<list<TreeNode*>> sequencedTreeQueue;
         list<TreeNode*> *parallelMiniQueues;
-
+        int chunkSize = 1;
 
         /**** HANDLERS OF NEW POINTS ****/
         void addPoint(int p, double dPoint);
