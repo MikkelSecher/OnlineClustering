@@ -51,9 +51,9 @@ int main(int argc, char* argv[])
 //    tree = test1.getNewLowerBoundTree();
 
 
-//    if(prefix == 100){
-//        tree = test1.getNewBaseTree();
-//    }
+   if(prefix == 100){
+        tree = test1.getPromisingTree();
+    }
 //    if(prefix == 200){
 //        tree = test1.getSecondBaseTree();
 //    }

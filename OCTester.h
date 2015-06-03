@@ -101,6 +101,8 @@ class OCTester
         Tree getNewLowerBoundTree();
         Tree getNewBaseTree();
         Tree getSecondBaseTree();
+        Tree getPromisingTree();
+
         /*** I/O functions ***/
         void successPrint(string);
         void failPrint(string);

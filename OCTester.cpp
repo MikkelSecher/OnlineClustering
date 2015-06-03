@@ -5,7 +5,8 @@ int OCTester::successCount = 0;
 OCTester::OCTester()
 {
 
-//    Tree({2.00 , 3.00 , 2.50 , 3.50 , 1.00 , 4.50 , 0.00 , 5.50 , 6.50 , 7.50 , 1.50 , 7.00 , 8.50 , 9.50 , 10.50 , 8.00 , 11.50}, 101, 1.61);
+//    Tree({9.00 , 10.00 , 11.00 , 8.00 , 7.00 , 11.50 , 12.50 , 6.00 , 5.00 , 6.50 , 10.50 , 4 , 4.5 , 3 , 2 , 3.5 , 1 , 0 ,}, 101, 1.61);
+//    exit(1);
 //    Tree({2.00 , 3.00 , 2.50 , 3.50 , 1.00 , 4.50 , 0.00 , 5.50 , 1.50 , 6.50 , 7.50 , 7.00 , 8.50 , 9.50 , 10.50 , 8.00 , 11.50}, 102, 1.61);
 //    Tree({2.00 , 3.00 , 2.50 , 3.50 , 1.00 , 4.50 , 0.00 , 5.50 , 6.50 , 1.50 , 7.00 , 7.50 , 8.50 , 9.50 , 10.50 , 8.00 , 11.50}, 103, 1.61);
 //    Tree({2.00 , 3.00 , 2.50 , 3.50 , 1.00 , 4.50 , 0.00 , 5.50 , 6.50 , 1.50 , 7.50 , 7.00 , 8.50 , 9.50 , 10.50 , 8.00 , 11.50}, 104, 1.61);
@@ -1357,6 +1358,25 @@ Tree OCTester::getSecondBaseTree(){
 
     return tree;
 
+}
+
+Tree OCTester::getPromisingTree(){
+//9.00 , 10.00 , 11.00 , 8.00 , 7.00 , 11.50 , 12.50 , 6.00 , 5.00 , 6.50
+
+    list<double> deltas = {1, 0.5, -1};
+    Tree tree(9, deltas, 7357, 1.63, 2);
+
+    tree.nodes[0].front().growClusterRight(10);
+    tree.nodes[0].front().openCluster(11);
+    tree.nodes[0].front().openCluster(8);
+    tree.nodes[0].front().openCluster(7);
+    tree.nodes[0].front().growClusterRight(11.5);
+    tree.nodes[0].front().openCluster(12.5);
+    tree.nodes[0].front().growClusterLeft(6);
+    tree.nodes[0].front().openCluster(5);
+    tree.nodes[0].front().addPointToCluster(6.5);
+
+    return tree;
 }
 
 /****************************/
