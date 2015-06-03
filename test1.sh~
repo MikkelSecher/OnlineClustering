@@ -34,7 +34,7 @@ cd $PBS_O_WORKDIR
 #
 # copy input file and mpi executable to /scratch. a.out.mpi reads 'input'.
 #
-cp input /scratch
+cp OnlineClustering 5 8 1.6 11 /scratch
 cp a.out.mpi /scratch
 
 #
