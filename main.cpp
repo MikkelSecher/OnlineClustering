@@ -1,5 +1,4 @@
 #include "main.h"
-#include "mpi.h"
 
 using namespace std;
 using std::atoi;
@@ -14,22 +13,34 @@ int main(int argc, char* argv[])
 
     MPI_Init(NULL, NULL);
 
+    // Get the number of processes
     int world_size;
     MPI_Comm_size(MPI_COMM_WORLD, &world_size);
 
+    // Get the rank of the process
     int world_rank;
-    MPI_Comm_size(MPI_COMM_WORLD, &world_rank);
+    MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 
+    // Get the name of the processor
     char processor_name[MPI_MAX_PROCESSOR_NAME];
     int name_len;
     MPI_Get_processor_name(processor_name, &name_len);
 
+//     Print off a hello world message
+    printf("Hello world from processor %s, rank %d"
+           " out of %d processors\n",
+           processor_name, world_rank, world_size);
 
-    cout << "Hello World from " << processor_name << " with rank " << world_rank << " of " << world_size << endl;
 
-    MPI_Finalize();
 
-    double startTime = omp_get_wtime();
+    cout << "This is after finalize..." << endl;
+
+    if(world_rank == 0){
+
+    }
+
+
+//    double startTime = omp_get_wtime();
     double endTime;
     double startTimeBF;
     double endTimeBF;
@@ -59,6 +70,9 @@ int main(int argc, char* argv[])
     //For regular runs
     Tree tree(startingPoint, deltaValues, prefix, ratio, print);
     //First argument is the number of levels the program should go down breadth first...
+    tree.worldRank = world_rank;
+    tree.worldSize = world_size;
+    tree.numberOfThreads = world_size;
     int startingLevel = testSequence.size();
 
     if (startingLevel == 0){
@@ -76,7 +90,7 @@ int main(int argc, char* argv[])
         tree = test1.getSecondBaseTree();
     }
 
-    startTimeBF = omp_get_wtime();
+    startTimeBF = 1;
     for(int level = startingLevel; level < levelsOfBF+startingLevel; level++)
     {
         cout << "Level: " << level << endl;
@@ -92,27 +106,30 @@ int main(int argc, char* argv[])
     tree.startDF(levelsOfBF, levelsOfDF);
 
     cout << endl;
-    endTime = omp_get_wtime();
+    endTime = 1;
 
-    FILE * pFile;
-    char filename[30];
-    sprintf(filename, "res_%d_Summary.txt", prefix);
-    pFile = fopen (filename,"w");
-    fprintf(pFile, "Summary for run with id: %d \n \n", prefix);
-    fprintf(pFile, "#Threads: %d \n", tree.numberOfThreads);
-    fprintf(pFile, "#Levels of BF: %d \n", levelsOfBF);
-    fprintf(pFile, "#Max level for DF: %d \n", levelsOfDF);
-    fprintf(pFile, "Ratio: %3.2f \n", ratio);
-    fprintf(pFile, "Deltas: {");
-    list<double>::iterator i;
-    for(i = deltaValues.begin(); i != deltaValues.end(); i++)
-        fprintf(pFile, " %3.2f ", (*i));
-    fprintf(pFile, "} \n");
-    fprintf(pFile, "Total runtime: %.2f \n", endTime-startTime);
-    fprintf(pFile, "Time in BF expansion: %.2f \n", endTimeBF-startTimeBF);
-    fprintf(pFile, "Time in DF expansion: %.2f \n", tree.dfTime);
-    fprintf(pFile, "Time in proof: %.2f \n \n", tree.proofTime);
-    fprintf(pFile, "Number of proofs found: %d \n", tree.successes);
+//    FILE * pFile;
+//    char filename[30];
+//    sprintf(filename, "%n_res_%d_Summary.txt", world_rank, prefix);
+//    pFile = fopen (filename,"w");
+//    fprintf(pFile, "Summary for run with id: %d \n \n", prefix);
+//    fprintf(pFile, "#Threads: %d \n", tree.numberOfThreads);
+//    fprintf(pFile, "#Levels of BF: %d \n", levelsOfBF);
+//    fprintf(pFile, "#Max level for DF: %d \n", levelsOfDF);
+//    fprintf(pFile, "Ratio: %3.2f \n", ratio);
+//    fprintf(pFile, "Deltas: {");
+//    list<double>::iterator i;
+//    for(i = deltaValues.begin(); i != deltaValues.end(); i++)
+//        fprintf(pFile, " %3.2f ", (*i));
+//    fprintf(pFile, "} \n");
+//    fprintf(pFile, "Total runtime: %.2f \n", endTime-startTime);
+//    fprintf(pFile, "Time in BF expansion: %.2f \n", endTimeBF-startTimeBF);
+//    fprintf(pFile, "Time in DF expansion: %.2f \n", tree.dfTime);
+//    fprintf(pFile, "Time in proof: %.2f \n \n", tree.proofTime);
+//    fprintf(pFile, "Number of proofs found: %d \n", tree.successes);
+
+    // Finalize the MPI environment.
+    MPI_Finalize();
 }
 
 

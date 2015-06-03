@@ -9,7 +9,7 @@ using namespace std;
 
 Tree::Tree(double dStartingPoint, list<double> deltaPoints, int prefix, double ratioin, int printin){
 // Creates a root with one point
-    int tid     = omp_get_thread_num();
+//    int worldRank     = omp_get_thread_num();
     deltas      = deltaPoints.size();
     resPrefix   = prefix;
     print       = printin;
@@ -20,15 +20,15 @@ Tree::Tree(double dStartingPoint, list<double> deltaPoints, int prefix, double r
         deltaPoints.pop_back();
     }
 
-    nodes[ tid ].push_front( TreeNode(dStartingPoint, NULL) );
-    nodeQueue.push_back( &nodes[tid].front() );
+    nodes[ worldRank ].push_front( TreeNode(dStartingPoint, NULL) );
+    nodeQueue.push_back( &nodes[worldRank].front() );
     nodeQueue.front()->parentNode = NULL;
-    rootNode = &nodes[tid].front();
+    rootNode = &nodes[worldRank].front();
 }
 
 Tree::Tree(list<double> sequence, int prefix, double ratioIn){
 //Creates a tree from a sequence, and prints the tree to a GML file
-    int tid     = omp_get_thread_num();
+//    int worldRank     = omp_get_thread_num();
 
     resPrefix   = prefix;
     print       = 2;
@@ -56,7 +56,7 @@ Tree::Tree(list<double> sequence, int prefix, double ratioIn){
     }
     FILE *pFile;
     char filename[30];
-    sprintf( filename , "res\\%d_%d_solution_%d .gml" , resPrefix , tid , 10000 );
+    sprintf( filename , "res\\%d_%d_solution_%d .gml" , resPrefix , worldRank , 10000 );
 
     pFile = fopen (filename,"w"); //cleans the previous file
     fprintf(pFile, "graph \n [ \n");
@@ -96,15 +96,15 @@ void Tree::printFullTreeToFile(TreeNode *node){
 }
 
 //Creates a new node
-TreeNode* Tree::newNode( int tid, double point, TreeNode* parent ){
-    nodes[tid].push_front( TreeNode(point, parent) );
-    nodes[tid].front().trueLink = nodes[tid].begin();
-    return &nodes[tid].front();
+TreeNode* Tree::newNode( int worldRank, double point, TreeNode* parent ){
+    nodes[worldRank].push_front( TreeNode(point, parent) );
+    nodes[worldRank].front().trueLink = nodes[worldRank].begin();
+    return &nodes[worldRank].front();
 }
 
 void Tree::destroyNode(TreeNode *node){
-    int tid = omp_get_thread_num();
-    nodes[tid].erase(node->trueLink);
+//    int worldRank = omp_get_thread_num();
+    nodes[worldRank].erase(node->trueLink);
 }
 
 /*********************************/
@@ -147,16 +147,16 @@ bool Tree::checkPartitioning(){
 // Checks ratio for a partitioning
 // Returns FALSE if the ratio is above the threshold
 // Also tries to break the partitioning by forcing new points
-    int tid = omp_get_thread_num();
+//    int worldRank = omp_get_thread_num();
 
-    TreeNode *workingNode = &nodes[tid].front();
+    TreeNode *workingNode = &nodes[worldRank].front();
     Partitioning *workingPartitioning = &workingNode->content;
 
     if( geq( workingPartitioning->calcRatio(), ratio ) )
     {
         return false;
     }
-    if( nodes[tid].front().depth == 0 ){
+    if( nodes[worldRank].front().depth == 0 ){
         return true;
     }
 
@@ -171,7 +171,7 @@ bool Tree::checkPartitioning(){
 }
 
 bool Tree::force(TreeNode *node, TreeNode *originalNode, list<double> forcePoints, list<double> ambPoints){ ///TODO: Cleanup
-    int tid = omp_get_thread_num();
+//    int worldRank = omp_get_thread_num();
 
     list<double> emptyList;
     TreeNode* forceNode;
@@ -184,7 +184,7 @@ bool Tree::force(TreeNode *node, TreeNode *originalNode, list<double> forcePoint
                 continue;
             }
             ///Get a new node to work on
-            forceNode = newNode( tid, ambPoints.front(), node );
+            forceNode = newNode( worldRank, ambPoints.front(), node );
             forceNode->openCluster( ambPoints.front(), true );
 
             //If opening the new cluster breaks the ratio, it means that
@@ -193,7 +193,7 @@ bool Tree::force(TreeNode *node, TreeNode *originalNode, list<double> forcePoint
                 //Erase the node that broke the ratio
                 destroyNode(forceNode);
                 //And make a new one
-                forceNode = newNode( tid, ambPoints.front(), node );
+                forceNode = newNode( worldRank, ambPoints.front(), node );
 
                 int pointInRange = forceNode->pointInRange( ambPoints.front() );
 
@@ -243,7 +243,7 @@ bool Tree::force(TreeNode *node, TreeNode *originalNode, list<double> forcePoint
 
              continue;
            }
-        forceNode = newNode( tid, *forcePointIt, node ); //Create a new node to force with
+        forceNode = newNode( worldRank, *forcePointIt, node ); //Create a new node to force with
         forceNode->openCluster( *forcePointIt ); //And open a forced cluster
 
 
@@ -431,164 +431,164 @@ void Tree::twoChoicesLeft(TreeNode *parent, double point){
     // Tries to add a point by growing a cluster to the left, and trying to break it by force
     // and then tries to open a new cluster and tries to break it by force
 
-    int tid = omp_get_thread_num();
+//    int worldRank = omp_get_thread_num();
 
-    growClusterLeftBF(parent, point, tid);
-    openClusterBF(parent, point, tid);
+    growClusterLeftBF(parent, point, worldRank);
+    openClusterBF(parent, point, worldRank);
 }
 
 void Tree::twoChoicesRight(TreeNode *parent, double point){
     // Tries to add a point by growing a cluster to the left, and trying to break it by force
     // and then tries to open a new cluster and tries to break it by force
     // This is exactly the same as twoChoicesLeft, only with growth to the right insted.
-    int tid = omp_get_thread_num();
+//    int worldRank = omp_get_thread_num();
 
-    growClusterRightBF(parent, point, tid);
-    openClusterBF(parent, point, tid);
+    growClusterRightBF(parent, point, worldRank);
+    openClusterBF(parent, point, worldRank);
 }
 
 void Tree::oneChoice(TreeNode *parent, double point){
     // Add point the an existing cluster, and see if it breaks.
     // For further explaination see twoChoicesLeft()
 
-    int tid = omp_get_thread_num();
+//    int worldRank = omp_get_thread_num();
 
-    addToClusterBF(parent, point, tid);
+    addToClusterBF(parent, point, worldRank);
 }
 
 void Tree::noChoice(TreeNode *parent, double point){
     // A new cluster MUST be opened for the point.
     // Tries to break it by force and returns 1 if it holds up 0 if it breaks
-    int tid = omp_get_thread_num();
+//    int worldRank = omp_get_thread_num();
 
-    openClusterBF(parent, point, tid);
+    openClusterBF(parent, point, worldRank);
 }
 
 void Tree::threeChoices(TreeNode *parent, double point){
     // Grows right, left and opens a new cluster.
     // Returns the number of new nodes where succesfully added
-    int tid = omp_get_thread_num();
+//    int worldRank = omp_get_thread_num();
 
-    growClusterRightBF(parent, point, tid);
-    growClusterLeftBF(parent, point, tid);
-    openClusterBF(parent, point, tid);
+    growClusterRightBF(parent, point, worldRank);
+    growClusterLeftBF(parent, point, worldRank);
+    openClusterBF(parent, point, worldRank);
 
 }
 
-int Tree::openClusterBF(TreeNode *parent, double point, int tid){
+int Tree::openClusterBF(TreeNode *parent, double point, int worldRank){
 
 
-    newNode( tid, point, parent );
-    nodes[tid].front().openCluster( point);
+    newNode( worldRank, point, parent );
+    nodes[worldRank].front().openCluster( point);
 
     if(checkPartitioning()){
         //If the partitioning CAN'T be forced, do the following:
         //Erase the new node, and add a new one without the forced points
-        nodes[tid].pop_front();
-        newNode( tid, point, parent );
-        nodes[tid].front().openCluster( point);
+        nodes[worldRank].pop_front();
+        newNode( worldRank, point, parent );
+        nodes[worldRank].front().openCluster( point);
         //Add it as a child to the parent node
-        parent->addChild( &nodes[tid].front() );
+        parent->addChild( &nodes[worldRank].front() );
         //Set live to false - needed for later...
-        nodeQueue.push_back( &nodes[tid].front() );
-        nodes[tid].front().queueLink = nodeQueue.end();
+        nodeQueue.push_back( &nodes[worldRank].front() );
+        nodes[worldRank].front().queueLink = nodeQueue.end();
     }else{
         //If it COULD be forced:
         //Add the node as child to the parent
-        parent->addChild(&nodes[tid].front());
+        parent->addChild(&nodes[worldRank].front());
         //Set live to false - needed for later...
-        nodes[tid].front().live = false;
+        nodes[worldRank].front().live = false;
     }
 
-    normalize(&nodes[tid].front());
+    normalize(&nodes[worldRank].front());
     nCount++;
     return 0;
 }
 
-int Tree::growClusterRightBF(TreeNode *parent, double point, int tid){
-    newNode(tid, point, parent);
-    nodes[tid].front().growClusterRight( point);
+int Tree::growClusterRightBF(TreeNode *parent, double point, int worldRank){
+    newNode(worldRank, point, parent);
+    nodes[worldRank].front().growClusterRight( point);
 
     if( checkPartitioning() ){
         //If the partitioning CAN'T be forced, do the following:
         //Erase the new node, and add a new one without the forced points
-        nodes[tid].pop_front();
-        newNode(tid, point, parent);
-        nodes[tid].front().growClusterRight(point);
+        nodes[worldRank].pop_front();
+        newNode(worldRank, point, parent);
+        nodes[worldRank].front().growClusterRight(point);
 
         //Add it as a child to the parent node
-        parent->addChild( &nodes[tid].front() );
+        parent->addChild( &nodes[worldRank].front() );
 
         //Add it the the node queue
-        nodeQueue.push_back( &nodes[tid].front() );
-        nodes[tid].front().queueLink = nodeQueue.end();
+        nodeQueue.push_back( &nodes[worldRank].front() );
+        nodes[worldRank].front().queueLink = nodeQueue.end();
     } else {
         //If it COULD be forced:
         //Add the node as child to the parent
-        parent->addChild(&nodes[tid].front());
+        parent->addChild(&nodes[worldRank].front());
         //Set live to false - needed for later...
-        nodes[tid].front().live = false;
+        nodes[worldRank].front().live = false;
     }
 
-    normalize(&nodes[tid].front());
+    normalize(&nodes[worldRank].front());
     return 0;
 }
 
-int Tree::growClusterLeftBF(TreeNode *parent, double point, int tid){
-    newNode( tid, point, parent );
-    nodes[tid].front().growClusterLeft( point );
+int Tree::growClusterLeftBF(TreeNode *parent, double point, int worldRank){
+    newNode( worldRank, point, parent );
+    nodes[worldRank].front().growClusterLeft( point );
 
     if( checkPartitioning() ){
         //If the partitioning CAN'T be forced, do the following:
         //Erase the new node, and add a new one without the forced points
-        nodes[tid].pop_front();
-        newNode(tid, point, parent);
-        nodes[tid].front().growClusterLeft( point );
+        nodes[worldRank].pop_front();
+        newNode(worldRank, point, parent);
+        nodes[worldRank].front().growClusterLeft( point );
 
         //Add it as a child to the parent node
-        parent->addChild( &nodes[tid].front() );
+        parent->addChild( &nodes[worldRank].front() );
 
         //Add it the the node queue
-        nodeQueue.push_back( &nodes[tid].front() );
-        nodes[tid].front().queueLink = nodeQueue.end();
+        nodeQueue.push_back( &nodes[worldRank].front() );
+        nodes[worldRank].front().queueLink = nodeQueue.end();
     } else {
         //If it COULD be forced:
         //Add the node as child to the parent
-        parent->addChild( &nodes[tid].front() );
+        parent->addChild( &nodes[worldRank].front() );
         //Set live to false - needed for later...
-        nodes[tid].front().live = false;
+        nodes[worldRank].front().live = false;
     }
 
-    normalize(&nodes[tid].front());
+    normalize(&nodes[worldRank].front());
     return 0;
 
 }
 
-int Tree::addToClusterBF(TreeNode *parent, double point, int tid){
+int Tree::addToClusterBF(TreeNode *parent, double point, int worldRank){
 
-    newNode(tid, point, parent);
-    nodes[tid].front().addPointToCluster( point );
+    newNode(worldRank, point, parent);
+    nodes[worldRank].front().addPointToCluster( point );
 
     if( checkPartitioning() ){
         //If the partitioning CAN'T be forced, do the following:
         //Erase the new node, and add a new one without the forced points
-        nodes[tid].pop_front();
-        newNode(tid, point, parent);
-        nodes[tid].front().addPointToCluster(point);
+        nodes[worldRank].pop_front();
+        newNode(worldRank, point, parent);
+        nodes[worldRank].front().addPointToCluster(point);
         //Add it as a child to the parent node
-        parent->addChild(&nodes[tid].front());
+        parent->addChild(&nodes[worldRank].front());
         //Add it the the node queue
-        nodeQueue.push_back(&nodes[tid].front());
-        nodes[tid].front().queueLink = nodeQueue.end();
+        nodeQueue.push_back(&nodes[worldRank].front());
+        nodes[worldRank].front().queueLink = nodeQueue.end();
     } else {
         //If it COULD be forced:
         //Add the node as child to the parent
-        parent->addChild(&nodes[tid].front());
+        parent->addChild(&nodes[worldRank].front());
         //Set live to false - needed for later...
-        nodes[tid].front().live = false;
+        nodes[worldRank].front().live = false;
     }
 
-    normalize(&nodes[tid].front());
+    normalize(&nodes[worldRank].front());
     return 0;
 }
 
@@ -605,51 +605,53 @@ bool Tree::startDF(int levelsOfBF, int levelsOfDF) {
     splitSequenceTree();
 
     cout << "Possibilities for proofs: " << proofsToTry << endl;
-    listInitializeTextFile(ratio);
+    listInitializeTextFile(ratio, worldRank);
 
-    int startTime = omp_get_wtime();
-    #pragma omp parallel for num_threads(NUM_THREADS) schedule(dynamic , CHUNK_SIZE)
-    for(int miniQueue = 0; miniQueue < numberOfMiniQueues; miniQueue++){
+//    int startTime = omp_get_wtime();
+
+    ///TODO: HERE THE MPI PROCS SHOULD BE DISTRIBUTED - EACH SHOULD HANDLE SOMETHING FOR THEMSELVES
+    int offsetForNode = numberOfMiniQueues/worldSize;
+    int myStartingPoint = offsetForNode*worldRank;
+    int myEndPoint = myStartingPoint+offsetForNode-1;
+
+    for(int miniQueue = myStartingPoint; miniQueue < myEndPoint; miniQueue++){
         if(!miniQueueDF(parallelMiniQueues[miniQueue], levelsOfBF, levelsOfDF) ) {
-            #pragma omp critical
-            {
-                listProofSequenceToTextFile( proofSequences[omp_get_thread_num()].back());
-            }
+                listProofSequenceToTextFile( proofSequences[worldRank].back(), worldRank);
         }
-        cout << "Checked from " << omp_get_thread_num() << " miniQueue number: "<< miniQueue << endl;
+        //cout << "Checked from " << worldRank << " miniQueue number: "<< miniQueue << endl;
     }
-
-    cout << "Time spent in parallel: " << omp_get_wtime() - startTime << endl;
-    dfTime = omp_get_wtime() - startTime;
+    cout << "Checked " << myStartingPoint << " to " << myEndPoint << " out of " << proofsToTry << " at process " << worldRank << endl;
+//    cout << "Time spent in parallel: " << omp_get_wtime() - startTime << endl;
+//    dfTime = omp_get_wtime() - startTime;
         normalizeSolutions();
-        printSolutionSequences();
+//        printSolutionSequences();
 
         for(int i = 0; i < NUM_THREADS; i++){
-            listProofsToFiles(proofSequences[i], ratio);
+//            listProofsToFiles(proofSequences[i], ratio, worldRank);
         }
     return false;
 }
 
 bool Tree::miniQueueDF (list<TreeNode*> miniQueue, int levelsOfBF, int levelsOfDF ) {
 
-    int tid = omp_get_thread_num();
+//    int worldRank = omp_get_thread_num();
     list<TreeNode*>::iterator nodeIt = miniQueue.begin();
 
     makeNewSequenceReady();
 
     for( nodeIt ; nodeIt != miniQueue.end() ; nodeIt++ ) {
 
-        depthFirstQueue[tid].push_front( (*nodeIt) );
+        depthFirstQueue[worldRank].push_front( (*nodeIt) );
         if( addPointRecursive( levelsOfBF , levelsOfDF ) ){
 
-            depthFirstQueue[tid].clear();
+            depthFirstQueue[worldRank].clear();
             miniQueue.clear();
             removePartialSequences();
             return true; ///Fail
         }
         (*nodeIt)->live = false;
         succesfulNodes.push_back(*nodeIt);
-        depthFirstQueue[tid].clear();
+        depthFirstQueue[worldRank].clear();
     }
     return false; ///Success - found a full proof
 }
@@ -676,7 +678,7 @@ int Tree::addPointDF_experimental(double point, TreeNode *node){
 // the particular point.
 // It also tries to break the partitioning by forcing.
 // If the force fails, the points added by the forcer are erased, by throwing out the node.
-//    int tid = omp_get_thread_num();
+//    int worldRank = omp_get_thread_num();
     int nodesAdded = 0;
     //int newChildren = 0;
     switch (node->content.pointInRange(point))
@@ -714,11 +716,11 @@ int Tree::addPointDF_experimental(double point, TreeNode *node){
 int Tree::twoChoicesLeftDF(TreeNode *parent, double point){
 // Tries to add a point by growing a cluster to the left, and trying to break it by force
 // and then tries to open a new cluster and tries to break it by force
-    int tid = omp_get_thread_num();
+//    int worldRank = omp_get_thread_num();
     int nodesAdded = 0;
 
-    nodesAdded += growClusterLeftDF(parent, point, tid);
-    nodesAdded += openClusterDF(parent, point, tid);
+    nodesAdded += growClusterLeftDF(parent, point, worldRank);
+    nodesAdded += openClusterDF(parent, point, worldRank);
 
     return nodesAdded;
 }
@@ -727,21 +729,21 @@ int Tree::twoChoicesRightDF(TreeNode *parent, double point){
     // Tries to add a point by growing a cluster to the left, and trying to break it by force
     // and then tries to open a new cluster and tries to break it by force
     // This is exactly the same as twoChoicesLeft, only with growth to the right insted.
-    int tid = omp_get_thread_num();
+//    int worldRank = omp_get_thread_num();
     int nodesAdded = 0;
 
-    nodesAdded += growClusterRightDF(parent, point, tid);
-    nodesAdded += openClusterDF(parent, point, tid);
+    nodesAdded += growClusterRightDF(parent, point, worldRank);
+    nodesAdded += openClusterDF(parent, point, worldRank);
     return nodesAdded;
 }
 
 int Tree::oneChoiceDF(TreeNode *parent, double point) {
     // Add point the an existing cluster, and see if it breaks.
     // For further explaination see twoChoicesLeft()
-    int tid = omp_get_thread_num();
+//    int worldRank = omp_get_thread_num();
     int nodesAdded = 0;
 
-    nodesAdded += addToClusterDF(parent, point, tid);
+    nodesAdded += addToClusterDF(parent, point, worldRank);
 
     return nodesAdded;
 }
@@ -749,11 +751,11 @@ int Tree::oneChoiceDF(TreeNode *parent, double point) {
 int Tree::noChoiceDF(TreeNode *parent, double point){
 // A new cluster MUST be opened for the point.
 // Tries to break it by force and returns 1 if it holds up 0 if it breaks
-    int tid = omp_get_thread_num();
+//    int worldRank = omp_get_thread_num();
 
     int nodesAdded = 0;
 
-    nodesAdded += openClusterDF(parent, point, tid);
+    nodesAdded += openClusterDF(parent, point, worldRank);
 
     return nodesAdded;
 }
@@ -761,62 +763,62 @@ int Tree::noChoiceDF(TreeNode *parent, double point){
 int Tree::threeChoicesDF(TreeNode *parent, double point){
     // Grows right, left and opens a new cluster.
     // Returns the number of new nodes where succesfully added
-    int tid = omp_get_thread_num();
+//    int worldRank = omp_get_thread_num();
     int nodesAdded = 0;
 
-    nodesAdded += growClusterRightDF(parent, point, tid);
-    nodesAdded += growClusterLeftDF(parent, point, tid);
-    nodesAdded += openClusterDF(parent, point, tid);
+    nodesAdded += growClusterRightDF(parent, point, worldRank);
+    nodesAdded += growClusterLeftDF(parent, point, worldRank);
+    nodesAdded += openClusterDF(parent, point, worldRank);
 
     return nodesAdded;
 }
 
-int Tree::openClusterDF(TreeNode *parent, double point, int tid){
+int Tree::openClusterDF(TreeNode *parent, double point, int worldRank){
 
     int nodesAdded = 0;
     //cout << "Must open new cluster..." << endl;
-    newNode(tid, point, parent);
-    nodes[tid].front().openCluster( point );
+    newNode(worldRank, point, parent);
+    nodes[worldRank].front().openCluster( point );
 
     if(checkPartitioning())
     {
-        nodes[tid].pop_front();
-        newNode(tid, point, parent);
+        nodes[worldRank].pop_front();
+        newNode(worldRank, point, parent);
 
-        nodes[tid].front().openCluster(point);
-        parent->addChild(&nodes[tid].front());
-        depthFirstQueue[tid].push_back(&nodes[tid].front());
-        nodes[tid].front().queueLink = depthFirstQueue[tid].end();
+        nodes[worldRank].front().openCluster(point);
+        parent->addChild(&nodes[worldRank].front());
+        depthFirstQueue[worldRank].push_back(&nodes[worldRank].front());
+        nodes[worldRank].front().queueLink = depthFirstQueue[worldRank].end();
         nodesAdded++;
     }
     else
     {
-        parent->addChild(&nodes[tid].front());
+        parent->addChild(&nodes[worldRank].front());
     }
 
     return nodesAdded;
 
 }
 
-int Tree::growClusterRightDF(TreeNode *parent, double point, int tid){
+int Tree::growClusterRightDF(TreeNode *parent, double point, int worldRank){
     int nodesAdded = 0;
 
-    newNode(tid, point, parent);         //Create a new node, with data from the parent and the new point.
-    nodes[tid].front().growClusterRight(point);
+    newNode(worldRank, point, parent);         //Create a new node, with data from the parent and the new point.
+    nodes[worldRank].front().growClusterRight(point);
 
     if(checkPartitioning())                             //Check and try to break. If it holds up then:
     {
-        nodes[tid].pop_front();                               //remove the node contaminated with extra points from the force
-        newNode(tid, point, parent);      //create a new "clean" one.
-        nodes[tid].front().growClusterRight(point);
-        parent->addChild(&nodes[tid].front());
-        depthFirstQueue[tid].push_back(&nodes[tid].front());       //put it in the queue for points needing attention
-        nodes[tid].front().queueLink = depthFirstQueue[tid].end();
+        nodes[worldRank].pop_front();                               //remove the node contaminated with extra points from the force
+        newNode(worldRank, point, parent);      //create a new "clean" one.
+        nodes[worldRank].front().growClusterRight(point);
+        parent->addChild(&nodes[worldRank].front());
+        depthFirstQueue[worldRank].push_back(&nodes[worldRank].front());       //put it in the queue for points needing attention
+        nodes[worldRank].front().queueLink = depthFirstQueue[worldRank].end();
         nodesAdded++;
     }
     else
     {
-        parent->addChild(&nodes[tid].front());                //add broken point as a child, but do NOT keep it for future point addition
+        parent->addChild(&nodes[worldRank].front());                //add broken point as a child, but do NOT keep it for future point addition
     }
 
     return nodesAdded;
@@ -824,48 +826,48 @@ int Tree::growClusterRightDF(TreeNode *parent, double point, int tid){
 
 }
 
-int Tree::growClusterLeftDF(TreeNode *parent, double point, int tid){
+int Tree::growClusterLeftDF(TreeNode *parent, double point, int worldRank){
 
     int nodesAdded = 0;
 
-    newNode(tid, point, parent);         //Create a new node, with data from the parent and the new point.
-    nodes[tid].front().growClusterLeft(point);
+    newNode(worldRank, point, parent);         //Create a new node, with data from the parent and the new point.
+    nodes[worldRank].front().growClusterLeft(point);
 
     if(checkPartitioning())                             //Check and try to break. If it holds up then:
     {
-        nodes[tid].pop_front();                               //remove the node contaminated with extra points from the force
-        newNode(tid, point, parent);      //create a new "clean" one.
-        nodes[tid].front().growClusterLeft(point);
-        parent->addChild(&nodes[tid].front());
-        depthFirstQueue[tid].push_back(&nodes[tid].front());       //put it in the queue for points needing attention
-        nodes[tid].front().queueLink = depthFirstQueue[tid].end();
+        nodes[worldRank].pop_front();                               //remove the node contaminated with extra points from the force
+        newNode(worldRank, point, parent);      //create a new "clean" one.
+        nodes[worldRank].front().growClusterLeft(point);
+        parent->addChild(&nodes[worldRank].front());
+        depthFirstQueue[worldRank].push_back(&nodes[worldRank].front());       //put it in the queue for points needing attention
+        nodes[worldRank].front().queueLink = depthFirstQueue[worldRank].end();
         nodesAdded++;
     }
     else
     {
-        parent->addChild(&nodes[tid].front());                //add broken point as a child, but do NOT keep it for future point addition
+        parent->addChild(&nodes[worldRank].front());                //add broken point as a child, but do NOT keep it for future point addition
     }
 
     return nodesAdded;
 }
 
-int Tree::addToClusterDF(TreeNode *parent, double point, int tid){
+int Tree::addToClusterDF(TreeNode *parent, double point, int worldRank){
 
     int nodesAdded = 0;
 
-    newNode(tid, point, parent);
-    nodes[tid].front().addPointToCluster(point );
+    newNode(worldRank, point, parent);
+    nodes[worldRank].front().addPointToCluster(point );
 
     if( checkPartitioning() ) {
-        nodes[tid].pop_front();
-        newNode(tid, point, parent);
-        nodes[tid].front().addPointToCluster(point );
-        parent->addChild(&nodes[tid].front());
-        depthFirstQueue[tid].push_back(&nodes[tid].front());
-        nodes[tid].front().queueLink = depthFirstQueue[tid].end();
+        nodes[worldRank].pop_front();
+        newNode(worldRank, point, parent);
+        nodes[worldRank].front().addPointToCluster(point );
+        parent->addChild(&nodes[worldRank].front());
+        depthFirstQueue[worldRank].push_back(&nodes[worldRank].front());
+        nodes[worldRank].front().queueLink = depthFirstQueue[worldRank].end();
         nodesAdded++;
     } else {
-        parent->addChild(&nodes[tid].front());
+        parent->addChild(&nodes[worldRank].front());
     }
     return nodesAdded;
 }
@@ -895,7 +897,7 @@ void Tree::splitSequenceTree(){
 /*********************************/
 bool Tree::addPointRecursive(int level, int maxLevel){ //Returns false if a subproof is found
 
-    int tid = omp_get_thread_num();
+//    int worldRank = omp_get_thread_num();
 
     //If reached the maxlevel, just return true (FAIL)
     if(level == maxLevel) {
@@ -905,7 +907,7 @@ bool Tree::addPointRecursive(int level, int maxLevel){ //Returns false if a subp
     //Get the next points for the level
     list<double> nextPoints;
     list<TreeNode*>::iterator nodeIt;
-    for(nodeIt = depthFirstQueue[tid].begin(); nodeIt != depthFirstQueue[tid].end(); nodeIt++ ) {
+    for(nodeIt = depthFirstQueue[worldRank].begin(); nodeIt != depthFirstQueue[worldRank].end(); nodeIt++ ) {
 
         if((*nodeIt)->depth == level){
 
@@ -922,7 +924,7 @@ bool Tree::addPointRecursive(int level, int maxLevel){ //Returns false if a subp
         nodesAdded = addLevel(level, maxLevel, *pointIt);
 
         if(nodesAdded == 0){
-            addSolutionSequence(&nodes[tid].front());
+            addSolutionSequence(&nodes[worldRank].front());
             return false;
         }
         else if(!addPointRecursive(level+1, maxLevel)){
@@ -936,14 +938,14 @@ bool Tree::addPointRecursive(int level, int maxLevel){ //Returns false if a subp
 int Tree::addLevel( int level , int maxLevel , double point ) {
 
     int nodesAdded = 0;
-    int tid = omp_get_thread_num();
+//    int worldRank = omp_get_thread_num();
     list<TreeNode*>::iterator nodeIt;
 
     if(level == maxLevel){
         return 1;
     }
 
-    for(nodeIt = depthFirstQueue[tid].begin(); nodeIt != depthFirstQueue[tid].end(); nodeIt++) {
+    for(nodeIt = depthFirstQueue[worldRank].begin(); nodeIt != depthFirstQueue[worldRank].end(); nodeIt++) {
         if((*nodeIt)->depth == level) {
             nodesAdded += addPointDF_experimental(point, (*nodeIt));
         }
@@ -953,15 +955,15 @@ int Tree::addLevel( int level , int maxLevel , double point ) {
 }
 
 void Tree::clearLevel(int level, double successPoint){
-    int tid = omp_get_thread_num();
-    list<TreeNode*>::iterator nodeIt = depthFirstQueue[tid].begin();
+//    int worldRank = omp_get_thread_num();
+    list<TreeNode*>::iterator nodeIt = depthFirstQueue[worldRank].begin();
 
-    while(nodeIt != depthFirstQueue[tid].end()){
+    while(nodeIt != depthFirstQueue[worldRank].end()){
 
         if((*nodeIt)->depth == level){
 
             destroySubtree((*nodeIt));
-            nodeIt = depthFirstQueue[tid].erase(nodeIt);
+            nodeIt = depthFirstQueue[worldRank].erase(nodeIt);
         } else {
 
             ++nodeIt;
@@ -997,21 +999,21 @@ void Tree::sequenceTree(){
 }
 
 void Tree::makeNewSequenceReady(){
-    int tid = omp_get_thread_num();
+//    int worldRank = omp_get_thread_num();
 
     list< list<double> > emptyList;
-    proofSequences[tid].push_back(emptyList);
+    proofSequences[worldRank].push_back(emptyList);
 }
 
 void Tree::removePartialSequences(){
-    int tid = omp_get_thread_num();
+//    int worldRank = omp_get_thread_num();
 
-    proofSequences[tid].pop_back();
+    proofSequences[worldRank].pop_back();
 }
 
 void Tree::addSolutionSequence(TreeNode *node){
-    int tid = omp_get_thread_num();
-    proofSequences[tid].back().push_back( (node->content.points) ) ;
+//    int worldRank = omp_get_thread_num();
+    proofSequences[worldRank].back().push_back( (node->content.points) ) ;
 }
 
 void Tree::normalizeSolutions(){
@@ -1096,7 +1098,7 @@ bool printDoubleList(string textToPrint, list<double> listToPrint, double offset
     return false;
 }
 
-void listProofsToFiles(list< list< list<double> > > proofSequences, double ratioIn){
+void listProofsToFiles(list< list< list<double> > > proofSequences, double ratioIn, int worldRank){
     list< list< list<double> > >::iterator proofIt = proofSequences.begin();
     int proofCount = 0;
 
@@ -1109,13 +1111,15 @@ void listProofsToFiles(list< list< list<double> > > proofSequences, double ratio
     }
 }
 
-void listProofSequenceToTextFile( list< list<double> > proofLists){
+void listProofSequenceToTextFile( list< list<double> > proofLists, int worldRank){
     FILE *pFile;
     list< list<double> >::iterator listIt;
     list<double>::iterator pointIt;
     cout << "listing a proof to the file" << endl;
+    char filename[40];
+    sprintf( filename , "KnownProofSequences_%i.txt", worldRank);
 
-    pFile = fopen ("KnownProofSequences.txt","a"); //Append to the file
+    pFile = fopen (filename, "a"); //Append to the file
     fprintf(pFile, "\n Proof Sequence: \n");
 
     for(listIt = proofLists.begin(); listIt != proofLists.end(); listIt++){
@@ -1128,10 +1132,13 @@ void listProofSequenceToTextFile( list< list<double> > proofLists){
     fclose(pFile);
 }
 
-void listInitializeTextFile( double ratio){
+void listInitializeTextFile( double ratio, int worldRank){
     FILE *pFile;
     cout << "Initializing sequence file" << endl;
-    pFile = fopen ("KnownProofSequences.txt","a"); //Append to the file
+    char filename[40];
+    sprintf( filename , "KnownProofSequences_%i.txt", worldRank);
+    pFile = fopen (filename, "a"); //Append to the file
+
     fprintf(pFile, "\n The following sequences are for ratio: %2.2f ---------------------------\n", ratio);
     fclose(pFile);
 }

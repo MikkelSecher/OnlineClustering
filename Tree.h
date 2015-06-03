@@ -14,8 +14,8 @@
 #include <sstream>
 #include <inttypes.h>
 
-#define NUM_THREADS 1
-#define CHUNK_SIZE 10
+#define NUM_THREADS 3
+#define CHUNK_SIZE 1
 class Tree
 {
     public:
@@ -30,11 +30,13 @@ class Tree
         TreeNode*       workingNode;
         int             nCurrentLevel;
         int             numberOfMiniQueues;
-        int             numberOfThreads = NUM_THREADS;
+        int             numberOfThreads = 1;
         int             successes = 0;
         int             deltas;
         double          proofTime;
         double          dfTime;
+        int             worldRank = 0;
+        int             worldSize = 1;
         TreeNode*       rootNode;
         list<TreeNode>  nodes[NUM_THREADS];
         list<TreeNode*> nodeQueue;
@@ -135,8 +137,8 @@ bool list_compare(const list<TreeNode*>,const list<TreeNode*>);
 
 bool printDoubleList(string textToPrint, list<double> listToPrint);
 bool printDoubleList(string textToPrint, list<double> listToPrint, double offset);
-void listProofsToFiles(list< list< list<double> > > proofSequences, double ratioIn);
-void listProofSequenceToTextFile( list< list<double> > proofLists);
-void listInitializeTextFile( double ratio);
+void listProofsToFiles(list< list< list<double> > > proofSequences, double ratioIn, int);
+void listProofSequenceToTextFile( list< list<double> > proofLists, int);
+void listInitializeTextFile( double ratio, int);
 
 #endif // TREE_H
