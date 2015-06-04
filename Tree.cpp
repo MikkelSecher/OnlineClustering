@@ -892,6 +892,57 @@ void Tree::splitSequenceTree(){
     numberOfMiniQueues = sizeOfQueue;
 }
 
+
+list<string> Tree::splitHashString(string inputString){
+
+    list<string> resultingStrings;
+    std::string delimitery = "  y ";
+    std::string delimiterx = "x ";
+
+    size_t pos = 0;
+    std::string token;
+    while ((pos = inputString.find(delimiterx)) != std::string::npos) {
+        token = inputString.substr(0, pos);
+        inputString.erase(0, pos + delimiterx.length());
+    }
+
+
+    while ((pos = inputString.find(delimitery)) != std::string::npos) {
+        token = inputString.substr(0, pos);
+
+        resultingStrings.push_back(token);
+        inputString.erase(0, pos + delimitery.length());
+    }
+
+
+    resultingStrings.push_back(inputString);
+
+
+    return resultingStrings;
+
+}
+
+list<double> Tree::parsePoints(string pointsString){
+    list<double> result;
+    string delimiter = " ";
+
+    size_t pos = 0;
+    std::string token;
+    while ((pos = pointsString.find(delimiter)) != std::string::npos) {
+        token = pointsString.substr(0, pos);
+        double test = atof(token.c_str());
+        result.push_back(atof(token.c_str()));
+        pointsString.erase(0, pos + delimiter.length());
+    }
+    result.push_back(atof(pointsString.c_str()));
+    return result;
+
+}
+
+
+
+
+
 /*********************************/
 /****** EXPERIMENTAL DF **********/
 /*********************************/

@@ -16,11 +16,11 @@ TreeNode::TreeNode(double dPoint, TreeNode *parent){
     live = true;
     visited = true;
 
-    #pragma omp critical
-    {
+    //#pragma omp critical
+//    {
         nodeCounter++;
         nId = TreeNode::nodeCounter;
-    }
+//    }
 
     if(parent != NULL){
         depth = parent->depth+1;

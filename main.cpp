@@ -7,11 +7,11 @@ int main(int argc, char* argv[])
 {
     ///Comment in for tests
 
-    OCTester test1 = OCTester();
 //    exit(1);
 
 
     MPI_Init(NULL, NULL);
+    OCTester test1 = OCTester();
 
     // Get the number of processes
     int world_size;

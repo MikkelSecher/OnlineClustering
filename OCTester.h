@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <iostream>
 #include <string>
+#include <list>
 
 using namespace std;
 
@@ -74,7 +75,7 @@ class OCTester
 
         /*** Test Parallel Helper ***/
         bool splitSequenceQueue();
-
+        bool splitHashString(Tree tree);
         /*** Test data generators ***/
         Tree getHardTwoChoicesRightTree(double);
         Tree getEasyForcableTree(double);

@@ -16,7 +16,7 @@ OCTester::OCTester()
 //    Tree({2.00 , 3.00 , 3.50 , 1.00 , 4.50 , 0.00 , 5.50 , 1.50 , 6.50 , 7.50 , 7.00 , 8.50 , 9.50 , 10.50 , 8.00 , 11.50}, 110, 1.61);
 //    Tree({2, 3, 4, 1, 7, 8, 9, 6, 5}, 110, 1.61);
     //Tree({2.00 , 3.00 , 3.50 , 1.00 , 4.50 , 0.00 , 5.50 , 1.50 , 6.50 , 7.50 , 7.00 , 8.50 , 9.50 , 10.50 , 0.50 , 8.00 , 6.00 , 11.50}, 110, 1.61);
-//    Tree({0.00}, 110, 1.60);
+      //Tree tree = Tree({0.00}, 110, 1.60);
 //    completeForceTest();
 //    completeCheckPartitioningTest();
 //    completeChildrenTest();
@@ -25,7 +25,14 @@ OCTester::OCTester()
 //    completePointGenerationTests();
 //    completeDepthFirstTests();
 //    bottomLine();
-
+        Tree tree = getSimpleTree();
+    if(splitHashString(tree)){
+        cout << "SUCCESS" << endl;
+    }else{
+        cout << "FAILED" << endl;
+    }
+//    cout << "LOL" << endl;
+//        exit(1);
 }
 
 
@@ -849,6 +856,55 @@ bool OCTester::splitSequenceQueue(){
 
     return false;
 }
+
+
+bool OCTester::splitHashString(Tree tree){
+
+
+    string stringToSplit = "x 4 3 2 1 0 4.5  y 0 1 2 2 3 4 4.5 4.5";
+    //stringToSplit << "x 4 3 2 1 0 4.5  y 0 1 2 2 3 4 4.5 4.5";
+    list<string> result;
+    list<double> resultPoints;
+//    cout << stringToSplit<< endl;
+
+    result = tree.splitHashString(stringToSplit);
+    string first = "4 3 2 1 0 4.5";
+    string second = "0 1 2 2 3 4 4.5 4.5";
+
+    if(0 != result.front().compare(first)){
+        cout << "Result 0 was " << endl;
+        cout << result.front()<< result.front().length() <<endl;
+        cout << first << " " << first.length() << endl;
+        return false;
+    }
+    if(0 != result.back().compare(second)){
+        cout << "Result 1 was " << endl;
+        cout << result.back()<< result.back().length() <<endl;
+        cout << second << " " << second.length() << endl;
+        return false;
+    }
+
+    resultPoints = tree.parsePoints(result.front());
+
+    if(!deq(resultPoints.front(), 4 )){
+        cout << "First was not equal" << endl;
+        return false;
+    }
+
+
+    if(!deq(resultPoints.back(), 4.5 )){
+        cout << "Last was not equal" << endl;
+        return false;
+    }
+
+    if(resultPoints.size() != 6){
+        cout << "Result was not the right size" << endl;
+    }
+
+    return true;
+}
+
+
 
 /****************************/
 /*** Test data generators ***/

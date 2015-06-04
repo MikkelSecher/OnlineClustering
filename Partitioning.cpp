@@ -528,7 +528,7 @@ std::string Partitioning::stringIt(long long number){
 void Partitioning::updateHashes(){
     pointHash.clear();
     std::ostringstream s;
-
+    s << " x ";
     list<double>::iterator i;
     //cout << "Points in the partitioning:" << endl;
     for(i = points.begin(); i != points.end(); i++){
@@ -536,9 +536,9 @@ void Partitioning::updateHashes(){
        s << ' ';
     }
     pointHash.append(s.str());
-
+//    cout << pointHash << endl;
     fullHash.clear();
-    s << ' ';
+    s << " y ";
     for(int i = 0; i < nNumberOfClusters; i++){
         s << adClusters[i][0];
         s << ' ';
@@ -546,7 +546,9 @@ void Partitioning::updateHashes(){
         s << ' ';
     }
 
+
     fullHash.append(s.str());
+//    cout << fullHash << endl;
 }
 
 /*********************************/
