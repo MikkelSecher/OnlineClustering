@@ -51,6 +51,46 @@ Partitioning::Partitioning(Partitioning *parent){
 }
 
 
+Partitioning::Partitioning(list<double> pointList, list<double> clusterList){
+    nNumberOfClusters = 0;
+    setPoints(pointList);
+    setClusters(clusterList);
+    updateHashes();
+
+
+}
+/*********************************/
+/******* UDATE VALUES       ******/
+/*********************************/
+
+void Partitioning::setPoints(list<double> pointList){
+    //set points
+    points = pointList;
+    //set sorted points
+    sortedPoints = pointList;
+    sortedPoints.sort();
+
+    //set number of points
+    nNumberOfPoints = points.size();
+}
+
+void Partitioning::setClusters(list<double> clusterList){
+    //set clusters
+    list<double>::iterator pointIterator = clusterList.begin();
+    int numberOfClusters = clusterList.size()/2;
+    for(int cluster = 0; cluster < numberOfClusters; cluster++){
+
+        adClusters[cluster][0] = (*pointIterator);
+        pointIterator = next(pointIterator);
+        adClusters[cluster][1] = (*pointIterator);
+        pointIterator = next(pointIterator);
+        nNumberOfClusters++;
+    }
+
+    //set number of clusters
+}
+
+
 /*********************************/
 /******* POINT FUNCTIONALITY ******/
 /*********************************/

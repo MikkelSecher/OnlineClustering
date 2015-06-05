@@ -16,7 +16,7 @@ class Partitioning
         Partitioning();
         Partitioning(double dPoint);
         Partitioning(Partitioning *parent);
-
+        Partitioning(list<double>, list<double>);
         int nNumberOfClusters;
         double adClusters[30][2] = {{0}};
         double optSpace[20][2] = {{-1000}};
@@ -35,6 +35,10 @@ class Partitioning
         list<double> sortedPoints;
         list<double> forcedPoints;
         double difference;
+
+        void setPoints(list<double> pointList);
+        void setClusters(list<double> clusterList);
+
 
         /**** POINT FUNCTIONALITY ****/
         int pointInRange(double dPoint);

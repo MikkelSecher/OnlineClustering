@@ -609,7 +609,6 @@ bool Tree::startDF(int levelsOfBF, int levelsOfDF) {
 
 //    int startTime = omp_get_wtime();
 
-    ///TODO: HERE THE MPI PROCS SHOULD BE DISTRIBUTED - EACH SHOULD HANDLE SOMETHING FOR THEMSELVES
     int offsetForNode = numberOfMiniQueues/worldSize;
     int myStartingPoint = offsetForNode*worldRank;
     int myEndPoint = myStartingPoint+offsetForNode-1;
@@ -892,6 +891,22 @@ void Tree::splitSequenceTree(){
     numberOfMiniQueues = sizeOfQueue;
 }
 
+list<string> Tree::splitFullMessage(string fullMessage){
+    list<string> resultingStrings;
+    std::string delimiter = "x ";
+    size_t pos = 0;
+    std::string token;
+    while ((pos = fullMessage.find(delimiter)) != std::string::npos) {
+        token = fullMessage.substr(0, pos);
+//        cout << "Pushing: " << token << endl;
+        resultingStrings.push_back(token);
+        fullMessage.erase(0, pos + delimiter.length());
+    }
+//    cout << "Pushing final: " << fullMessage << endl;
+    resultingStrings.push_back(fullMessage);
+    resultingStrings.pop_front(); //because the first token is empty ;)
+    return resultingStrings;
+}
 
 list<string> Tree::splitHashString(string inputString){
 
@@ -930,7 +945,6 @@ list<double> Tree::parsePoints(string pointsString){
     std::string token;
     while ((pos = pointsString.find(delimiter)) != std::string::npos) {
         token = pointsString.substr(0, pos);
-        double test = atof(token.c_str());
         result.push_back(atof(token.c_str()));
         pointsString.erase(0, pos + delimiter.length());
     }
@@ -939,9 +953,35 @@ list<double> Tree::parsePoints(string pointsString){
 
 }
 
+void Tree::newNodeFromLists(list<double> pointList, list<double> clusterList){
+    //create new node
+    nodes[worldRank].push_front( TreeNode(pointList, clusterList) );
+    nodes[worldRank].front().trueLink = nodes[worldRank].begin();
 
+    nodeQueue.push_back(&nodes[worldRank].front());
 
+    //add node to nodeQueue
+}
 
+void Tree::buildNodesFromString(string fullMessage){
+
+    //split up message for individual nodeStrings
+    list<string> nodeStrings = splitFullMessage(fullMessage);
+
+    list<string>::iterator stringIterator = nodeStrings.begin();
+
+    //create node for each string
+    for(stringIterator; stringIterator != nodeStrings.end(); stringIterator++){
+        list<string> splittedStrings = splitHashString((*stringIterator));
+        string pointString = splittedStrings.front();
+        string clusterString = splittedStrings.back();
+
+        list<double> pointList = parsePoints(pointString);
+        list<double> clusterList = parsePoints(clusterString);
+
+        newNodeFromLists(pointList, clusterList);
+    }
+}
 
 /*********************************/
 /****** EXPERIMENTAL DF **********/
@@ -1048,6 +1088,9 @@ void Tree::sequenceTree(){
         }
     }
 }
+
+
+
 
 void Tree::makeNewSequenceReady(){
 //    int worldRank = omp_get_thread_num();

@@ -18,6 +18,8 @@ class OCTester
 
 
         bool startingSequence();
+
+        void completeParallelHelperTest();
         void completeForceTest();
         void completeCheckPartitioningTest();
         void completeChildrenTest();
@@ -57,6 +59,7 @@ class OCTester
         /*** Tests for creation and removal of nodes ***/
         bool createNewNodeTest();
         bool destroyNodeTest();
+        bool createNewNodeFromLists();
 
         /*** Tests for next point generator ***/
         bool threeUsualDeltasTest();
@@ -75,7 +78,10 @@ class OCTester
 
         /*** Test Parallel Helper ***/
         bool splitSequenceQueue();
-        bool splitHashString(Tree tree);
+        bool splitHashString();
+        bool splitFullMessage();
+        bool buildNodesFromMessage();
+
         /*** Test data generators ***/
         Tree getHardTwoChoicesRightTree(double);
         Tree getEasyForcableTree(double);

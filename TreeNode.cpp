@@ -32,6 +32,20 @@ TreeNode::TreeNode(double dPoint, TreeNode *parent){
     }
 }
 
+TreeNode::TreeNode(list<double> pointList, list<double> clustersList){
+    live = true;
+    visited = true;
+    nodeCounter++;
+    nId = TreeNode::nodeCounter;
+    depth = 0;
+
+    content = Partitioning(pointList, clustersList);
+    //create content partitioning
+    //add to nodeQueue
+
+}
+
+
 
 /*********************************/
 /********* INITITALIZATION ********/
@@ -98,6 +112,20 @@ void TreeNode::growClusterLeft(double point){
 string TreeNode::getPointHash(){
     return content.pointHash;
 }
+
+string TreeNode::getFullHash(){
+    return content.fullHash;
+}
+
+int TreeNode::getNumberOfPoints(){
+    return content.nNumberOfPoints;
+}
+
+
+int TreeNode::getNumberOfClusters(){
+    return content.nNumberOfClusters;
+}
+
 
 int TreeNode::pointInRange(double point){
     return content.pointInRange(point);

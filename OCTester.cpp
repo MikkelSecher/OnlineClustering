@@ -17,6 +17,8 @@ OCTester::OCTester()
 //    Tree({2, 3, 4, 1, 7, 8, 9, 6, 5}, 110, 1.61);
     //Tree({2.00 , 3.00 , 3.50 , 1.00 , 4.50 , 0.00 , 5.50 , 1.50 , 6.50 , 7.50 , 7.00 , 8.50 , 9.50 , 10.50 , 0.50 , 8.00 , 6.00 , 11.50}, 110, 1.61);
       //Tree tree = Tree({0.00}, 110, 1.60);
+
+    completeParallelHelperTest();
 //    completeForceTest();
 //    completeCheckPartitioningTest();
 //    completeChildrenTest();
@@ -24,14 +26,15 @@ OCTester::OCTester()
 //    completeChoiceTests();
 //    completePointGenerationTests();
 //    completeDepthFirstTests();
-//    bottomLine();
-        Tree tree = getSimpleTree();
-    if(splitHashString(tree)){
-        cout << "SUCCESS" << endl;
-    }else{
-        cout << "FAILED" << endl;
-    }
-//    cout << "LOL" << endl;
+    bottomLine();
+
+
+
+    cout << endl;
+    cout << endl;
+    cout << endl;
+    cout << endl;
+
 //        exit(1);
 }
 
@@ -39,6 +42,15 @@ OCTester::OCTester()
 /****************************/
 /*** Complete test areas ****/
 /****************************/
+
+void OCTester::completeParallelHelperTest(){
+    headlinePrint("PARALLEL HELPER TESTS");
+
+    splitHashString()               ? successPrint("Split Hash String ")        : failPrint("Split Hash String");
+    splitFullMessage()              ? successPrint("Split Full Message ")       : failPrint("Split Full Message ");
+    createNewNodeFromLists()        ? successPrint("Create New Node From List "): failPrint("Create New Node From List ");
+    buildNodesFromMessage()         ? successPrint("Build Nodes From Message "): failPrint("Build Nodes From Message ");
+}
 
 void OCTester::completeChildrenTest(){
 
@@ -452,6 +464,7 @@ bool OCTester::destroyNodeTest(){
 }
 
 
+
 /****************************/
 /*** Choice tests ***/
 /****************************/
@@ -825,7 +838,7 @@ bool OCTester::oneNodeUnknownDFTest(){
 /*** Test Parallel Helper ***/
 /****************************/
 
-bool OCTester::splitSequenceQueue(){
+bool OCTester::splitSequenceQueue(){ // NOT RUN AUTOMATICALLY
 
     Tree tree(0, {1, -1, 0.5}, 1111, 1.6, 2);
 
@@ -842,6 +855,7 @@ bool OCTester::splitSequenceQueue(){
 
     cout << "Size of BF queue after initial levels: "<< tree.nodeQueue.size() << endl;
     if(tree.nodeQueue.size() != 12){
+        ++failCount;
         return false;
     }
 
@@ -851,21 +865,20 @@ bool OCTester::splitSequenceQueue(){
 
     tree.splitSequenceTree();
 
-
-
-
+    ++successCount;
     return false;
 }
 
 
-bool OCTester::splitHashString(Tree tree){
+bool OCTester::splitHashString(){
+    Tree tree = getSimpleTree();
 
-
-    string stringToSplit = "x 4 3 2 1 0 4.5  y 0 1 2 2 3 4 4.5 4.5";
+    string stringToSplit = "4 3 2 1 0 4.5  y 0 1 2 2 3 4 4.5 4.5";
     //stringToSplit << "x 4 3 2 1 0 4.5  y 0 1 2 2 3 4 4.5 4.5";
     list<string> result;
     list<double> resultPoints;
-//    cout << stringToSplit<< endl;
+    list<double> resultClusters;
+
 
     result = tree.splitHashString(stringToSplit);
     string first = "4 3 2 1 0 4.5";
@@ -875,12 +888,14 @@ bool OCTester::splitHashString(Tree tree){
         cout << "Result 0 was " << endl;
         cout << result.front()<< result.front().length() <<endl;
         cout << first << " " << first.length() << endl;
+        ++failCount;
         return false;
     }
     if(0 != result.back().compare(second)){
         cout << "Result 1 was " << endl;
         cout << result.back()<< result.back().length() <<endl;
         cout << second << " " << second.length() << endl;
+        ++failCount;
         return false;
     }
 
@@ -888,23 +903,143 @@ bool OCTester::splitHashString(Tree tree){
 
     if(!deq(resultPoints.front(), 4 )){
         cout << "First was not equal" << endl;
+        ++failCount;
         return false;
     }
 
-
     if(!deq(resultPoints.back(), 4.5 )){
         cout << "Last was not equal" << endl;
+        ++failCount;
         return false;
     }
 
     if(resultPoints.size() != 6){
         cout << "Result was not the right size" << endl;
+        ++failCount;
+        return false;
     }
 
+
+    resultClusters = tree.parsePoints(result.back());
+    if(!deq(resultClusters.front(), 0 )){
+        cout << "First was not equal" << endl;
+        ++failCount;
+        return false;
+    }
+
+    if(!deq(resultClusters.back(), 4.5 )){
+        cout << "Last was not equal" << endl;
+        ++failCount;
+        return false;
+    }
+
+    if(resultClusters.size() != 8){
+        cout << "Result was not the right size" << endl;
+        ++failCount;
+        return false;
+    }
+    ++successCount;
     return true;
 }
 
 
+bool OCTester::splitFullMessage(){
+    Tree tree = getSimpleTree();
+    string stringToSplit = "x 4 3 2 1 0 4.5  y 0 1 2 2 3 4 4.5 4.5 x 1 2 3 4 5  y 1 1 2 3 4 4 5 5";
+    //stringToSplit << "x 4 3 2 1 0 4.5  y 0 1 2 2 3 4 4.5 4.5";
+    list<string> result;
+    list<double> resultPoints;
+    list<double> resultClusters;
+//    cout << stringToSplit<< endl;
+
+    result = tree.splitFullMessage(stringToSplit);
+    string first = "4 3 2 1 0 4.5  y 0 1 2 2 3 4 4.5 4.5 ";
+    string second = "1 2 3 4 5  y 1 1 2 3 4 4 5 5";
+
+    if(0 != result.front().compare(first)){
+        cout << "Result 0 was " << endl;
+        cout << result.front()<< result.front().length() <<endl;
+        cout << first << " " << first.length() << endl;
+        ++failCount;
+        return false;
+    }
+    if(0 != result.back().compare(second)){
+        cout << "Result 1 was " << endl;
+        cout << result.back()<< result.back().length() <<endl;
+        cout << second << " " << second.length() << endl;
+        ++failCount;
+        return false;
+    }
+    ++successCount;
+    return true;
+
+}
+
+
+bool OCTester::createNewNodeFromLists(){
+    Tree tree = getSimpleTree();
+
+    list<double> pointList = {1, 2, 3, 4};
+    list<double> clusterList = {1, 1, 2, 3, 4, 4};
+    tree.newNodeFromLists(pointList, clusterList);
+
+//    tree.nodeQueue.back()->listClusters();
+//    tree.nodeQueue.back()->listPoints();
+//
+//    cout << tree.nodeQueue.back()->getPointHash() << endl;
+//    cout << tree.nodeQueue.back()->getFullHash() << endl;
+    string pointHash = " x 1 2 3 4 ";
+    string fullHash = " x 1 2 3 4  y 1 1 2 3 4 4 ";
+
+    if(tree.nodeQueue.back()->getPointHash().compare(pointHash) != 0){
+        cout << "Didn't hash points correctly, the point hash was: " << endl;
+        cout << tree.nodeQueue.back()->getPointHash() << endl;
+        ++failCount;
+        return false;
+    }
+
+    if(tree.nodeQueue.back()->getPointHash().compare(pointHash) != 0){
+        cout << "Didn't hash the full hash correctly, the hash was: " << endl;
+        cout << tree.nodeQueue.back()->getFullHash() << endl;
+        ++failCount;
+        return false;
+    }
+
+    if(tree.nodeQueue.back()->getNumberOfPoints() != 4){
+        cout << "Not the right number of points created from hash" << endl;
+        ++failCount;
+        return false;
+    }
+
+    if(tree.nodeQueue.back()->getNumberOfClusters() != 3){
+        cout << "Not the right number of clusters created from hash" << endl;
+        ++failCount;
+        return false;
+    }
+
+    ++successCount;
+    return true;
+}
+
+
+bool OCTester::buildNodesFromMessage(){
+    Tree tree = getSimpleTree();
+
+    string message = "x 4 3 2 1 0 4.5  y 0 1 2 2 3 4 4.5 4.5 x 1 2 3 4 5  y 1 1 2 3 4 4 5 5 x 5 3 4  y 3 3 4 5";
+
+    tree.buildNodesFromString(message);
+
+    if(tree.nodes[0].size() != 4){
+        cout << "Didn't generate the right amount of nodes - the number of generated nodes was: " << (tree.nodes[0].size() -1 ) << endl;
+        ++failCount;
+        return false;
+    }
+
+    ++successCount;
+    return true;
+
+
+}
 
 /****************************/
 /*** Test data generators ***/

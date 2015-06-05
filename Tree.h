@@ -105,8 +105,11 @@ class Tree
         double getParProofTime();
         double getParDFTime();
         void splitSequenceTree();
+        list<string> splitFullMessage(string inputString);
         list<string> splitHashString(string inputString);
         list<double> parsePoints(string pointsString);
+        void newNodeFromLists(list<double> pointList, list<double> clusterList);
+        void buildNodesFromString(string fullMessage);
 
         /**** EXPERIMENTAL DF ****/
         bool miniQueueDF (list<TreeNode*> miniQueue, int levelsOfBF, int levelsOfDF);

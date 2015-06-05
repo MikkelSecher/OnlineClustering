@@ -25,6 +25,7 @@ class TreeNode
         long long nId;
         TreeNode();
         TreeNode(double dPoint, TreeNode *parent);
+        TreeNode(list<double>, list<double>);
         double workingSequence[10];
         list<TreeNode>::iterator trueLink;
         list<TreeNode*>::iterator queueLink;
@@ -50,7 +51,10 @@ class TreeNode
         void growClusterLeft(double point, bool force);
         void growClusterLeft(double point);
         string getPointHash();
+        string getFullHash();
         int pointInRange(double point);
+        int getNumberOfPoints();
+        int getNumberOfClusters();
         list<double> getAmbPoints();
         list<double> getForcePoints();
         double calcRatio();
