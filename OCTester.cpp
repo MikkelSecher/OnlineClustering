@@ -49,7 +49,7 @@ void OCTester::completeParallelHelperTest(){
     splitHashString()               ? successPrint("Split Hash String ")        : failPrint("Split Hash String");
     splitFullMessage()              ? successPrint("Split Full Message ")       : failPrint("Split Full Message ");
     createNewNodeFromLists()        ? successPrint("Create New Node From List "): failPrint("Create New Node From List ");
-    buildNodesFromMessage()         ? successPrint("Build Nodes From Message "): failPrint("Build Nodes From Message ");
+    buildNodesFromMessage()         ? successPrint("Build Nodes From Message ") : failPrint("Build Nodes From Message ");
 }
 
 void OCTester::completeChildrenTest(){
@@ -1031,6 +1031,12 @@ bool OCTester::buildNodesFromMessage(){
 
     if(tree.nodes[0].size() != 4){
         cout << "Didn't generate the right amount of nodes - the number of generated nodes was: " << (tree.nodes[0].size() -1 ) << endl;
+        ++failCount;
+        return false;
+    }
+
+    if(tree.nodeQueue.size() != 3){
+        cout << "Didn't add the right amount of nodes to nodeQueue - the number added nodes was: " << (tree.nodeQueue.size() ) << endl;
         ++failCount;
         return false;
     }

@@ -966,6 +966,12 @@ void Tree::newNodeFromLists(list<double> pointList, list<double> clusterList){
 void Tree::buildNodesFromString(string fullMessage){
 
     //split up message for individual nodeStrings
+    if(nodeQueue.size() != 0){
+        if(nodeQueue.front()->isRoot()){
+            nodeQueue.pop_front();
+        }
+    }
+
     list<string> nodeStrings = splitFullMessage(fullMessage);
 
     list<string>::iterator stringIterator = nodeStrings.begin();

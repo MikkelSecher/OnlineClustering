@@ -142,3 +142,7 @@ list<double> TreeNode::getForcePoints(){
 double TreeNode::calcRatio(){
     return content.calcRatio();
 }
+
+bool TreeNode::isRoot(){
+    return rootNode;
+}

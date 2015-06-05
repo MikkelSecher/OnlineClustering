@@ -58,6 +58,7 @@ class TreeNode
         list<double> getAmbPoints();
         list<double> getForcePoints();
         double calcRatio();
+        bool isRoot();
     protected:
     private:
 
