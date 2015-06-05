@@ -616,8 +616,8 @@ bool Tree::startDF(int levelsOfBF, int levelsOfDF) {
     for(int miniQueue = myStartingPoint; miniQueue < myEndPoint; miniQueue++){
         if(!miniQueueDF(parallelMiniQueues[miniQueue], levelsOfBF, levelsOfDF) ) {
                 listProofSequenceToTextFile( proofSequences[worldRank].back(), worldRank);
+                cout << "Solution found from " << worldRank << " miniQueue number: "<< miniQueue << endl;
         }
-        //cout << "Checked from " << worldRank << " miniQueue number: "<< miniQueue << endl;
     }
     cout << "Checked " << myStartingPoint << " to " << myEndPoint << " out of " << proofsToTry << " at process " << worldRank << endl;
 //    cout << "Time spent in parallel: " << omp_get_wtime() - startTime << endl;
@@ -1215,7 +1215,7 @@ void listProofSequenceToTextFile( list< list<double> > proofLists, int worldRank
     FILE *pFile;
     list< list<double> >::iterator listIt;
     list<double>::iterator pointIt;
-    cout << "listing a proof to the file" << endl;
+    cout << "listing a proof to the file from "<< worldRank << endl;
     char filename[40];
     sprintf( filename , "KnownProofSequences_%i.txt", worldRank);
 
@@ -1234,10 +1234,10 @@ void listProofSequenceToTextFile( list< list<double> > proofLists, int worldRank
 
 void listInitializeTextFile( double ratio, int worldRank){
     FILE *pFile;
-    cout << "Initializing sequence file" << endl;
+    cout << "Initializing sequence file for "<< worldRank << endl;
     char filename[40];
     sprintf( filename , "KnownProofSequences_%i.txt", worldRank);
-    pFile = fopen (filename, "a"); //Append to the file
+    pFile = fopen (filename, "w"); //Append to the file
 
     fprintf(pFile, "\n The following sequences are for ratio: %2.2f ---------------------------\n", ratio);
     fclose(pFile);

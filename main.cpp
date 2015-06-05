@@ -26,17 +26,36 @@ int main(int argc, char* argv[])
     int name_len;
     MPI_Get_processor_name(processor_name, &name_len);
 
-//     Print off a hello world message
-    printf("Hello world from processor %s, rank %d"
-           " out of %d processors\n",
-           processor_name, world_rank, world_size);
-
+////     Print off a hello world message
+//    printf("Hello world from processor %s, rank %d"
+//           " out of %d processors\n",
+//           processor_name, world_rank, world_size);
+//
 
 
     cout << "This is after finalize..." << endl;
+    string message;
+    char buffer[128];
+
 
     if(world_rank == 0){
+        message = "This is a cool message! ";
+        sprintf(buffer, "Hello");
+        for(int w = 1; w < world_size; w++){
+            MPI_Send(buffer, 128, MPI_CHAR, w, 0, MPI_COMM_WORLD);
+        }
+    }
+    MPI_Status status;
+    if(world_rank != 0){
+        MPI_Recv(buffer,      /* message buffer */
+        128,                 /* one data item */
+        MPI_CHAR,           /* of type char real */
+        MPI_ANY_SOURCE,    /* receive from any sender */
+        MPI_ANY_TAG,       /* any type of message */
+        MPI_COMM_WORLD,    /* default communicator */
+        &status);
 
+        cout << "FREAKING AWESOME! I, " << processor_name << ", got the message: " << buffer << " at node " << world_rank<<  endl;
     }
 
 
@@ -127,8 +146,8 @@ int main(int argc, char* argv[])
 //    fprintf(pFile, "Time in DF expansion: %.2f \n", tree.dfTime);
 //    fprintf(pFile, "Time in proof: %.2f \n \n", tree.proofTime);
 //    fprintf(pFile, "Number of proofs found: %d \n", tree.successes);
-
-    // Finalize the MPI environment.
+//
+//     Finalize the MPI environment.
     MPI_Finalize();
 }
 
