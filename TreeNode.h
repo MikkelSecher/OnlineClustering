@@ -52,6 +52,7 @@ class TreeNode
         void growClusterLeft(double point);
         string getPointHash();
         string getFullHash();
+        void updateHashes();
         int pointInRange(double point);
         int getNumberOfPoints();
         int getNumberOfClusters();

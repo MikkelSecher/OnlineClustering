@@ -117,6 +117,11 @@ string TreeNode::getFullHash(){
     return content.fullHash;
 }
 
+void TreeNode::updateHashes(){
+    content.updateHashes();
+
+}
+
 int TreeNode::getNumberOfPoints(){
     return content.nNumberOfPoints;
 }

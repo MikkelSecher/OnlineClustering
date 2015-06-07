@@ -81,6 +81,8 @@ class OCTester
         bool splitHashString();
         bool splitFullMessage();
         bool buildNodesFromMessage();
+        bool generateMessageFromNode();
+        bool generateMessageFromMiniQueue();
 
         /*** Test data generators ***/
         Tree getHardTwoChoicesRightTree(double);

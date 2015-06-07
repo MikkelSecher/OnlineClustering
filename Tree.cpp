@@ -24,6 +24,7 @@ Tree::Tree(double dStartingPoint, list<double> deltaPoints, int prefix, double r
     nodeQueue.push_back( &nodes[worldRank].front() );
     nodeQueue.front()->parentNode = NULL;
     rootNode = &nodes[worldRank].front();
+
 }
 
 Tree::Tree(list<double> sequence, int prefix, double ratioIn){
@@ -99,6 +100,7 @@ void Tree::printFullTreeToFile(TreeNode *node){
 TreeNode* Tree::newNode( int worldRank, double point, TreeNode* parent ){
     nodes[worldRank].push_front( TreeNode(point, parent) );
     nodes[worldRank].front().trueLink = nodes[worldRank].begin();
+
     return &nodes[worldRank].front();
 }
 
@@ -608,18 +610,23 @@ bool Tree::startDF(int levelsOfBF, int levelsOfDF) {
     listInitializeTextFile(ratio, worldRank);
 
 //    int startTime = omp_get_wtime();
+//
+//    int offsetForNode = numberOfMiniQueues/worldSize;
+//    int myStartingPoint = offsetForNode*worldRank;
+//    int myEndPoint = myStartingPoint+offsetForNode-1;
+//
+//    myStartingPoint = 0;
 
-    int offsetForNode = numberOfMiniQueues/worldSize;
-    int myStartingPoint = offsetForNode*worldRank;
-    int myEndPoint = myStartingPoint+offsetForNode-1;
+    for(int miniQueue = 0; miniQueue < numberOfMiniQueues; miniQueue++){
 
-    for(int miniQueue = myStartingPoint; miniQueue < myEndPoint; miniQueue++){
+
         if(!miniQueueDF(parallelMiniQueues[miniQueue], levelsOfBF, levelsOfDF) ) {
+
                 listProofSequenceToTextFile( proofSequences[worldRank].back(), worldRank);
                 cout << "Solution found from " << worldRank << " miniQueue number: "<< miniQueue << endl;
         }
     }
-    cout << "Checked " << myStartingPoint << " to " << myEndPoint << " out of " << proofsToTry << " at process " << worldRank << endl;
+//    cout << "Checked " << myStartingPoint << " to " << myEndPoint << " out of " << proofsToTry << " at process " << worldRank << endl;
 //    cout << "Time spent in parallel: " << omp_get_wtime() - startTime << endl;
 //    dfTime = omp_get_wtime() - startTime;
         normalizeSolutions();
@@ -635,17 +642,25 @@ bool Tree::miniQueueDF (list<TreeNode*> miniQueue, int levelsOfBF, int levelsOfD
 
 //    int worldRank = omp_get_thread_num();
     list<TreeNode*>::iterator nodeIt = miniQueue.begin();
-
+//    miniQueue.back()->listClusters();
+//    miniQueue.back()->listPoints();
     makeNewSequenceReady();
 
     for( nodeIt ; nodeIt != miniQueue.end() ; nodeIt++ ) {
 
         depthFirstQueue[worldRank].push_front( (*nodeIt) );
+
+//        if(resPrefix == 101){
+//        (*nodeIt)->listClusters();
+//        cout << (*nodeIt)->nId << endl;
+//        (*nodeIt)->listPoints();
+//        }
         if( addPointRecursive( levelsOfBF , levelsOfDF ) ){
 
             depthFirstQueue[worldRank].clear();
             miniQueue.clear();
             removePartialSequences();
+            cout << "Did not find any proof... at " << worldRank << endl;
             return true; ///Fail
         }
         (*nodeIt)->live = false;
@@ -887,13 +902,17 @@ void Tree::splitSequenceTree(){
         sequencedTreeQueue.pop_front();
     }
 
+//    for(int i = 0; i < sizeOfQueue; i++){
+//        cout << "Size " << parallelMiniQueues[i].size() << endl;
+//    }
 
     numberOfMiniQueues = sizeOfQueue;
 }
 
 list<string> Tree::splitFullMessage(string fullMessage){
     list<string> resultingStrings;
-    std::string delimiter = "x ";
+//    std::string delimiter = "x ";
+    std::string delimiter = "x";
     size_t pos = 0;
     std::string token;
     while ((pos = fullMessage.find(delimiter)) != std::string::npos) {
@@ -911,9 +930,10 @@ list<string> Tree::splitFullMessage(string fullMessage){
 list<string> Tree::splitHashString(string inputString){
 
     list<string> resultingStrings;
-    std::string delimitery = "  y ";
-    std::string delimiterx = "x ";
-
+//    std::string delimitery = "  y ";
+//    std::string delimiterx = "x ";
+    std::string delimitery = "y";
+    std::string delimiterx = "x";
     size_t pos = 0;
     std::string token;
     while ((pos = inputString.find(delimiterx)) != std::string::npos) {
@@ -937,7 +957,7 @@ list<string> Tree::splitHashString(string inputString){
 
 }
 
-list<double> Tree::parsePoints(string pointsString){
+list<double> Tree::parseClusters(string pointsString){
     list<double> result;
     string delimiter = " ";
 
@@ -949,6 +969,22 @@ list<double> Tree::parsePoints(string pointsString){
         pointsString.erase(0, pos + delimiter.length());
     }
     result.push_back(atof(pointsString.c_str()));
+    return result;
+
+}
+
+list<double> Tree::parsePoints(string pointsString){
+    list<double> result;
+    string delimiter = " ";
+
+    size_t pos = 0;
+    std::string token;
+    while ((pos = pointsString.find(delimiter)) != std::string::npos) {
+        token = pointsString.substr(0, pos);
+        result.push_back(atof(token.c_str()));
+        pointsString.erase(0, pos + delimiter.length());
+    }
+//    result.push_back(atof(pointsString.c_str()));
     return result;
 
 }
@@ -981,13 +1017,72 @@ void Tree::buildNodesFromString(string fullMessage){
         list<string> splittedStrings = splitHashString((*stringIterator));
         string pointString = splittedStrings.front();
         string clusterString = splittedStrings.back();
+//        cout << "PointString: " << pointString << endl;
+//        cout << "clusterString: " << clusterString << endl;
+
 
         list<double> pointList = parsePoints(pointString);
-        list<double> clusterList = parsePoints(clusterString);
+        list<double> clusterList = parseClusters(clusterString);
+
+//        printDoubleList("Cluster points", clusterList);
+//        printDoubleList("Point", pointList);
 
         newNodeFromLists(pointList, clusterList);
     }
 }
+
+void Tree::addMiniQueueToMessages(list<TreeNode*> nodes){
+
+    list<TreeNode*>::iterator nodeIterator = nodes.begin();
+
+    for(nodeIterator; nodeIterator != nodes.end(); nodeIterator++){
+        addNodeToMessages((*nodeIterator));
+
+    }
+
+
+
+}
+
+void Tree::addNodeToMessages(TreeNode *node){
+    node->updateHashes();
+    messageQueue.back().append(node->getFullHash());
+
+}
+
+void Tree::createMessages(int numberOfMessages){
+    int splitSize = (sequencedTreeQueue.size()/numberOfMessages)+1;
+    int counter = 0;
+
+    list<list<TreeNode*>>::iterator miniQueueIt;
+
+    for(miniQueueIt = sequencedTreeQueue.begin(); miniQueueIt != sequencedTreeQueue.end(); miniQueueIt++){
+        if(counter%splitSize == 0){
+
+            messageQueue.push_back(""); //adds a new message to the queue
+
+        }
+
+        addMiniQueueToMessages(*miniQueueIt);
+
+        ++counter;
+    }
+
+
+
+
+//    list<string>::iterator messageIterator;
+//
+//    for(messageIterator = messageQueue.begin(); messageIterator != messageQueue.end(); messageIterator++){
+//        cout << (*messageIterator) << endl;
+//        cout <<endl;
+//    }
+
+
+    cout << "Size of the final message queue is: " << messageQueue.size() << endl;
+
+}
+
 
 /*********************************/
 /****** EXPERIMENTAL DF **********/

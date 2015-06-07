@@ -37,6 +37,7 @@ class Tree
         double          dfTime;
         int             worldRank = 0;
         int             worldSize = 1;
+
         TreeNode*       rootNode;
         list<TreeNode>  nodes[NUM_THREADS];
         list<TreeNode*> nodeQueue;
@@ -49,7 +50,7 @@ class Tree
         std::vector<double> delta;
         list<list<TreeNode*>> sequencedTreeQueue;
         list<TreeNode*> *parallelMiniQueues;
-
+        list<string> messageQueue;
 
         /**** HANDLERS OF NEW POINTS ****/
         void addPoint(int p, double dPoint);
@@ -108,8 +109,13 @@ class Tree
         list<string> splitFullMessage(string inputString);
         list<string> splitHashString(string inputString);
         list<double> parsePoints(string pointsString);
+        list<double> parseClusters(string pointsString);
         void newNodeFromLists(list<double> pointList, list<double> clusterList);
         void buildNodesFromString(string fullMessage);
+        void addMiniQueueToMessages(list<TreeNode*> nodes);
+        void addNodeToMessages(TreeNode *node);
+        void createMessages(int numberOfMessages);
+
 
         /**** EXPERIMENTAL DF ****/
         bool miniQueueDF (list<TreeNode*> miniQueue, int levelsOfBF, int levelsOfDF);

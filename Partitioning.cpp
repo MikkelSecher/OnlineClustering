@@ -60,7 +60,7 @@ Partitioning::Partitioning(list<double> pointList, list<double> clusterList){
 
 }
 /*********************************/
-/******* UDATE VALUES       ******/
+/******* UPDATE VALUES       ******/
 /*********************************/
 
 void Partitioning::setPoints(list<double> pointList){
@@ -84,9 +84,9 @@ void Partitioning::setClusters(list<double> clusterList){
         pointIterator = next(pointIterator);
         adClusters[cluster][1] = (*pointIterator);
         pointIterator = next(pointIterator);
-        nNumberOfClusters++;
-    }
 
+    }
+    nNumberOfClusters = numberOfClusters;
     //set number of clusters
 }
 
@@ -568,7 +568,7 @@ std::string Partitioning::stringIt(long long number){
 void Partitioning::updateHashes(){
     pointHash.clear();
     std::ostringstream s;
-    s << " x ";
+    s << "x";
     list<double>::iterator i;
     //cout << "Points in the partitioning:" << endl;
     for(i = points.begin(); i != points.end(); i++){
@@ -578,7 +578,7 @@ void Partitioning::updateHashes(){
     pointHash.append(s.str());
 //    cout << pointHash << endl;
     fullHash.clear();
-    s << " y ";
+    s << "y";
     for(int i = 0; i < nNumberOfClusters; i++){
         s << adClusters[i][0];
         s << ' ';
