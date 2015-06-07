@@ -40,6 +40,7 @@ int main(int argc, char* argv[])
     int     levelsOfDF      = atoi(argv[2]); //Depth for DF search to stop
     double  ratio           = atof(argv[3]); //Threshold ratio
     int     prefix          = atoi(argv[4]); //Prefix for result files
+    int     numberOfChunks  = atoi(argv[5]); //number of chunks to split up in
     int     print           = 2; //Level of printing
 
     list<double> deltaValues;
@@ -47,6 +48,12 @@ int main(int argc, char* argv[])
     list<double> testSequence;
 
     deltaValues = {1, -1, 0.5};
+
+    if(numberOfChunks < world_size){
+        cout << "THERE MUST BE AT LEAST AS MANY CHUNKS AS THERE ARE NODES" << endl;
+        exit(1);
+    }
+
 
     //For regular runs
 
@@ -62,9 +69,12 @@ int main(int argc, char* argv[])
         startingLevel = 1;
     }
 
-    startTimeBF = 1;
+
     //Build initial tree before sending data out to nodes
     if(world_rank == 0){
+
+
+        startTimeBF = MPI_Wtime();
         cout << "Building BF tree" << endl;
         for(int level = startingLevel; level < levelsOfBF+startingLevel; level++){
             cout << "Level: " << level << endl;
@@ -82,22 +92,40 @@ int main(int argc, char* argv[])
 //        cout <<" Size of sequenceQueue " <<  tree.sequencedTreeQueue.size() << endl;
 
 
-        tree.createMessages(world_size-1);
+        tree.createMessages(numberOfChunks);
 
-        int targetNode = 1;
         list<string>::iterator messageIterator = tree.messageQueue.begin();
 
-        for(messageIterator = tree.messageQueue.begin(); messageIterator != tree.messageQueue.end(); messageIterator++){
-            sendMessage(targetNode, (*messageIterator));
-            ++targetNode;
+
+        for(int targetNode = 1; targetNode < world_size; targetNode++){
+
+            sendMessage(targetNode, tree.messageQueue.front());
+            tree.messageQueue.pop_front();
+            cout << "Message sent to " << targetNode << endl;
         }
 
         MPI_Status status;
-
-        for(int i=0 ; i< ; i++){
+        int stopCount = 0;
+        while (true){
             status = receiveMessage(status);
+
             cout << "Done from " << status.MPI_SOURCE << endl;
+            if(tree.messageQueue.size() > 0){
+                sendMessage(status.MPI_SOURCE, tree.messageQueue.front());
+                tree.messageQueue.pop_front();
+            }else{
+                sendMessage(status.MPI_SOURCE, "Stop");
+                ++stopCount;
+                if(stopCount == world_size-1){
+                    break;
+                }
+            }
         }
+
+
+    endTime = MPI_Wtime();
+
+    cout << "THIS TOOK " << endTime-startTimeBF << " TO COMPLETE!" << endl;
     }
 
 
@@ -105,9 +133,9 @@ int main(int argc, char* argv[])
         bool workLeft = true;
         while(workLeft){
             Tree myTree(startingPoint, deltaValues, prefix, ratio, print);
-
+            myTree.worldRank = world_rank;
             string fullMessage = receiveMessage();
-
+            cout << "Got: " << fullMessage << endl;
             if(fullMessage.compare("Stop") != 0){
 
                 myTree.buildNodesFromString(fullMessage);
@@ -132,7 +160,7 @@ int main(int argc, char* argv[])
 //    }
 
     cout << endl;
-    endTime = 1;
+
 
 //    FILE * pFile;
 //    char filename[30];
@@ -155,6 +183,8 @@ int main(int argc, char* argv[])
 //    fprintf(pFile, "Number of proofs found: %d \n", tree.successes);
 //
 //     Finalize the MPI environment.
+
+
     MPI_Finalize();
 }
 

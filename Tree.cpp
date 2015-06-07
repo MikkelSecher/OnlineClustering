@@ -607,7 +607,7 @@ bool Tree::startDF(int levelsOfBF, int levelsOfDF) {
     splitSequenceTree();
 
     cout << "Possibilities for proofs: " << proofsToTry << endl;
-    listInitializeTextFile(ratio, worldRank);
+//    listInitializeTextFile(ratio, worldRank);
 
 //    int startTime = omp_get_wtime();
 //

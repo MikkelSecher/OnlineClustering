@@ -14,6 +14,8 @@
 
 #define BUFFER_SIZE 1000000
 
+string proofSequences = "";
+
 void printList();
 void sortList(double listToSort[], int length);
 
