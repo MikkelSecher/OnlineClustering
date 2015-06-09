@@ -606,7 +606,7 @@ bool Tree::startDF(int levelsOfBF, int levelsOfDF) {
     int proofsToTry = sequencedTreeQueue.size() ;
     splitSequenceTree();
 
-    cout << "Possibilities for proofs: " << proofsToTry << endl;
+//    cout << "Possibilities for proofs: " << proofsToTry << endl;
 //    listInitializeTextFile(ratio, worldRank);
 
 //    int startTime = omp_get_wtime();
@@ -619,7 +619,7 @@ bool Tree::startDF(int levelsOfBF, int levelsOfDF) {
 
     for(int miniQueue = 0; miniQueue < numberOfMiniQueues; miniQueue++){
 
-
+        cout << "Checked " << miniQueue << " from node " << worldRank << endl;
         if(!miniQueueDF(parallelMiniQueues[miniQueue], levelsOfBF, levelsOfDF) ) {
 
                 listProofSequenceToTextFile( proofSequences[worldRank].back(), worldRank);
@@ -660,7 +660,7 @@ bool Tree::miniQueueDF (list<TreeNode*> miniQueue, int levelsOfBF, int levelsOfD
             depthFirstQueue[worldRank].clear();
             miniQueue.clear();
             removePartialSequences();
-            cout << "Did not find any proof... at " << worldRank << endl;
+//            cout << "Did not find any proof... at " << worldRank << endl;
             return true; ///Fail
         }
         (*nodeIt)->live = false;
@@ -1310,7 +1310,7 @@ void listProofSequenceToTextFile( list< list<double> > proofLists, int worldRank
     FILE *pFile;
     list< list<double> >::iterator listIt;
     list<double>::iterator pointIt;
-    cout << "listing a proof to the file from "<< worldRank << endl;
+//    cout << "listing a proof to the file from "<< worldRank << endl;
     char filename[40];
     sprintf( filename , "KnownProofSequences_%i.txt", worldRank);
 
