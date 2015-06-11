@@ -1,7 +1,6 @@
 #ifndef PARTITIONING_H
 #define PARTITIONING_H
 #include <list>
-#include "omp.h"
 #include <string>
 //#define NDEBUG
 #include "assert.h"

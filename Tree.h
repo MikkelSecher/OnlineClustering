@@ -2,10 +2,8 @@
 #define TREE_H
 
 #include "TreeNode.h"
-
 #include <list>
 #include <string>
-#include "omp.h"
 #include <vector>
 #include <iostream>
 #include <stdio.h>

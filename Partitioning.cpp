@@ -491,7 +491,7 @@ void Partitioning::insertNodeLabel(bool level, long long nodeID, int succesNumbe
     FILE *pFile;
     char filename[20];
     string sNodeID = stringIt(nodeID);
-    sprintf(filename, "res\\%d_%d_solution_%d .gml", prefix, omp_get_thread_num(), succesNumber);
+    sprintf(filename, "res\\%d_%d_solution_%d .gml", prefix, 0, succesNumber);
     list<double>::iterator i;
     pFile = fopen (filename,"a");
     fprintf(pFile, "node \n [ \n id n%s \n", sNodeID.c_str());
@@ -525,7 +525,7 @@ void Partitioning::insertEdgeLabel(long long parentID, long long nodeID, int suc
     FILE *pFile;
     char filename[30];
 
-    sprintf(filename, "res\\%d_%d_solution_%d .gml", prefix, omp_get_thread_num(), succesNumber);
+    sprintf(filename, "res\\%d_%d_solution_%d .gml", prefix, 0, succesNumber);
 
     pFile = fopen (filename,"a");
     string sParentID = stringIt(parentID);
