@@ -15,6 +15,6 @@ module purge
 module add gcc/4.8-c7 openmpi/1.8.4
 
 # Start in total 2*24 MPI ranks on all available CPU cores
-srun ./OnlineClustering 4 4 1.6 11 11
+srun ./OnlineClustering 6 4 1.6 11 50
 
 echo Done.

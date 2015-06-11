@@ -1,6 +1,6 @@
 #! /bin/bash
 #
-#SBATCH --account secher      # account
+#SBATCH --account sdudm_slim      # account
 #SBATCH --nodes 2                # number of nodes
 #SBATCH --ntasks-per-node 24      # number of MPI tasks per node
 #SBATCH --time 2:00:00            # max time (HH:MM:SS)
