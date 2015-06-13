@@ -66,6 +66,8 @@ int main(int argc, char* argv[])
     //For regular runs
 
     Tree tree(startingPoint, deltaValues, prefix, ratio, print);
+    //For serious MPI test
+    tree = test1.getMPITree();
 
     //First argument is the number of levels the program should go down breadth first...
     tree.worldRank = world_rank;

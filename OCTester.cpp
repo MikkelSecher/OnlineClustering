@@ -1611,6 +1611,18 @@ Tree OCTester::getSecondBaseTree(){
 
 }
 
+Tree OCTester::getMPITree(){
+    list<double> deltas = {1, 0.5, -1};
+    Tree tree(3, deltas, 7357, 1.63, 2);
+
+    tree.nodes[0].front().growClusterRight(4);
+    tree.nodes[0].front().openCluster(5);
+    tree.nodes[0].front().openCluster(6);
+
+    return tree;
+
+}
+
 /****************************/
 /*** I/O Functions ***/
 /****************************/
