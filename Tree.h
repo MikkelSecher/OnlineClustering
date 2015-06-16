@@ -14,7 +14,7 @@
 #include <sstream>
 #include <inttypes.h>
 
-#define NUM_THREADS 1
+#define NUM_THREADS 20
 //#define CHUNK_SIZE 1000
 class Tree
 {
