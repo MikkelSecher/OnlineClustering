@@ -1623,6 +1623,25 @@ Tree OCTester::getMPITree(){
 
 }
 
+
+Tree OCTester::mostPromisingTree(){
+        // 2, 3, 4, 1, 7, 8, 9, 6, 5
+    list<double> deltas = {1, 0.5, -1};
+    Tree tree(2, deltas, 7357, 1.61, 2);
+
+    tree.nodes[0].front().growClusterRight(3);
+    tree.nodes[0].front().openCluster(3.5);
+    tree.nodes[0].front().openCluster(4.5);
+    tree.nodes[0].front().openCluster(1);
+    tree.nodes[0].front().growClusterLeft(0);
+    tree.nodes[0].front().openCluster(1.5);
+
+
+    return tree;
+
+}
+
+
 /****************************/
 /*** I/O Functions ***/
 /****************************/

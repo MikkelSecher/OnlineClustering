@@ -111,6 +111,7 @@ class OCTester
         Tree getNewBaseTree();
         Tree getSecondBaseTree();
         Tree getMPITree();
+        Tree mostPromisingTree();
         /*** I/O functions ***/
         void successPrint(string);
         void failPrint(string);

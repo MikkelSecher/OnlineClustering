@@ -1,57 +1,49 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_layout_file>
 	<ActiveTarget name="Debug" />
-	<File name="TreeNode.h" open="1" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="1" zoom_2="0">
+	<File name="OCTester.h" open="1" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="1" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="748" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="Partitioning.cpp" open="1" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="1" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="1083" topLine="2" />
-		</Cursor>
-	</File>
-	<File name="Tree.h" open="1" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="1" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="713" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="Tree.cpp" open="1" top="1" tabpos="2" split="0" active="1" splitpos="956" zoom_1="-1" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="20873" topLine="595" />
-		</Cursor>
-	</File>
-	<File name="TreeNode.cpp" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="1" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="448" topLine="0" />
+			<Cursor1 position="3390" topLine="81" />
 		</Cursor>
 	</File>
 	<File name="OCTester.cpp" open="1" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="1" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="39291" topLine="1017" />
+			<Cursor1 position="48442" topLine="1437" />
 		</Cursor>
 		<Folding>
-			<Collapse line="35" />
-			<Collapse line="43" />
-			<Collapse line="55" />
-			<Collapse line="65" />
-			<Collapse line="74" />
+			<Collapse line="5" />
+			<Collapse line="45" />
 			<Collapse line="87" />
-			<Collapse line="107" />
-			<Collapse line="118" />
+			<Collapse line="96" />
+			<Collapse line="109" />
 			<Collapse line="140" />
-			<Collapse line="169" />
-			<Collapse line="199" />
+			<Collapse line="162" />
+			<Collapse line="191" />
 		</Folding>
 	</File>
-	<File name="Partitioning.h" open="1" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="1" zoom_2="0">
+	<File name="Tree.h" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="1" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="562" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="Tree.cpp" open="1" top="0" tabpos="2" split="0" active="1" splitpos="956" zoom_1="-1" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="21926" topLine="577" />
+		</Cursor>
+	</File>
+	<File name="TreeNode.cpp" open="1" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="1" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="448" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="Partitioning.h" open="1" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="1" zoom_2="0">
 		<Cursor>
 			<Cursor1 position="928" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="main.cpp" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="1" zoom_2="0">
+	<File name="TreeNode.h" open="1" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="1" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="1" topLine="0" />
+			<Cursor1 position="748" topLine="0" />
 		</Cursor>
 	</File>
 	<File name="main.h" open="1" top="0" tabpos="10" split="0" active="1" splitpos="0" zoom_1="2" zoom_2="0">
@@ -59,9 +51,14 @@
 			<Cursor1 position="349" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="OCTester.h" open="1" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="1" zoom_2="0">
+	<File name="Partitioning.cpp" open="1" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="1" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="266" topLine="0" />
+			<Cursor1 position="1083" topLine="2" />
+		</Cursor>
+	</File>
+	<File name="main.cpp" open="1" top="1" tabpos="1" split="0" active="1" splitpos="0" zoom_1="1" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2082" topLine="0" />
 		</Cursor>
 	</File>
 </CodeBlocks_layout_file>

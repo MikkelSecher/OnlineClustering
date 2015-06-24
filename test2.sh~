@@ -12,7 +12,7 @@
 # thus your application should be parallelized in some fashion and
 # prepared to use all 4 cores per node.
 #
-#PBS -l nodes=2
+#PBS -l nodes=8
 #
 # The next line requests that PBS sends an e-mail notification at the
 # start of execution and at the end of execution.
@@ -35,7 +35,8 @@
 # Change to the directory where the qsub command was issued.
 #
 cd $PBS_O_WORKDIR
-cd $HOME/mikkel/mpitests/OnlineClustering
-mpirun -np 32 ./OnlineClustering 4 6 1.6 11
+cd $HOME/mikkel/mpitests/largerun/OnlineClustering
+mpirun -np 128 ./OnlineClustering 9 8 1.61 11 400
 
 #
+
