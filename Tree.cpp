@@ -619,11 +619,11 @@ bool Tree::startDF(int levelsOfBF, int levelsOfDF) {
 
     for(int miniQueue = 0; miniQueue < numberOfMiniQueues; miniQueue++){
 
-        cout << "Checked " << miniQueue << " from node " << worldRank << endl;
+//        cout << "Checked " << miniQueue << " from node " << worldRank << endl;
         if(!miniQueueDF(parallelMiniQueues[miniQueue], levelsOfBF, levelsOfDF) ) {
 
                 listProofSequenceToTextFile( proofSequences[worldRank].back(), worldRank);
-                cout << "Solution found from " << worldRank << " miniQueue number: "<< miniQueue << endl;
+//                cout << "Solution found from " << worldRank << " miniQueue number: "<< miniQueue << endl;
         }
     }
 //    cout << "Checked " << myStartingPoint << " to " << myEndPoint << " out of " << proofsToTry << " at process " << worldRank << endl;
