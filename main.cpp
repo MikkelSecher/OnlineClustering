@@ -57,10 +57,10 @@ int main(int argc, char* argv[])
 
     deltaValues = {1, -1, 0.5};
 
-    if(numberOfChunks < world_size){
-        cout << "THERE MUST BE AT LEAST AS MANY CHUNKS AS THERE ARE NODES" << endl;
-        exit(1);
-    }
+//    if(numberOfChunks < world_size-1){
+//        cout << "THERE MUST BE AT LEAST AS MANY CHUNKS AS THERE ARE NODES" << endl;
+//        exit(1);
+//    }
 
 
     //For regular runs
@@ -101,7 +101,7 @@ int main(int argc, char* argv[])
         tree.sequenceTree();
         initialQueueSize = tree.sequencedTreeQueue.size();
         ///Create the messages
-        tree.createMessages(numberOfChunks);
+        tree.createMessages((world_size*numberOfChunks)-1);
         list<string>::iterator messageIterator = tree.messageQueue.begin();
 
         ///Send initial message to all nodes
@@ -123,7 +123,7 @@ int main(int argc, char* argv[])
             status = receiveMessage(status);
 
             cout << "Done from " << status.MPI_SOURCE << endl;
-            if(tree.messageQueue.size() > 0){
+            if(tree.messageQueue.size() != 0){
                 sendMessage(status.MPI_SOURCE, tree.messageQueue.front());
                 cout << "Message sent to " << status.MPI_SOURCE << endl;
                 tree.messageQueue.pop_front();

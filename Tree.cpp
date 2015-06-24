@@ -602,9 +602,12 @@ bool Tree::startDF(int levelsOfBF, int levelsOfDF) {
     if( nodeQueue.size() > 1 ){
         nodeQueue.sort( node_compare_sequence ); //Sort queue wrt. sequence of points
     }
+    cout << "Size of queue: " << endl;
+
     sequenceTree(); //sort queue into miniqueues sorted by sequence of points
     int proofsToTry = sequencedTreeQueue.size() ;
     splitSequenceTree();
+
 
 //    cout << "Possibilities for proofs: " << proofsToTry << endl;
 //    listInitializeTextFile(ratio, worldRank);
