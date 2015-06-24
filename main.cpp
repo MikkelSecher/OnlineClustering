@@ -103,7 +103,7 @@ int main(int argc, char* argv[])
         ///Create the messages
         tree.createMessages((world_size*numberOfChunks)-1);
         list<string>::iterator messageIterator = tree.messageQueue.begin();
-        cout << "number of messages to send : " << tree.messageQueue.size();
+        cout << "number of messages to send : " << tree.messageQueue.size() << endl;
         ///Send initial message to all nodes
         for(int targetNode = 1; targetNode < world_size; targetNode++){
             if(tree.messageQueue.size() != 0){
@@ -182,7 +182,7 @@ int main(int argc, char* argv[])
 
         FILE * pFile;
         char filename[30];
-        sprintf(filename, "summary.txt");
+        sprintf(filename, "summary_%d.txt", prefix);
         pFile = fopen (filename,"a");
         fprintf(pFile, "--------------- Summary for run with id: %d ----------------\n \n", prefix);
 
@@ -245,7 +245,6 @@ MPI_Status receiveMessage(MPI_Status status){
         MPI_ANY_TAG,
         MPI_COMM_WORLD,
         &status);
-
 
     return status;
 }

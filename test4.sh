@@ -42,9 +42,9 @@ mpirun -np 2 ./OnlineClustering 6 8 1.60 11 4
 mpirun -np 2 ./OnlineClustering 6 8 1.60 11 8
 mpirun -np 2 ./OnlineClustering 6 8 1.60 11 16
 mpirun -np 2 ./OnlineClustering 6 8 1.60 11 32
-mpirun -np 8 ./OnlineClustering 6 8 1.60 11 64
-mpirun -np 8 ./OnlineClustering 6 8 1.60 11 128
-mpirun -np 8 ./OnlineClustering 6 8 1.60 11 256
-mpirun -np 8 ./OnlineClustering 6 8 1.60 11 512
+mpirun -np 2 ./OnlineClustering 6 8 1.60 11 64
+mpirun -np 2 ./OnlineClustering 6 8 1.60 11 128
+mpirun -np 2 ./OnlineClustering 6 8 1.60 11 256
+mpirun -np 2 ./OnlineClustering 6 8 1.60 11 512
 
 #
