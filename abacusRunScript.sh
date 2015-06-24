@@ -3,7 +3,7 @@
 #SBATCH --account sdudm_slim      # account
 #SBATCH --nodes 2                # number of nodes
 #SBATCH --ntasks-per-node 24      # number of MPI tasks per node
-#SBATCH --time 2:00:00            # max time (HH:MM:SS)
+#SBATCH --time 24:00:00            # max time (HH:MM:SS)
 
 echo Running on "$(hostname)"
 echo Available nodes: "$SLURM_NODELIST"
@@ -15,6 +15,6 @@ module purge
 module add gcc/4.8-c7 openmpi/1.8.4
 
 # Start in total 2*24 MPI ranks on all available CPU cores
-srun ./OnlineClustering 6 4 1.6 11 50
+srun ./OnlineClustering 7 8 1.63 11 50
 
 echo Done.
