@@ -36,7 +36,7 @@
 #
 cd $PBS_O_WORKDIR
 cd $HOME/mikkel/mpitests/largerun/OnlineClustering
-mpirun -np 128 ./OnlineClustering 9 8 1.61 11 400
+mpirun -np 128 ./OnlineClustering 6 8 1.61 11 1000
 
 #
 
