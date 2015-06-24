@@ -103,14 +103,18 @@ int main(int argc, char* argv[])
         ///Create the messages
         tree.createMessages((world_size*numberOfChunks)-1);
         list<string>::iterator messageIterator = tree.messageQueue.begin();
-
+        cout << "number of messages to send : " << tree.messageQueue.size();
         ///Send initial message to all nodes
         for(int targetNode = 1; targetNode < world_size; targetNode++){
+            if(tree.messageQueue.size() != 0){
+                sendMessage(targetNode, tree.messageQueue.front());
+                tree.messageQueue.pop_front();
+                cout << "Message sent to " << targetNode << endl;
+                messagesSent[targetNode] = 1;
+            }else{
+                sendMessage(targetNode, "Stop");
+            }
 
-            sendMessage(targetNode, tree.messageQueue.front());
-            tree.messageQueue.pop_front();
-            cout << "Message sent to " << targetNode << endl;
-            messagesSent[targetNode] = 1;
         }
 
         timeToSend = MPI_Wtime() - startTimeSend;
@@ -184,7 +188,7 @@ int main(int argc, char* argv[])
 
         fprintf(pFile, "Number of nodes: %d \n", world_size);
         fprintf(pFile, "Initial queuesize: %d \n", initialQueueSize);
-        fprintf(pFile, "The queue was split into %d chunks of size %d \n", numberOfChunks, initialQueueSize/numberOfChunks );
+        fprintf(pFile, "The queue was split into %d chunks for each node with a of size %d \n", numberOfChunks, initialQueueSize/(numberOfChunks*world_size) );
         fprintf(pFile, "#Levels of BF: %d \n", levelsOfBF);
         fprintf(pFile, "#Levels of DF: %d \n", levelsOfDF);
         fprintf(pFile, "Ratio: %3.2f \n", ratio);

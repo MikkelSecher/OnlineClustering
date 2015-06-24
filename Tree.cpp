@@ -605,7 +605,7 @@ bool Tree::startDF(int levelsOfBF, int levelsOfDF) {
     cout << "Size of queue: " << endl;
 
     sequenceTree(); //sort queue into miniqueues sorted by sequence of points
-    int proofsToTry = sequencedTreeQueue.size() ;
+    int proofsToTry = sequencedTreeQueue.size();
     splitSequenceTree();
 
 
