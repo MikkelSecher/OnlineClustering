@@ -12,7 +12,7 @@
 #include <sstream>
 #include <inttypes.h>
 
-#define NUM_THREADS 512
+#define NUM_THREADS 1730
 class Tree
 {
     public:

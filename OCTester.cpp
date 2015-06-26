@@ -1660,6 +1660,83 @@ Tree OCTester::mostPromisingTree10Points(){
 
 }
 
+Tree OCTester::promising26(){
+        // 2, 3, 4, 1, 7, 8, 9, 6, 5
+    list<double> deltas = {1, 0.5, -1};
+    Tree tree(2, deltas, 7357, 1.63, 2);
+
+    tree.nodes[0].front().growClusterRight(3);
+    tree.nodes[0].front().openCluster(3.5);
+    tree.nodes[0].front().openCluster(4.5);
+    tree.nodes[0].front().openCluster(1);
+    tree.nodes[0].front().growClusterLeft(0);
+    tree.nodes[0].front().openCluster(1.5);
+    tree.nodes[0].front().growClusterRight(5.5);
+    tree.nodes[0].front().openCluster(6.5);
+    tree.nodes[0].front().openCluster(7.0);
+
+    return tree;
+
+}
+
+Tree OCTester::promising22(){
+        // 2, 3, 4, 1, 7, 8, 9, 6, 5
+    list<double> deltas = {1, 0.5, -1};
+    Tree tree(2, deltas, 7357, 1.63, 2);
+
+    tree.nodes[0].front().growClusterRight(3);
+    tree.nodes[0].front().openCluster(3.5);
+    tree.nodes[0].front().openCluster(4.5);
+    tree.nodes[0].front().openCluster(1);
+    tree.nodes[0].front().growClusterLeft(0);
+    tree.nodes[0].front().openCluster(1.5);
+
+    tree.nodes[0].front().growClusterRight(5.5);
+    tree.nodes[0].front().addPointToCluster(5);
+    tree.nodes[0].front().openCluster(6.5);
+    return tree;
+
+}
+
+Tree OCTester::promising20(){
+        // 2, 3, 4, 1, 7, 8, 9, 6, 5
+    list<double> deltas = {1, 0.5, -1};
+    Tree tree(2, deltas, 7357, 1.63, 2);
+
+    tree.nodes[0].front().growClusterRight(3);
+    tree.nodes[0].front().openCluster(3.5);
+    tree.nodes[0].front().openCluster(4.5);
+    tree.nodes[0].front().openCluster(1);
+    tree.nodes[0].front().growClusterLeft(0);
+    tree.nodes[0].front().openCluster(1.5);
+
+    tree.nodes[0].front().growClusterRight(5.5);
+    tree.nodes[0].front().addPointToCluster(0.5);
+    tree.nodes[0].front().openCluster(6.5);
+    return tree;
+
+}
+
+
+Tree OCTester::promising18(){
+        // 2, 3, 4, 1, 7, 8, 9, 6, 5
+    list<double> deltas = {1, 0.5, -1};
+    Tree tree(2, deltas, 7357, 1.63, 2);
+
+    tree.nodes[0].front().growClusterRight(3);
+    tree.nodes[0].front().openCluster(3.5);
+    tree.nodes[0].front().openCluster(4.5);
+    tree.nodes[0].front().openCluster(1);
+    tree.nodes[0].front().growClusterLeft(0);
+    tree.nodes[0].front().openCluster(1.5);
+
+    tree.nodes[0].front().addPointToCluster(2.5);
+    tree.nodes[0].front().growClusterRight(5.5);
+    tree.nodes[0].front().openCluster(6.5);
+
+    return tree;
+
+}
 
 /****************************/
 /*** I/O Functions ***/
