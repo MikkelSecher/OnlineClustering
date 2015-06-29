@@ -113,6 +113,14 @@ class OCTester
         Tree getMPITree();
         Tree mostPromisingTree();
         Tree mostPromisingTree10Points();
+        Tree promising26();
+        Tree promising22();
+        Tree promising20();
+        Tree promising18();
+        Tree fullProofExp1();
+        Tree fullProofExp2();
+        Tree fullProofExp3();
+
         /*** I/O functions ***/
         void successPrint(string);
         void failPrint(string);

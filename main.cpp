@@ -82,6 +82,15 @@ int main(int argc, char* argv[])
     if(prefix == 18){
         tree = test1.promising18();
     }
+    if(prefix == 1){
+        tree = test1.fullProofExp1();
+    }
+    if(prefix == 2){
+        tree = test1.fullProofExp2();
+    }
+    if(prefix == 3){
+        tree = test1.fullProofExp3();
+    }
 
 
     //First argument is the number of levels the program should go down breadth first...
