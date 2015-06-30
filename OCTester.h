@@ -120,6 +120,11 @@ class OCTester
         Tree fullProofExp1();
         Tree fullProofExp2();
         Tree fullProofExp3();
+        Tree fullProofExp4();
+        Tree fullProofExp5();
+        Tree fullProofExp6();
+        Tree fullProofExp7();
+        Tree fullProofExp8();
 
         /*** I/O functions ***/
         void successPrint(string);

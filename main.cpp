@@ -91,7 +91,21 @@ int main(int argc, char* argv[])
     if(prefix == 3){
         tree = test1.fullProofExp3();
     }
-
+    if(prefix == 4){
+        tree = test1.fullProofExp4();
+    }
+    if(prefix == 5){
+        tree = test1.fullProofExp5();
+    }
+    if(prefix == 6){
+        tree = test1.fullProofExp6();
+    }
+    if(prefix == 7){
+        tree = test1.fullProofExp7();
+    }
+    if(prefix == 8){
+        tree = test1.fullProofExp8();
+    }
 
     //First argument is the number of levels the program should go down breadth first...
     tree.worldRank = world_rank;
